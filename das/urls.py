@@ -6,5 +6,7 @@ import views
 
 urlpatterns = [
     #url(r'^das/', das.site.urls),
-    url(r'^$', views.index_view, name='das_index')
+    url(r'^$', views.index_view, name='das_index'),
+    url(r'^category/(\d*)', views.category_view, name='category'),
+
 ]

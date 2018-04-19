@@ -1,0 +1,294 @@
+﻿{% extends "das/base.html" %}
+
+{% block page %}
+    {% load mptt_tags %}
+    <div class="row">
+        <div class="col-xs-6">
+            <!-- PAGE CONTENT BEGINS -->
+
+            <form class="form-horizontal" role="form" action="{% url 'category' page.index %}" method="post">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label class="col-sm-3 control-label no-padding-right" for="form-field-1"> 分类目录 </label>
+
+                    <div class="col-sm-9">
+                        <input type="text" id="form-field-1" name="name" placeholder="name" class="col-xs-10 col-sm-5"/>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-3 control-label no-padding-right" for="form-field-1"> 别名 </label>
+
+                    <div class="col-sm-9">
+                        <input type="text" id="form-field-1" name="url_slug" placeholder="url_slug"
+                               class="col-xs-10 col-sm-5"/>
+                    </div>
+                </div>
+
+                <div class="space-4"></div>
+
+                <div class="form-group">
+                    <label class="col-sm-3 control-label no-padding-right" for="form-field-2"> 描述 </label>
+
+                    <div class="col-sm-9">
+                        <input type="text" id="form-field-2" name="description" placeholder="description"
+                               class="col-xs-10 col-sm-5"/>
+                        <span class="help-inline col-xs-12 col-sm-7">
+												<span class="middle">分类目录描述</span>
+											</span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="col-sm-3 control-label no-padding-right" for="form-field-select-3">父目录</label>
+                    <div class="col-sm-9">
+                        <select class="col-xs-10 col-sm-5" name="parent" id="form-field-select-3"
+                                data-placeholder="选择父目录">
+
+                            <option value="0">无</option>
+                            {% load category_tags %}
+
+                            {% for node,structure in nodes|tree_info:"ancestors" %}
+                                {% if node.is_root_node %}
+                                    <option value="{{ node.pk }}">
+                                        {{ node }}
+                                    </option>
+                                {% else %}
+                                    <option value="{{ node.pk }}">
+                                        {{ structure.ancestors|cate_tree_path:"--" }}{{ node }}
+                                    </option>
+                                {% endif %}
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+
+
+                <div class="space-4"></div>
+
+
+                <div class="clearfix form-actions col-md-10">
+                    <div class="col-md-offset-3 col-md-9">
+                        <button class="btn btn-sm btn-info" type="submit">
+                            <i class="icon-ok bigger-110"></i>
+                            Submit
+                        </button>
+
+                        &nbsp; &nbsp; &nbsp;
+                        <button class="btn btn-sm" type="reset">
+                            <i class="icon-undo bigger-110"></i>
+                            Reset
+                        </button>
+                    </div>
+                </div>
+
+
+            </form>
+        </div><!-- /.col -->
+
+        <div class="col-xs-6">
+            <!-- PAGE CONTENT BEGINS -->
+
+            <div class="row">
+                <div class="col-xs-12">
+                    <div class="table-responsive">
+                        <table id="sample-table-1" class="table table-striped table-bordered table-hover">
+                            <thead>
+                            <tr>
+                                <th class="center">
+                                    <label>
+                                        <input type="checkbox" class="ace"/>
+                                        <span class="lbl"></span>
+                                    </label>
+                                </th>
+                                <th>名称</th>
+                                <th>描述</th>
+                                <th class="hidden-480">别名</th>
+
+                                <th>
+
+                                    文章
+                                </th>
+                                <th class="hidden-480">id</th>
+
+                                <th>操作</th>
+                            </tr>
+                            </thead>
+
+                            <tbody>
+                            {% for page,structure in pages|tree_info:"ancestors" %}
+                                {% if page.is_root_node %}
+                                    <tr>
+                                        <td class="center">
+                                            <label>
+                                                <input type="checkbox" class="ace"/>
+                                                <span class="lbl"></span>
+                                            </label>
+                                        </td>
+
+                                        <td>
+                                            <a href="#">{{ page.name }}</a>
+                                        </td>
+                                        <td>{{ page.description }}</td>
+                                        <td class="hidden-480">{{ page.url_slug }}</td>
+                                        <td>{{ page.article_count }}</td>
+
+                                        <td class="hidden-480">
+                                            {{ page.id }}
+                                        </td>
+
+                                        <td>
+                                            <div class="visible-md visible-lg hidden-sm hidden-xs btn-group">
+                                                <button class="btn btn-xs btn-success">
+                                                    <i class="icon-ok bigger-120"></i>
+                                                </button>
+
+                                                <button class="btn btn-xs btn-info">
+                                                    <i class="icon-edit bigger-120"></i>
+                                                </button>
+
+                                                <button class="btn btn-xs btn-danger">
+                                                    <i class="icon-trash bigger-120"></i>
+                                                </button>
+
+                                                <button class="btn btn-xs btn-warning">
+                                                    <i class="icon-flag bigger-120"></i>
+                                                </button>
+                                            </div>
+
+                                            <div class="visible-xs visible-sm hidden-md hidden-lg">
+                                                <div class="inline position-relative">
+                                                    <button class="btn btn-minier btn-primary dropdown-toggle"
+                                                            data-toggle="dropdown">
+                                                        <i class="icon-cog icon-only bigger-110"></i>
+                                                    </button>
+
+                                                    <ul class="dropdown-menu dropdown-only-icon dropdown-yellow pull-right dropdown-caret dropdown-close">
+                                                        <li>
+                                                            <a href="#" class="tooltip-info" data-rel="tooltip"
+                                                               title="View">
+																				<span class="blue">
+																					<i class="icon-zoom-in bigger-120"></i>
+																				</span>
+                                                            </a>
+                                                        </li>
+
+                                                        <li>
+                                                            <a href="#" class="tooltip-success" data-rel="tooltip"
+                                                               title="Edit">
+																				<span class="green">
+																					<i class="icon-edit bigger-120"></i>
+																				</span>
+                                                            </a>
+                                                        </li>
+
+                                                        <li>
+                                                            <a href="#" class="tooltip-error" data-rel="tooltip"
+                                                               title="Delete">
+																				<span class="red">
+																					<i class="icon-trash bigger-120"></i>
+																				</span>
+                                                            </a>
+                                                        </li>
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                {% else %}
+                                    <tr>
+                                        <td class="center">
+                                            <label>
+                                                <input type="checkbox" class="ace"/>
+                                                <span class="lbl"></span>
+                                            </label>
+                                        </td>
+
+                                        <td>
+                                            <a href="#">{{ page.level|cate_tree_level }}{{ page }}</a>
+                                        </td>
+                                        <td>{{ page.description }}</td>
+                                        <td class="hidden-480">{{ page.url_slug }}</td>
+                                        <td>{{ page.article_count }}</td>
+
+                                        <td class="hidden-480">
+                                            {{ page.id }}
+                                        </td>
+
+                                        <td>
+                                            <div class="visible-md visible-lg hidden-sm hidden-xs btn-group">
+                                                <button class="btn btn-xs btn-success">
+                                                    <i class="icon-ok bigger-120"></i>
+                                                </button>
+
+                                                <button class="btn btn-xs btn-info">
+                                                    <i class="icon-edit bigger-120"></i>
+                                                </button>
+
+                                                <button class="btn btn-xs btn-danger">
+                                                    <i class="icon-trash bigger-120"></i>
+                                                </button>
+
+                                                <button class="btn btn-xs btn-warning">
+                                                    <i class="icon-flag bigger-120"></i>
+                                                </button>
+                                            </div>
+
+                                            <div class="visible-xs visible-sm hidden-md hidden-lg">
+                                                <div class="inline position-relative">
+                                                    <button class="btn btn-minier btn-primary dropdown-toggle"
+                                                            data-toggle="dropdown">
+                                                        <i class="icon-cog icon-only bigger-110"></i>
+                                                    </button>
+
+                                                    <ul class="dropdown-menu dropdown-only-icon dropdown-yellow pull-right dropdown-caret dropdown-close">
+                                                        <li>
+                                                            <a href="#" class="tooltip-info" data-rel="tooltip"
+                                                               title="View">
+																				<span class="blue">
+																					<i class="icon-zoom-in bigger-120"></i>
+																				</span>
+                                                            </a>
+                                                        </li>
+
+                                                        <li>
+                                                            <a href="#" class="tooltip-success" data-rel="tooltip"
+                                                               title="Edit">
+																				<span class="green">
+																					<i class="icon-edit bigger-120"></i>
+																				</span>
+                                                            </a>
+                                                        </li>
+
+                                                        <li>
+                                                            <a href="#" class="tooltip-error" data-rel="tooltip"
+                                                               title="Delete">
+																				<span class="red">
+																					<i class="icon-trash bigger-120"></i>
+																				</span>
+                                                            </a>
+                                                        </li>
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                {% endif %}
+                            {% endfor %}
+
+
+                            </tbody>
+                        </table>
+                        {% for index in pages.paginator.page_range %}
+                            {% if index == pages.number %}
+                                {{ index }}
+                            {% else %}
+                                <a href="/das/category/{{ index }}">{{ index }}</a>
+                            {% endif %}
+                        {% endfor %}
+                    </div><!-- /.table-responsive -->
+                </div><!-- /span -->
+            </div><!-- /row -->
+        </div><!-- /.col -->
+
+    </div><!-- /.row -->
+{% endblock %}

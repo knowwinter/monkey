@@ -14,6 +14,8 @@ from forms import *
 
 from django.core.paginator import *
 
+from function import *
+
 
 
 def register_view(req):
@@ -92,24 +94,33 @@ def category_view(req, pindex):
         form = CateForm(req.POST)
         if form.is_valid():
             name = form.cleaned_data['name']
-            parent = form.cleaned_data['parent']
+            parent_id = form.cleaned_data['parent']
+            if parent_id == 0:
+                parent = None
+            else:
+                parent = Category.objects.get(pk=parent_id)
+            # parent = Category.objects.get(pk=parent_id)
             description = form.cleaned_data['description']
+            url_slug = form.cleaned_data['url_slug']
 
             is_exist = Category.objects.filter(name=name)
             if is_exist:
                 context['msg'] = "分类目录已经存在"
                 return render(req, 'das/msg.html', context)
-            cate = Category.objects.create(name=name, parent=parent, description=description)
+            cate = Category.objects.create(name=name, parent=parent, description=description, url_slug=url_slug)
             cate.save()
         else:
             context['msg'] = "表单错误"
             return render(req, 'das/msg.html', context)
-    cates = Category.objects.all()
-    paginator = Paginator(cates, 10)
+    nodes = Category.objects.get_queryset()
+    # nodes = cates.tree.all()
+
+    paginator = Paginator(nodes, 5)
     if pindex == '':
         pindex = '1'
     page = paginator.page(int(pindex))
-    context['page'] = page
+    context['pages'] = page
+    context['nodes'] = nodes
     return render(req, 'das/category.html', context)
 
 @login_required(login_url='/login')

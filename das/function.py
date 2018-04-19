@@ -9,6 +9,7 @@ def display(objs):
         display_list.append(obj)
 
         children = obj.children.all()
+
         if len(children) > 0:
             display_list.append(display(obj.children.all()))
     return display_list

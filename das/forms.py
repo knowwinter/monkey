@@ -17,3 +17,4 @@ class CateForm(forms.Form):
     name = forms.CharField(max_length=30, required=True, error_messages={'required': "分类名称不能为空"})
     parent = forms.IntegerField(required=True)
     description = forms.CharField(max_length=80)
+    url_slug = forms.CharField(max_length=80)

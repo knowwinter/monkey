@@ -4,13 +4,14 @@ from __future__ import unicode_literals
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from uuslug import slugify
+from mptt.models import MPTTModel
 # Create your models here.
 class User(AbstractUser):
     nickname = models.CharField(verbose_name='昵称', max_length=32)
     telephone = models.CharField(max_length=11, null=True, unique=True)
     avatar = models.FileField(upload_to='static/assets/avatars/', default="/static/assets/avatar/avatar.png")
 
-class Category(models.Model):
+class Category(MPTTModel):
     name = models.CharField(max_length=30, null=False, unique=True)
     parent = models.ForeignKey("self", blank=True, null=True, related_name="children")
     description = models.CharField(max_length=80)

@@ -25,7 +25,7 @@ SECRET_KEY = 'hzz^u48@+5=ap^5@xe*(ey693w&ww7427k)&y9=krbt(a6(bhy'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -37,6 +37,9 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'index',
+    'das',
+    'mptt',
 ]
 
 MIDDLEWARE = [
@@ -54,8 +57,7 @@ ROOT_URLCONF = 'monkey.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [os.path.join(BASE_DIR, 'templates')]
-        ,
+        'DIRS': [os.path.join(BASE_DIR, 'templates')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -64,6 +66,10 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
             ],
+            'libraries':{
+                'category_tags': 'das.templatetags.category_tags',
+
+            },
         },
     },
 ]
@@ -82,6 +88,9 @@ DATABASES = {
         'PORT': '3306',
         'USER': 'monkey',
         'PASSWORD': 'monkey',
+        'OPTIONS': {
+            'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
+        }
     }
 }
 
@@ -123,3 +132,36 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/1.11/howto/static-files/
 
 STATIC_URL = '/static/'
+STATICFILES_DIRS = (
+    'static',
+    'index/static',
+    'das/static'
+)
+STATIC_ROOT = os.path.join(BASE_DIR, '/static')
+
+
+CACHES = {
+    "default": "django.core.cache.backends.locmem.LocMemCache",
+    "session_redis": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": "redis://127.0.0.1:6379/3",
+    },
+}
+
+SESSION_ENGINE = 'django.contrib.sessions.backends.cache'
+SESSION_CACHE_ALIAS = 'session_redis'
+
+AUTH_USER_MODEL = "das.User"
+#DATABASES['OPTIONS']['init_command'] = "SET sql_mode='STRICT_TRANS_TABLES'"
+
+#SESSION_ENGINE = 'redis_sessions.session'
+
+# SESSION_REDIS_HOST = 'localhost'
+# SESSION_REDIS_PORT = 6379
+# SESSION_REDIS_DB = 4
+# #SESSION_REDIS_PASSWORD = 'password'
+# SESSION_REDIS_PREFIX = 'session'
+
+# If you prefer domain socket connection, you can just add this line instead of SESSION_REDIS_HOST and SESSION_REDIS_PORT.
+
+#SESSION_REDIS_UNIX_DOMAIN_SOCKET_PATH = '/var/run/redis/redis.sock'
