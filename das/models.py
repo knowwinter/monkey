@@ -13,7 +13,7 @@ class User(AbstractUser):
 
 class Category(MPTTModel):
     name = models.CharField(max_length=30, null=False, unique=True)
-    parent = models.ForeignKey("self", blank=True, null=True, related_name="children")
+    parent = models.ForeignKey("self", on_delete=models.CASCADE, blank=True, null=True, related_name="children")
     description = models.CharField(max_length=80)
     article_count = models.IntegerField(default=0)
     url_slug = models.SlugField(editable=False)
@@ -23,7 +23,7 @@ class Category(MPTTModel):
 
 class Article(models.Model):
     title = models.CharField(max_length=30, null=False)
-    content = models.TextField()
+    content = models.TextField(blank=True, null=True)
     url_slug = models.SlugField(editable=False)
     view_count = models.IntegerField(default=0)
     like_count = models.IntegerField(default=0)
@@ -34,6 +34,7 @@ class Article(models.Model):
     article_status_choice = (
         ('1', 'publish'),
         ('2', 'close'),
+        ('3', 'inherit')
     )
     article_status = models.CharField(
         max_length=1,
@@ -51,7 +52,8 @@ class Article(models.Model):
     )
     article_type = models.CharField(max_length=30, default='post')
     article_mime_type = models.CharField(max_length=30)
-    category = models.ForeignKey(Category)
+    category = models.ForeignKey(Category, on_delete=models.CASCADE, blank=True, null=True)
+    parent = models.ForeignKey("self", on_delete=models.CASCADE, blank=True, null=True, related_name="children")
 
 
 
@@ -69,6 +71,7 @@ class Comment(models.Model):
     article = models.ForeignKey(Article)
     parent = models.ForeignKey("self", blank=True, null=True, related_name="children")
     comment_date = models.DateTimeField(auto_now_add=True)
+    comment_autor_ip = models.IPAddressField()
 
 
 class Tag(models.Model):

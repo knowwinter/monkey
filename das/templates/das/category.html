@@ -138,17 +138,18 @@
 
                                         <td>
                                             <div class="visible-md visible-lg hidden-sm hidden-xs btn-group">
-                                                <button class="btn btn-xs btn-success">
-                                                    <i class="icon-ok bigger-120"></i>
-                                                </button>
 
-                                                <button class="btn btn-xs btn-info">
-                                                    <i class="icon-edit bigger-120"></i>
-                                                </button>
+                                                <a href="{% url 'category_modify' page.id %}">
+                                                    <button class="btn btn-xs btn-info">
+                                                        <i class="icon-edit bigger-120"></i>
+                                                    </button>
+                                                </a>
 
-                                                <button class="btn btn-xs btn-danger">
-                                                    <i class="icon-trash bigger-120"></i>
-                                                </button>
+                                                <a href="{% url 'category_del' pages.number page.id %}">
+                                                    <button class="btn btn-xs btn-danger">
+                                                        <i class="icon-trash bigger-120"></i>
+                                                    </button>
+                                                </a>
 
                                                 <button class="btn btn-xs btn-warning">
                                                     <i class="icon-flag bigger-120"></i>
@@ -216,17 +217,17 @@
 
                                         <td>
                                             <div class="visible-md visible-lg hidden-sm hidden-xs btn-group">
-                                                <button class="btn btn-xs btn-success">
-                                                    <i class="icon-ok bigger-120"></i>
-                                                </button>
-
+                                                <a href="{% url 'category_modify' page.id %}">
                                                 <button class="btn btn-xs btn-info">
                                                     <i class="icon-edit bigger-120"></i>
                                                 </button>
+                                                </a>
 
-                                                <button class="btn btn-xs btn-danger">
-                                                    <i class="icon-trash bigger-120"></i>
-                                                </button>
+                                                <a href="{% url 'category_del' pages.number page.id %}">
+                                                    <button class="btn btn-xs btn-danger">
+                                                        <i class="icon-trash bigger-120"></i>
+                                                    </button>
+                                                </a>
 
                                                 <button class="btn btn-xs btn-warning">
                                                     <i class="icon-flag bigger-120"></i>

@@ -2,10 +2,10 @@
 from __future__ import unicode_literals
 
 from django.shortcuts import render, redirect
-#from django.http import HttpResponse, HttpRequest
+# from django.http import HttpResponse, HttpRequest
 
 from django.contrib import auth
-#from django.contrib.auth.models import User
+# from django.contrib.auth.models import User
 from django.contrib.auth import authenticate
 from django.contrib.auth.decorators import login_required
 from das.models import *
@@ -13,9 +13,9 @@ from das.models import *
 from forms import *
 
 from django.core.paginator import *
+from django.db.models import Q
 
 from function import *
-
 
 
 def register_view(req):
@@ -46,12 +46,13 @@ def register_view(req):
 
     return render(req, 'das/login.html', context)
 
+
 def login_view(req):
     context = {}
     context['box'] = 'login'
     if req.session.get('user'):
         # print req.session.get('user')
-        #context = {'isLogin': True, 'pswd': True, 'user': req.session.get('user')}
+        # context = {'isLogin': True, 'pswd': True, 'user': req.session.get('user')}
         context['user'] = req.session.get('user')
         context['msg'] = '用户已经登录'
 
@@ -78,14 +79,15 @@ def login_view(req):
     return render(req, 'das/login.html', context)
 
 
-
 def logout_view(req):
     auth.logout(req)
     return redirect('/')
 
+
 @login_required(login_url='/login')
 def index_view(req):
     return render(req, 'das/index.html')
+
 
 @login_required(login_url='/login')
 def category_view(req, pindex):
@@ -109,6 +111,7 @@ def category_view(req, pindex):
                 return render(req, 'das/msg.html', context)
             cate = Category.objects.create(name=name, parent=parent, description=description, url_slug=url_slug)
             cate.save()
+            context['msg'] = "目录创建成功"
         else:
             context['msg'] = "表单错误"
             return render(req, 'das/msg.html', context)
@@ -118,23 +121,425 @@ def category_view(req, pindex):
     paginator = Paginator(nodes, 5)
     if pindex == '':
         pindex = '1'
-    page = paginator.page(int(pindex))
+    try:
+        page = paginator.page(int(pindex))
+    except:
+        pindex = int(pindex) - 1
+        page = paginator.page(int(pindex))
     context['pages'] = page
     context['nodes'] = nodes
     return render(req, 'das/category.html', context)
 
+
 @login_required(login_url='/login')
-def tag_view(req):
+def category_del(req, pindex, cate_id):
+    context = {}
+    cate = Category.objects.get(pk=cate_id)
+    if not cate:
+        context['msg'] = '目录不存在'
+        return render(req, 'das/msg.html', context)
+
+    cate.delete()
+    context['msg'] = '删除成功'
+
+    return redirect('/das/category/' + pindex, context)
+
+
+@login_required(login_url='/login')
+def category_modify(req, cate_id):
+    context = {}
+    cate = Category.objects.get(pk=cate_id)
+    if not cate:
+        context['msg'] = '目录不存在'
+        return render(req, 'das/msg.html', context)
+
+    if req.method == 'POST':
+        form = CateForm(req.POST)
+        if form.is_valid():
+            name = form.cleaned_data['name']
+            parent_id = form.cleaned_data['parent']
+            if parent_id == 0:
+                parent = None
+            else:
+                parent = Category.objects.get(pk=parent_id)
+            # parent = Category.objects.get(pk=parent_id)
+            description = form.cleaned_data['description']
+            url_slug = form.cleaned_data['url_slug']
+
+            is_exist = Category.objects.filter(name=name).filter(~Q(pk=cate_id))
+            if is_exist:
+                context['msg'] = "分类目录已经存在"
+                return render(req, 'das/msg.html', context)
+            cate.name = name
+            cate.parent = parent
+            cate.decription = description
+            cate.url_slug = url_slug
+            cate.save()
+            context['msg'] = '修改成功'
+            return redirect('/das/category/', context)
+        else:
+            context['msg'] = "表单错误"
+            return render(req, 'das/msg.html', context)
+    nodes = Category.objects.get_queryset()
+    context['cate'] = cate
+    context['nodes'] = nodes
+    return render(req, 'das/cate-modify.html', context)
+
+
+@login_required(login_url='/login')
+def tag_view(req, pindex):
+    context = {}
+    if req.method == 'POST':
+        form = TagForm(req.POST)
+        if form.is_valid():
+            name = form.cleaned_data['name']
+            description = form.cleaned_data['description']
+            is_exist = Tag.objects.filter(name=name)
+            if is_exist:
+                context['msg'] = "标签已经存在"
+                return render(req, 'das/msg.html', context)
+            tag = Tag.objects.create(name=name, description=description)
+            tag.save()
+            context['msg'] = "标签创建成功"
+        else:
+            context['msg'] = "表单错误"
+            return render(req, 'das/msg.html', context)
+    tags = Tag.objects.all()
+    paginator = Paginator(tags, 5)
+    if pindex == '':
+        pindex = '1'
+    try:
+        page = paginator.page(int(pindex))
+    except:
+        pindex = int(pindex) - 1
+        page = paginator.page(int(pindex))
+    context['pages'] = page
     return render(req, 'das/tag.html')
 
-@login_required(login_url='/login')
-def post_view(req):
-    return render(req, 'das/post.html')
 
 @login_required(login_url='/login')
-def page_view(req):
-    return render(req, 'das/page.html')
+def tag_del(req, pindex, tag_id):
+    context = {}
+    tag = Tag.objects.get(pk=tag_id)
+    if not tag:
+        context['msg'] = '标签不存在'
+        return render(req, 'das/msg.html', context)
+
+    tag.delete()
+    context['msg'] = '删除成功'
+
+    return redirect('/das/tag/' + pindex, context)
+
 
 @login_required(login_url='/login')
-def media_view(req):
-    return render(req, 'das/media.html')
+def tag_modify(req, tag_id):
+    context = {}
+    tag = Tag.objects.get(pk=tag_id)
+    if not tag:
+        context['msg'] = '标签不存在'
+        return render(req, 'das/msg.html', context)
+
+    if req.method == 'POST':
+        form = TagForm(req.POST)
+        if form.is_valid():
+            name = form.cleaned_data['name']
+            description = form.cleaned_data['description']
+            is_exist = Tag.objects.filter(name=name).filter(~Q(pk=tag_id))
+            if is_exist:
+                context['msg'] = "标签已经存在"
+                return render(req, 'das/msg.html', context)
+            tag.name = name
+            tag.decription = description
+            tag.save()
+            context['msg'] = '修改成功'
+            return redirect('/das/tag/', context)
+        else:
+            context['msg'] = "表单错误"
+            return render(req, 'das/msg.html', context)
+    context['tag'] = tag
+
+    return render(req, 'das/tag-modify.html', context)
+
+
+@login_required(login_url='/login')
+def post_new_view(req):
+    context = {}
+    if req.method == "POST":
+        form = PostForm(req.POST)
+        if form.is_valid():
+            title = form.cleaned_data['title']
+            content = form.cleaned_data['content']
+            pub_author = User.objects.get(pk=form.cleaned_data['pub_author'])
+            article_status = form.cleaned_data['article_status']
+            comment_status = form.cleaned_data['comment_status']
+            article_type = form.cleaned_data['article_type']
+            article_mime_type = form.cleaned_data['article_mime_type']
+            category_id = form.cleaned_data['category']
+
+            parent = None
+
+            if category_id == 0:
+                category = None
+            else:
+                category = Category.objects.get(pk=category_id)
+            tags = form.cleaned_data['tags']
+            post = Article.objects.create(title=title, content=content, pub_author=pub_author,
+                                          article_status=article_status, comment_status=comment_status,
+                                          article_type=article_type, article_mime_type=article_mime_type,
+                                          category=category, parent=parent)
+            post.save()
+            if tags != None:
+                for tag_id in tags:
+                    tag = Tag.objects.get(pk=tag_id)
+                    tagship = Tagship.objects.create(post, tag)
+                    tagship.save()
+            if article_status == '2':
+                context['msg'] = '文章草稿保存成功'
+            else:
+                context['msg'] = "文章发表成功"
+        else:
+            context['msg'] = "表单错误"
+            return render(req, 'das/msg.html', context)
+    nodes = Category.objects.get_queryset()
+    context['nodes'] = nodes
+    allTags = Tag.objects.all()
+    context['tags'] = allTags
+    return render(req, 'das/post-new.html', context)
+
+
+@login_required(login_url='/login')
+def post_modify(req, article_id):
+    context = {}
+    post = Article.objects.get(pk=article_id)
+    if not post:
+        context['msg'] = '文章不存在'
+        return render(req, 'das/msg.html', context)
+    if req.method == "POST":
+        form = PostForm(req.POST)
+        if form.is_valid():
+            title = form.cleaned_data['title']
+            content = form.cleaned_data['content']
+            article_status = form.cleaned_data['article_status']
+            comment_status = form.cleaned_data['comment_status']
+            category_id = form.cleaned_data['category']
+            if category_id == 0:
+                category = None
+            else:
+                category = Category.objects.get(pk=category_id)
+            tags = form.cleaned_data['tags']
+
+            post.title = title
+            post.content = content
+            post.article_status = article_status
+            post.comment_status = comment_status
+            post.category = category
+            post.save()
+            post_tags = Tagship.objects.get(article=post)
+            for post_tag in post_tags:
+                post_tag.delete()
+            if tags != None:
+                for tag_id in tags:
+                    tag = Tag.objects.get(pk=tag_id)
+                    tagship = Tagship.objects.create(post, tag)
+                    tagship.save()
+            if article_status == '2':
+                context['msg'] = '文章草稿保存成功'
+            else:
+                context['msg'] = "文章发表成功"
+            return redirect('/das/post/', context)
+        else:
+            context['msg'] = "表单错误"
+            return render(req, 'das/msg.html', context)
+    nodes = Category.objects.get_queryset()
+    context['nodes'] = nodes
+    allTags = Tag.objects.all()
+    context['tags'] = allTags
+    context['post'] = post
+    return render(req, 'das/post-modify.html', context)
+
+
+@login_required(login_url='/login')
+def post_del(req, pindex, article_id):
+    context = {}
+    post = Article.objects.get(pk=article_id)
+    if not post:
+        context['msg'] = '文章不存在'
+        return render(req, 'das/msg.html', context)
+    post.delete()
+    context['msg'] = '删除成功'
+
+    return redirect('/das/post/' + pindex, context)
+
+
+@login_required(login_url='/login')
+def post_view(req, pindex):
+    context = {}
+    articles = Article.objects.all()
+    paginator = Paginator(articles, 10)
+    if pindex == '':
+        pindex = '1'
+    try:
+        page = paginator.page(int(pindex))
+    except:
+        pindex = int(pindex) - 1
+        page = paginator.page(int(pindex))
+    context['pages'] = page
+    context['post'] = articles
+    return render(req, 'das/post.html', context)
+
+@login_required(login_url='/login')
+def page_view(req, pindex):
+    context = {}
+    articles = Article.objects.get(article_type='page')
+    paginator = Paginator(articles, 10)
+    if pindex == '':
+        pindex = '1'
+    try:
+        page = paginator.page(int(pindex))
+    except:
+        pindex = int(pindex) - 1
+        page = paginator.page(int(pindex))
+    context['pages'] = page
+    context['post'] = articles
+    return render(req, 'das/page.html', context)
+
+
+@login_required(login_url='/login')
+def page_new_page(req):
+    context = {}
+    if req.method == "POST":
+        form = PostForm(req.POST)
+        if form.is_valid():
+            title = form.cleaned_data['title']
+            content = form.cleaned_data['content']
+            pub_author = User.objects.get(pk=form.cleaned_data['pub_author'])
+            article_status = form.cleaned_data['article_status']
+            comment_status = form.cleaned_data['comment_status']
+            article_type = form.cleaned_data['article_type']
+            article_mime_type = form.cleaned_data['article_mime_type']
+
+            parent = None
+
+            category = None
+            # tags = form.cleaned_data['tags']
+            post = Article.objects.create(title=title, content=content, pub_author=pub_author,
+                                          article_status=article_status, comment_status=comment_status,
+                                          article_type=article_type, article_mime_type=article_mime_type,
+                                          category=category, parent=parent)
+            post.save()
+
+            if article_status == '2':
+                context['msg'] = '文章草稿保存成功'
+            else:
+                context['msg'] = "文章发表成功"
+        else:
+            context['msg'] = "表单错误"
+            return render(req, 'das/msg.html', context)
+    # nodes = Category.objects.get_queryset()
+    # context['nodes'] = nodes
+    # allTags = Tag.objects.all()
+    # context['tags'] = allTags
+    return render(req, 'das/page-new.html', context)
+
+
+@login_required(login_url='/login')
+def page_modify(req, article_id):
+    context = {}
+    post = Article.objects.get(pk=article_id, article_type='page')
+    if not post:
+        context['msg'] = '页面不存在'
+        return render(req, 'das/msg.html', context)
+    if req.method == "POST":
+        form = PostForm(req.POST)
+        if form.is_valid():
+            title = form.cleaned_data['title']
+            content = form.cleaned_data['content']
+            article_status = form.cleaned_data['article_status']
+            comment_status = form.cleaned_data['comment_status']
+
+            post.title = title
+            post.content = content
+            post.article_status = article_status
+            post.comment_status = comment_status
+
+            post.save()
+            if article_status == '2':
+                context['msg'] = '文章草稿保存成功'
+            else:
+                context['msg'] = "文章发表成功"
+            return redirect('/das/page/', context)
+        else:
+            context['msg'] = "表单错误"
+            return render(req, 'das/msg.html', context)
+    context['post'] = post
+    return render(req, 'das/page-modify.html', context)
+
+
+@login_required(login_url='/login')
+def page_del(req, pindex, article_id):
+    context = {}
+    post = Article.objects.get(pk=article_id, article_type='page')
+    if not post:
+        context['msg'] = '页面不存在'
+        return render(req, 'das/msg.html', context)
+    post.delete()
+    context['msg'] = '删除成功'
+
+    return redirect('/das/page/' + pindex, context)
+
+@login_required(login_url='/login')
+def media_view(req, pindex):
+    context = {}
+    articles = Article.objects.get(article_type='attachment')
+    paginator = Paginator(articles, 10)
+    if pindex == '':
+        pindex = '1'
+    try:
+        page = paginator.page(int(pindex))
+    except:
+        pindex = int(pindex) - 1
+        page = paginator.page(int(pindex))
+    context['pages'] = page
+    context['post'] = articles
+
+    return render(req, 'das/attachment.html', context)
+
+
+@login_required(login_url='/login')
+def media_new_page(req):
+    context = {}
+    if req.method == "POST":
+        form = PostForm(req.POST)
+        if form.is_valid():
+            title = form.cleaned_data['title']
+            content = form.cleaned_data['content']
+            pub_author = User.objects.get(pk=form.cleaned_data['pub_author'])
+            article_status = form.cleaned_data['article_status']
+            comment_status = form.cleaned_data['comment_status']
+            article_type = form.cleaned_data['article_type']
+            article_mime_type = form.cleaned_data['article_mime_type']
+            category = None
+            parent_id = form.cleaned_data['parent']
+            if parent_id == 0:
+                parent = None
+            else:
+                parent = Article.objects.get(pk=parent_id)
+            # tags = form.cleaned_data['tags']
+            post = Article.objects.create(title=title, content=content, pub_author=pub_author,
+                                          article_status=article_status, comment_status=comment_status,
+                                          article_type=article_type, article_mime_type=article_mime_type,
+                                          category=category, parent=parent)
+            post.save()
+
+            if article_status == '2':
+                context['msg'] = '文章草稿保存成功'
+            else:
+                context['msg'] = "文章发表成功"
+        else:
+            context['msg'] = "表单错误"
+            return render(req, 'das/msg.html', context)
+    # nodes = Category.objects.get_queryset()
+    # context['nodes'] = nodes
+    # allTags = Tag.objects.all()
+    # context['tags'] = allTags
+    return render(req, 'das/page-new.html', context)
