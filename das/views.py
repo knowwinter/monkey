@@ -288,6 +288,8 @@ def post_new_view(req):
                                           article_type=article_type, article_mime_type=article_mime_type,
                                           category=category, parent=parent)
             post.save()
+            post.guid = '/p/' + post.pk
+            post.save()
             if tags != None:
                 for tag_id in tags:
                     tag = Tag.objects.get(pk=tag_id)
@@ -405,7 +407,7 @@ def page_view(req, pindex):
 
 
 @login_required(login_url='/login')
-def page_new_page(req):
+def page_new_view(req):
     context = {}
     if req.method == "POST":
         form = PostForm(req.POST)
@@ -426,6 +428,8 @@ def page_new_page(req):
                                           article_status=article_status, comment_status=comment_status,
                                           article_type=article_type, article_mime_type=article_mime_type,
                                           category=category, parent=parent)
+            post.save()
+            post.guid = '/page/' + post.title
             post.save()
 
             if article_status == '2':
@@ -542,4 +546,4 @@ def media_new_page(req):
     # context['nodes'] = nodes
     # allTags = Tag.objects.all()
     # context['tags'] = allTags
-    return render(req, 'das/page-new.html', context)
+    return render(req, 'das/attachment-new.html', context)
