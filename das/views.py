@@ -542,4 +542,4 @@ def media_new_page(req):
     # context['nodes'] = nodes
     # allTags = Tag.objects.all()
     # context['tags'] = allTags
-    return render(req, 'das/page-new.html', context)
+    return render(req, 'das/attachment-new.html', context)

@@ -54,6 +54,7 @@ class Article(models.Model):
     article_mime_type = models.CharField(max_length=30)
     category = models.ForeignKey(Category, on_delete=models.CASCADE, blank=True, null=True)
     parent = models.ForeignKey("self", on_delete=models.CASCADE, blank=True, null=True, related_name="children")
+    guid = models.URLField()
 
 
 
@@ -71,8 +72,7 @@ class Comment(models.Model):
     article = models.ForeignKey(Article)
     parent = models.ForeignKey("self", blank=True, null=True, related_name="children")
     comment_date = models.DateTimeField(auto_now_add=True)
-    comment_autor_ip = models.IPAddressField()
-
+    comment_autor_ip = models.GenericIPAddressField(blank=True, null=True)
 
 class Tag(models.Model):
     name = models.CharField(max_length=10, null=False, unique=True)
