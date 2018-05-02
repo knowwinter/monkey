@@ -14,16 +14,16 @@ Including another URLconf
     2. Add a URL to urlpatterns:  url(r'^blog/', include('blog.urls'))
 """
 from django.conf.urls import url, include
-#from django.contrib import das
-from index import views
-#from das import views
-from das.views import login_view
-from das.views import register_view
-from das.views import logout_view
 
+# from das import views
+from das.views import login_view
+from das.views import logout_view
+from das.views import register_view
+# from django.contrib import das
+from index import views
 
 urlpatterns = [
-    #url(r'^das/', das.site.urls),
+    # url(r'^das/', das.site.urls),
     url(r'^das/', include('das.urls')),
     url(r'^register/', register_view, name='register'),
     url(r'^login/', login_view, name='login'),

@@ -1,16 +1,12 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+# Create your views here.
 from django.shortcuts import render
 
-# Create your views here.
-from django.shortcuts import render, redirect
-#from django.http import HttpResponse, HttpRequest
 
-from django.contrib import auth
-from django.contrib.auth.models import User
-from django.contrib.auth import authenticate
-from django.contrib.auth.decorators import login_required
+# from django.http import HttpResponse, HttpRequest
+
 
 def index_view(req):
     context = {}

@@ -1,15 +1,18 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-from django.db import models
 from django.contrib.auth.models import AbstractUser
-from uuslug import slugify
+from django.db import models
 from mptt.models import MPTTModel
+from uuslug import slugify
+
+
 # Create your models here.
 class User(AbstractUser):
     nickname = models.CharField(verbose_name='昵称', max_length=32)
     telephone = models.CharField(max_length=11, null=True, unique=True)
     avatar = models.FileField(upload_to='static/assets/avatars/', default="/static/assets/avatar/avatar.png")
+
 
 class Category(MPTTModel):
     name = models.CharField(max_length=30, null=False, unique=True)
@@ -20,6 +23,7 @@ class Category(MPTTModel):
 
     def __unicode__(self):
         return self.name
+
 
 class Article(models.Model):
     title = models.CharField(max_length=30, null=False)
@@ -54,9 +58,7 @@ class Article(models.Model):
     article_mime_type = models.CharField(max_length=30)
     category = models.ForeignKey(Category, on_delete=models.CASCADE, blank=True, null=True)
     parent = models.ForeignKey("self", on_delete=models.CASCADE, blank=True, null=True, related_name="children")
-    guid = models.URLField()
-
-
+    guid = models.URLField(blank=True, null=True)
 
     def save(self, *args, **kwargs):
         self.url_slug = slugify(self.title)
@@ -65,14 +67,16 @@ class Article(models.Model):
     def __unicode__(self):
         return self.title
 
+
 class Comment(models.Model):
     comment = models.TextField(max_length=80)
     user_id = models.IntegerField(default=0)
-    comment_autor = models.CharField(max_length=30)
+    comment_author = models.CharField(max_length=30)
     article = models.ForeignKey(Article)
     parent = models.ForeignKey("self", blank=True, null=True, related_name="children")
     comment_date = models.DateTimeField(auto_now_add=True)
-    comment_autor_ip = models.GenericIPAddressField(blank=True, null=True)
+    comment_author_ip = models.GenericIPAddressField(blank=True, null=True)
+
 
 class Tag(models.Model):
     name = models.CharField(max_length=10, null=False, unique=True)
@@ -92,7 +96,7 @@ class Tag(models.Model):
     def __unicode__(self):
         return self.name
 
+
 class Tagship(models.Model):
     article = models.ForeignKey(Article)
     tag = models.ForeignKey(Tag)
-

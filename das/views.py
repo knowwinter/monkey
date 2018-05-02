@@ -1,21 +1,18 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-from django.shortcuts import render, redirect
-# from django.http import HttpResponse, HttpRequest
-
 from django.contrib import auth
 # from django.contrib.auth.models import User
-from django.contrib.auth import authenticate
 from django.contrib.auth.decorators import login_required
-from das.models import *
-
-from forms import *
-
 from django.core.paginator import *
 from django.db.models import Q
+from django.shortcuts import render, redirect
 
-from function import *
+from das.models import *
+from forms import *
+
+
+# from django.http import HttpResponse, HttpRequest
 
 
 def register_view(req):
@@ -288,6 +285,8 @@ def post_new_view(req):
                                           article_type=article_type, article_mime_type=article_mime_type,
                                           category=category, parent=parent)
             post.save()
+            post.guid = '/p/' + post.pk
+            post.save()
             if tags != None:
                 for tag_id in tags:
                     tag = Tag.objects.get(pk=tag_id)
@@ -387,6 +386,7 @@ def post_view(req, pindex):
     context['post'] = articles
     return render(req, 'das/post.html', context)
 
+
 @login_required(login_url='/login')
 def page_view(req, pindex):
     context = {}
@@ -405,7 +405,7 @@ def page_view(req, pindex):
 
 
 @login_required(login_url='/login')
-def page_new_page(req):
+def page_new_view(req):
     context = {}
     if req.method == "POST":
         form = PostForm(req.POST)
@@ -422,11 +422,14 @@ def page_new_page(req):
 
             category = None
             # tags = form.cleaned_data['tags']
+
+            guid = '/page/' + title
             post = Article.objects.create(title=title, content=content, pub_author=pub_author,
                                           article_status=article_status, comment_status=comment_status,
                                           article_type=article_type, article_mime_type=article_mime_type,
-                                          category=category, parent=parent)
+                                          category=category, parent=parent, guid=guid)
             post.save()
+
 
             if article_status == '2':
                 context['msg'] = '文章草稿保存成功'
@@ -486,6 +489,7 @@ def page_del(req, pindex, article_id):
     context['msg'] = '删除成功'
 
     return redirect('/das/page/' + pindex, context)
+
 
 @login_required(login_url='/login')
 def media_view(req, pindex):
