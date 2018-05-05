@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'index',
     'das',
     'mptt',
+    # 'tinymce',
 ]
 
 MIDDLEWARE = [
@@ -127,11 +128,15 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 STATICFILES_DIRS = (
-    'static',
     'index/static',
-    'das/static'
+    'das/static',
+    'static',
 )
-STATIC_ROOT = os.path.join(BASE_DIR, '/static')
+# STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+
+UPLOAD_ROOT = os.path.join(os.path.join(BASE_DIR, 'static'), 'upload')
+
+MEDIA_ROOT = STATIC_URL + 'upload/'
 
 CACHES = {
     "default": "django.core.cache.backends.locmem.LocMemCache",
@@ -158,3 +163,5 @@ AUTH_USER_MODEL = "das.User"
 # If you prefer domain socket connection, you can just add this line instead of SESSION_REDIS_HOST and SESSION_REDIS_PORT.
 
 # SESSION_REDIS_UNIX_DOMAIN_SOCKET_PATH = '/var/run/redis/redis.sock'
+
+# TINYMCE_DEFAULT_CONFIG = { 'theme': 'advanced', 'width': 600, 'height': 400, }

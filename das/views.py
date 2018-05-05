@@ -7,9 +7,14 @@ from django.contrib.auth.decorators import login_required
 from django.core.paginator import *
 from django.db.models import Q
 from django.shortcuts import render, redirect
-
+from django.http import HttpResponse
+import json
+import os
 from das.models import *
 from forms import *
+from django.conf import settings
+import hashlib
+import time
 
 
 # from django.http import HttpResponse, HttpRequest
@@ -68,7 +73,7 @@ def login_view(req):
             else:
                 context['msg'] = "用户名或密码错误"
                 context['view'] = 'login'
-                render(req, 'das/msg.html', context)
+                return render(req, 'das/msg.html', context)
         else:
             context['msg'] = "表单错误"
             context['view'] = 'login'
@@ -211,7 +216,7 @@ def tag_view(req, pindex):
         pindex = int(pindex) - 1
         page = paginator.page(int(pindex))
     context['pages'] = page
-    return render(req, 'das/tag.html')
+    return render(req, 'das/tag.html', context)
 
 
 @login_required(login_url='/login')
@@ -246,7 +251,7 @@ def tag_modify(req, tag_id):
                 context['msg'] = "标签已经存在"
                 return render(req, 'das/msg.html', context)
             tag.name = name
-            tag.decription = description
+            tag.description = description
             tag.save()
             context['msg'] = '修改成功'
             return redirect('/das/tag/', context)
@@ -491,59 +496,87 @@ def page_del(req, pindex, article_id):
     return redirect('/das/page/' + pindex, context)
 
 
-@login_required(login_url='/login')
-def media_view(req, pindex):
-    context = {}
-    articles = Article.objects.get(article_type='attachment')
-    paginator = Paginator(articles, 10)
-    if pindex == '':
-        pindex = '1'
-    try:
-        page = paginator.page(int(pindex))
-    except:
-        pindex = int(pindex) - 1
-        page = paginator.page(int(pindex))
-    context['pages'] = page
-    context['post'] = articles
+# @login_required(login_url='/login')
+# def media_view(req, pindex):
+#     context = {}
+#     articles = Article.objects.get(article_type='attachment')
+#     paginator = Paginator(articles, 10)
+#     if pindex == '':
+#         pindex = '1'
+#     try:
+#         page = paginator.page(int(pindex))
+#     except:
+#         pindex = int(pindex) - 1
+#         page = paginator.page(int(pindex))
+#     context['pages'] = page
+#     context['post'] = articles
+#
+#     return render(req, 'das/attachment.html', context)
+#
+#
+# @login_required(login_url='/login')
+# def media_new_page(req):
+#     context = {}
+#     if req.method == "POST":
+#         form = PostForm(req.POST)
+#         if form.is_valid():
+#             title = form.cleaned_data['title']
+#             content = form.cleaned_data['content']
+#             pub_author = User.objects.get(pk=form.cleaned_data['pub_author'])
+#             article_status = form.cleaned_data['article_status']
+#             comment_status = form.cleaned_data['comment_status']
+#             article_type = form.cleaned_data['article_type']
+#             article_mime_type = form.cleaned_data['article_mime_type']
+#             category = None
+#             parent_id = form.cleaned_data['parent']
+#             if parent_id == 0:
+#                 parent = None
+#             else:
+#                 parent = Article.objects.get(pk=parent_id)
+#             # tags = form.cleaned_data['tags']
+#             post = Article.objects.create(title=title, content=content, pub_author=pub_author,
+#                                           article_status=article_status, comment_status=comment_status,
+#                                           article_type=article_type, article_mime_type=article_mime_type,
+#                                           category=category, parent=parent)
+#             post.save()
+#
+#             if article_status == '2':
+#                 context['msg'] = '文章草稿保存成功'
+#             else:
+#                 context['msg'] = "文章发表成功"
+#         else:
+#             context['msg'] = "表单错误"
+#             return render(req, 'das/msg.html', context)
+#     # nodes = Category.objects.get_queryset()
+#     # context['nodes'] = nodes
+#     # allTags = Tag.objects.all()
+#     # context['tags'] = allTags
+#     return render(req, 'das/attachment-new.html', context)
 
-    return render(req, 'das/attachment.html', context)
-
-
-@login_required(login_url='/login')
-def media_new_page(req):
-    context = {}
+# @login_required(login_url='/login')
+def upload(req):
+    ret = {"error":True,"path":"http:\/\/www.mydomain.com\/myimage.jpg"}
     if req.method == "POST":
-        form = PostForm(req.POST)
-        if form.is_valid():
-            title = form.cleaned_data['title']
-            content = form.cleaned_data['content']
-            pub_author = User.objects.get(pk=form.cleaned_data['pub_author'])
-            article_status = form.cleaned_data['article_status']
-            comment_status = form.cleaned_data['comment_status']
-            article_type = form.cleaned_data['article_type']
-            article_mime_type = form.cleaned_data['article_mime_type']
-            category = None
-            parent_id = form.cleaned_data['parent']
-            if parent_id == 0:
-                parent = None
-            else:
-                parent = Article.objects.get(pk=parent_id)
-            # tags = form.cleaned_data['tags']
-            post = Article.objects.create(title=title, content=content, pub_author=pub_author,
-                                          article_status=article_status, comment_status=comment_status,
-                                          article_type=article_type, article_mime_type=article_mime_type,
-                                          category=category, parent=parent)
-            post.save()
+        ret = handle_upload_file(req.FILES['file'], str(req.FILES['file']), req.get_host())
 
-            if article_status == '2':
-                context['msg'] = '文章草稿保存成功'
-            else:
-                context['msg'] = "文章发表成功"
-        else:
-            context['msg'] = "表单错误"
-            return render(req, 'das/msg.html', context)
-    # nodes = Category.objects.get_queryset()
-    # context['nodes'] = nodes
-    # allTags = Tag.objects.all()
-    # context['tags'] = allTags
-    return render(req, 'das/attachment-new.html', context)
+    return HttpResponse(json.dumps(ret), content_type="application/json")  # 此处简单返回一个成功的消息，在实际应用中可以返回到指定的页面中
+
+# @login_required(login_url='/login')
+def handle_upload_file(file, filename, host):
+    m = hashlib.md5()
+    m.update(bytes(str(time.time()).encode('utf8')))
+    filename = m.hexdigest() + os.path.splitext(filename)[1]
+    uploadpath = time.strftime('%Y%m%d', time.localtime(time.time()))
+    path = os.path.join(settings.UPLOAD_ROOT, uploadpath)  # 上传文件的保存路径，可以自己指定任意的路径
+    try:
+        if not os.path.exists(path):
+            os.makedirs(path)
+        with open(path + '/' + filename, 'wb+')as destination:
+            for chunk in file.chunks():
+                destination.write(chunk)
+    except:
+        ret = {"error": True, "path": ""}
+        return ret
+    url = 'http://' + host + settings.MEDIA_ROOT + uploadpath + "/" + filename
+    ret = {"error": 'false', "url": url}
+    return ret

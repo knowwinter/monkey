@@ -24,6 +24,7 @@ from index import views
 
 urlpatterns = [
     # url(r'^das/', das.site.urls),
+    # url(r'^tinymce/', include('tinymce.urls')),
     url(r'^das/', include('das.urls')),
     url(r'^register/', register_view, name='register'),
     url(r'^login/', login_view, name='login'),

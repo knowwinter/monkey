@@ -10,4 +10,10 @@ urlpatterns = [
     url(r'^category/(\d+)/del/(\d+)', views.category_del, name='category_del'),
     url(r'^category/modify/(\d*)/', views.category_modify, name='category_modify'),
     url(r'^category/(\d*)', views.category_view, name='category'),
+    url(r'^tag/(\d+)/del/(\d+)', views.tag_del, name='tag_del'),
+    url(r'^tag/modify/(\d*)/', views.tag_modify, name='tag_modify'),
+    url(r'^tag/(\d*)', views.tag_view, name='tag'),
+    url(r'^post/new/$', views.post_new_view, name='post_new'),
+    url(r'^upload/$', views.upload, name='upload'),
+
 ]

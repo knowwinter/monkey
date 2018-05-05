@@ -1,5 +1,7 @@
 ﻿<!DOCTYPE html>
 <html lang="en">
+{% load staticfiles %}
+{% load i18n %}
 <head>
     <meta charset="utf-8"/>
     <title>控制台 - Bootstrap后台管理系统模版Ace下载</title>
@@ -48,6 +50,11 @@
 		<script src="/static/assets/js/html5shiv.js"></script>
 		<script src="/static/assets/js/respond.min.js"></script>
 		<![endif]-->
+
+    <link type="text/css" rel="stylesheet" href="{% static 'syntaxhighlighter/styles/shCoreDefault.css' %}"/>
+    <script type="text/javascript" src="{% static 'syntaxhighlighter/scripts/shCore.js' %}"></script>
+    <script type="text/javascript">SyntaxHighlighter.all();</script>
+    {% block header %}{% endblock %}
 </head>
 
 <body>
@@ -789,7 +796,7 @@
 
 <!--[if !IE]> -->
 
-<script src="http://ajax.ustc.edu.cn/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+{#<script src="http://ajax.ustc.edu.cn/ajax/libs/jquery/2.0.3/jquery.min.js"></script>#}
 
 <!-- <![endif]-->
 
@@ -1042,7 +1049,42 @@
         });
 
 
+
+
     })
+</script>
+<script class="javascript" src="{% static 'syntaxhighlighter/scripts/shBrushJScript.js' %}"></script>
+<script class="javascript" src="{% static 'syntaxhighlighter/scripts/shBrushBash.js' %}"></script>
+<script class="javascript" src="{% static 'syntaxhighlighter/scripts/shBrushPhp.js' %}"></script>
+<script class="javascript" src="{% static 'syntaxhighlighter/scripts/shBrushJava.js' %}"></script>
+<script class="javascript" src="{% static 'syntaxhighlighter/scripts/shBrushSql.js' %}"></script>
+<script class="javascript" src="{% static 'syntaxhighlighter/scripts/shBrushXml.js' %}"></script>
+<script class="javascript" src="{% static 'syntaxhighlighter/scripts/shBrushPython.js' %}"></script>
+<script class="javascript" src="{% static 'syntaxhighlighter/scripts/shBrushCss.js' %}"></script>
+<script class="javascript" src="{% static 'syntaxhighlighter/scripts/shBrushCpp.js' %}"></script>
+ <script type="text/javascript" src="{% static 'tinymce/tinymce.min.js' %}"></script>
+    <script type="text/javascript">
+        tinymce.init({
+            selector: "textarea",
+            //width: 800,
+            height: 300,
+            forced_root_block: false,
+            convert_urls: false,
+            imageupload_url: '/das/upload/',
+            plugins: [
+                "advlist autolink lists link image charmap print preview anchor sh4tinymce ",
+                "searchreplace visualblocks code fullscreen",
+                "insertdatetime table contextmenu paste addmore imageupload"
+            ],
+            toolbar: "insertfile undo redo | styleselect | bold italic | alignleft aligncenter" +
+            " alignright alignjustify | bullist numlist outdent indent | preview link image imageupload sh4tinymce"
+        });
+    </script>
+     <script type="text/javascript" src="{% static 'tinymce/plugins/jquery-form.js' %}"></script>
+<script type="text/javascript">
+    $.ajaxSetup({headers: {"X-CSRFToken": '{{ csrf_token }}'}});
+
+
 </script>
 </body>
 </html>
