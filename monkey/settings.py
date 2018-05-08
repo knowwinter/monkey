@@ -67,7 +67,7 @@ TEMPLATES = [
             ],
             'libraries': {
                 'category_tags': 'das.templatetags.category_tags',
-
+                'silice_tags': 'index.templatetags.silice_tags',
             },
         },
     },

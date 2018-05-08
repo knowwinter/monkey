@@ -1,0 +1,20 @@
+﻿{% extends 'index/base.html' %}
+{% block page %}
+    <div class="col-md-8 ">
+        <div class="blog-post">
+            <h1>{{ post.title }}.</h1>
+            <h4><i class="icon-user"></i>  <a href="#">{{ post.pub_author }}</a> <i class="icon-calendar"></i>  {{ post.pub_date }}
+                <i class="icon-folder-open"></i>  <a href="#"> {% if post.category is None %}未归档{% else %}{{ post.category }}{% endif %}</a>
+                <i class="icon-eye-open"></i> {{ post.view_count }} views</h4>
+
+            <p style=word-wrap:break-word;>
+                {{ post.content|safe }}
+            </p>
+        </div>
+        <br/>
+    </div>
+    <div class="col-md-1"></div>
+
+
+
+{% endblock %}

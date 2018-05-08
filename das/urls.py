@@ -15,5 +15,6 @@ urlpatterns = [
     url(r'^tag/(\d*)', views.tag_view, name='tag'),
     url(r'^post/new/$', views.post_new_view, name='post_new'),
     url(r'^upload/$', views.upload, name='upload'),
+    url(r'^getTag/$', views.json_get_tags, name='getTag'),
 
 ]

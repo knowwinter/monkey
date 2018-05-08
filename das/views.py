@@ -218,6 +218,15 @@ def tag_view(req, pindex):
     context['pages'] = page
     return render(req, 'das/tag.html', context)
 
+@login_required(login_url='/login')
+def json_get_tags(req):
+    tags = Tag.objects.all()
+    tag_list = []
+    for tag in tags:
+        t = {'id': tag.pk, 'label': tag.name, 'value': tag.name}
+        tag_list.append(t)
+    return HttpResponse(json.dumps(tag_list), content_type="application/json")
+
 
 @login_required(login_url='/login')
 def tag_del(req, pindex, tag_id):
@@ -269,16 +278,28 @@ def post_new_view(req):
     if req.method == "POST":
         form = PostForm(req.POST)
         if form.is_valid():
+            postIsExist = None
             title = form.cleaned_data['title']
+            try:
+                postIsExist = Article.objects.get(title=title)
+            except:
+                pass
+            if postIsExist:
+                context['msg'] = '文章标题重名，请更换标题'
+                return render(req, 'das/msg.html', context)
+
             content = form.cleaned_data['content']
             pub_author = User.objects.get(pk=form.cleaned_data['pub_author'])
             article_status = form.cleaned_data['article_status']
-            comment_status = form.cleaned_data['comment_status']
+            if form.cleaned_data['comment_status'] == '':
+                comment_status = '2'
+            else:
+                comment_status = form.cleaned_data['comment_status']
             article_type = form.cleaned_data['article_type']
-            article_mime_type = form.cleaned_data['article_mime_type']
+            # article_mime_type = form.cleaned_data['article_mime_type']
             category_id = form.cleaned_data['category']
 
-            parent = None
+            # parent = None
 
             if category_id == 0:
                 category = None
@@ -287,20 +308,29 @@ def post_new_view(req):
             tags = form.cleaned_data['tags']
             post = Article.objects.create(title=title, content=content, pub_author=pub_author,
                                           article_status=article_status, comment_status=comment_status,
-                                          article_type=article_type, article_mime_type=article_mime_type,
-                                          category=category, parent=parent)
+                                          article_type=article_type,
+                                          category=category)
+            post.guid = '/p/' + str(post.pk)
             post.save()
-            post.guid = '/p/' + post.pk
-            post.save()
-            if tags != None:
-                for tag_id in tags:
-                    tag = Tag.objects.get(pk=tag_id)
-                    tagship = Tagship.objects.create(post, tag)
+            # post = Article.objects.get(title=title)
+            # post.guid = '/p/' + post.pk
+            # post.save()
+            if tags != '':
+                tags = tags.split(',')
+                for tagName in tags:
+                    try:
+                        tag = Tag.objects.get(name=tagName)
+                    except:
+                        tag = Tag.objects.create(name=tagName,description=tagName)
+                    tagship = Tagship.objects.create(article=post, tag=tag)
                     tagship.save()
+
+
             if article_status == '2':
                 context['msg'] = '文章草稿保存成功'
             else:
                 context['msg'] = "文章发表成功"
+            return redirect("/", context)
         else:
             context['msg'] = "表单错误"
             return render(req, 'das/msg.html', context)
@@ -555,14 +585,14 @@ def page_del(req, pindex, article_id):
 
 # @login_required(login_url='/login')
 def upload(req):
-    ret = {"error":True,"path":"http:\/\/www.mydomain.com\/myimage.jpg"}
+    ret = {"error": True, "path": ""}
     if req.method == "POST":
-        ret = handle_upload_file(req.FILES['file'], str(req.FILES['file']), req.get_host())
+        ret = handle_upload_file(req.FILES['file'], str(req.FILES['file']), req.scheme, req.get_host())
 
     return HttpResponse(json.dumps(ret), content_type="application/json")  # 此处简单返回一个成功的消息，在实际应用中可以返回到指定的页面中
 
 # @login_required(login_url='/login')
-def handle_upload_file(file, filename, host):
+def handle_upload_file(file, filename, schema, host):
     m = hashlib.md5()
     m.update(bytes(str(time.time()).encode('utf8')))
     filename = m.hexdigest() + os.path.splitext(filename)[1]
@@ -577,6 +607,6 @@ def handle_upload_file(file, filename, host):
     except:
         ret = {"error": True, "path": ""}
         return ret
-    url = 'http://' + host + settings.MEDIA_ROOT + uploadpath + "/" + filename
+    url = schema + '://' + host + settings.MEDIA_ROOT + uploadpath + "/" + filename
     ret = {"error": 'false', "url": url}
     return ret
