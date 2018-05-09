@@ -25,7 +25,7 @@ def index_view(req, pindex):
     if req.session.get('user'):
         context = {"user": req.session['user']}
 
-    posts = Article.objects.all()
+    posts = Article.objects.all().order_by('-pub_date')
 
     # for post in articles:
     #     post.content = post.content[:20]
@@ -45,11 +45,16 @@ def index_view(req, pindex):
 
 def post_show(req, id):
     context = {}
-    post = Article.objects.get(pk=id)
+    posts = Article.objects.all().order_by('pub_date')
+    post = posts.get(pk=id)
     post.view_count = post.view_count + 1
     post.save()
+    pre_post = posts.filter(pub_date__lt=post.pub_date).last()
+    next_post = posts.filter(pub_date__gt=post.pub_date).first()
     post.content = post.content.replace("[!--more--]", "")
     nodes = Category.objects.get_queryset()
     context['post'] = post
+    context['pre_post'] = pre_post
+    context['next_post'] = next_post
     context['nodes'] = nodes
     return render(req, 'index/post-show.html', context)

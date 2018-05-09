@@ -10,7 +10,37 @@
             <p style=word-wrap:break-word;>
                 {{ post.content|safe }}
             </p>
+
         </div>
+        <div class="col-md-12 blog-post">
+            <h3><i class="icon-tags"></i> ：{% for tag in post.tag_set.all %}
+                <label class="label-info label-lg label">{{ tag }}</label>
+            {% endfor %}
+            </h3>
+
+        </div>
+
+
+        <div class="col-md-12 blog-post">
+            <div class="col-md-6 text-left align-center">
+                {% if pre_post %}
+                    <a href="{{ pre_post.guid }}">
+                        <span aria-hidden="true"><< {{ pre_post }}</span>
+                    </a>
+                {% endif %}
+            </div>
+
+
+            <div class="col-md-6 text-right align-center">
+                {% if next_post %}
+                    <a href="{{ next_post.guid }}">
+                        <span aria-hidden="true">{{ next_post }} >></span>
+                    </a>
+                {% endif %}
+            </div>
+
+        </div>
+
         <br/>
     </div>
     <div class="col-md-1"></div>

@@ -6,8 +6,11 @@
             {% for p in pages %}
                 <div class="blog-post">
                     <h2>{{ p.title }}.</h2>
-                    <h4>Posted by <a href="#">{{ p.pub_author }}</a> on {{ p.pub_date }}  </h4>
-                    <h5>Views: {{ p.view_count }}</h5>
+                    <h4>Posted by <a href="#">{{ p.pub_author }}</a> on {{ p.pub_date }} Views: {{ p.view_count }}</h4>
+                    <h5>Tags：{% for tag in p.tag_set.all %}
+                        <label class="label-info label-lg label">{{ tag }}</label>
+                    {% endfor %}
+                    </h5>
                     <p  style=word-wrap:break-word;>
                         {{ p.content|silice_content:'200'|safe }}
                     </p>
