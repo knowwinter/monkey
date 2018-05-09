@@ -48,6 +48,7 @@ def post_show(req, id):
     post = Article.objects.get(pk=id)
     post.view_count = post.view_count + 1
     post.save()
+    post.content = post.content.replace("[!--more--]", "")
     nodes = Category.objects.get_queryset()
     context['post'] = post
     context['nodes'] = nodes

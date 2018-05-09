@@ -7,6 +7,9 @@ register = template.Library()
 def silice_content(content, num):
     l = len(content)
     num = int(num)
+    if '[!--more--]' in content:
+        index = content.index('[!--more--]')
+        return content[:index]
     try:
         index = content.index('<pre')
         if index < num:
