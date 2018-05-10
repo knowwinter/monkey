@@ -11,18 +11,18 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RenameField(
-            model_name='comment',
-            old_name='comment_autor',
-            new_name='comment_author',
-        ),
-        migrations.RemoveField(
-            model_name='article',
-            name='article_mime_type',
-        ),
-        migrations.AddField(
-            model_name='article',
-            name='guid',
-            field=models.URLField(blank=True, null=True),
-        ),
+        # migrations.RenameField(
+        #     model_name='comment',
+        #     old_name='comment_autor',
+        #     new_name='comment_author',
+        # ),
+        # migrations.RemoveField(
+        #     model_name='article',
+        #     name='article_mime_type',
+        # ),
+        # migrations.AddField(
+        #     model_name='article',
+        #     name='guid',
+        #     field=models.URLField(blank=True, null=True),
+        # ),
     ]

@@ -610,3 +610,7 @@ def handle_upload_file(file, filename, schema, host):
     url = schema + '://' + host + settings.MEDIA_ROOT + uploadpath + "/" + filename
     ret = {"error": 'false', "url": url}
     return ret
+
+
+def comment(req):
+    pass

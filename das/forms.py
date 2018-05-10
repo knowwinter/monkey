@@ -41,3 +41,13 @@ class TagForm(forms.Form):
     name = forms.CharField(max_length=30, required=True, error_messages={'required': "分类名称不能为空"})
     description = forms.CharField(max_length=80)
     # url_slug = forms.SlugField(max_length=80)
+
+
+class CommentForm(forms.Form):
+    comment = forms.CharField(max_length=500, required=True)
+    user = forms.IntegerField(required=False)
+    comment_author = forms.CharField(max_length=30)
+    article = forms.IntegerField(required=True)
+    parent = forms.IntegerField(required=False)
+    comment_author_ip = forms.GenericIPAddressField(required=False)
+    comment_author_email = forms.EmailField(required=False)

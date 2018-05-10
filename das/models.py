@@ -69,12 +69,14 @@ class Article(models.Model):
 
 class Comment(models.Model):
     comment = models.TextField(max_length=80)
-    user_id = models.IntegerField(default=0)
+    user = models.ForeignKey(User, blank=True, null=True, related_name="commenter")
     comment_author = models.CharField(max_length=30)
     article = models.ForeignKey(Article)
     parent = models.ForeignKey("self", blank=True, null=True, related_name="children")
     comment_date = models.DateTimeField(auto_now_add=True)
     comment_author_ip = models.GenericIPAddressField(blank=True, null=True)
+    comment_author_email = models.EmailField(blank=True, null=True)
+    comment_modify_date = models.DateTimeField(auto_now=True)
 
 
 class Tag(models.Model):

@@ -1,28 +1,49 @@
 ﻿{% extends 'index/base.html' %}
+{% load staticfiles %}
+{% load static %}
+{% block header %}
+    <script type="text/javascript" src="{% static 'tinymce/tinymce.min.js' %}"></script>
+    <script type="text/javascript">
+        tinymce.init({
+            selector: "textarea",
+            {#width: 800,#}
+            height: 300,
+            forced_root_block: false,
+            convert_urls: false,
+            imageupload_url: '{% url 'upload' %}',
+            plugins: [
+                "advlist autolink lists link image charmap print preview anchor sh4tinymce ",
+                "searchreplace visualblocks code fullscreen",
+                "insertdatetime table contextmenu paste addmore imageupload"
+            ],
+            toolbar: "insertfile undo redo | styleselect | bold italic | alignleft aligncenter" +
+            " alignright alignjustify | bullist numlist outdent indent | preview link image imageupload sh4tinymce"
+        });
+    </script>
+    <script type="text/javascript" src="{% static 'tinymce/plugins/jquery-form.js' %}"></script>
+    <script type="text/javascript">
+        $.ajaxSetup({headers: {"X-CSRFToken": '{{ csrf_token }}'}});
+    </script>
+{% endblock %}
+
 {% block page %}
     <div class="col-md-8 ">
         <div class="blog-post">
             <h1>{{ post.title }}.</h1>
-            <h4><i class="icon-user"></i>  <a href="#">{{ post.pub_author }}</a> <i class="icon-calendar"></i>  {{ post.pub_date }}
-                <i class="icon-folder-open"></i>  <a href="#"> {% if post.category is None %}未归档{% else %}{{ post.category }}{% endif %}</a>
+            <h4><i class="icon-user"></i> <a href="#">{{ post.pub_author }}</a> <i
+                    class="icon-calendar"></i> {{ post.pub_date }}
+                <i class="icon-folder-open"></i> <a href="#"> {% if post.category is None %}未归档{% else %}
+                    {{ post.category }}{% endif %}</a>
                 <i class="icon-eye-open"></i> {{ post.view_count }} views</h4>
 
             <p style=word-wrap:break-word;>
                 {{ post.content|safe }}
             </p>
-
-        </div>
-        <div class="col-md-12 blog-post">
             <h3><i class="icon-tags"></i> ：{% for tag in post.tag_set.all %}
                 <label class="label-info label-lg label">{{ tag }}</label>
             {% endfor %}
             </h3>
-
-        </div>
-
-
-        <div class="col-md-12 blog-post">
-            <div class="col-md-6 text-left align-center">
+            <div class="col-md-6 text-left">
                 {% if pre_post %}
                     <a href="{{ pre_post.guid }}">
                         <span aria-hidden="true"><< {{ pre_post }}</span>
@@ -31,7 +52,7 @@
             </div>
 
 
-            <div class="col-md-6 text-right align-center">
+            <div class="col-md-6 text-right">
                 {% if next_post %}
                     <a href="{{ next_post.guid }}">
                         <span aria-hidden="true">{{ next_post }} >></span>
@@ -40,8 +61,282 @@
             </div>
 
         </div>
+        <div class="space"></div>
 
-        <br/>
+
+        {#        <div class="col-md-12 blog-post">#}
+        {#            <div class="col-md-6 text-left align-center">#}
+        {#                {% if pre_post %}#}
+        {#                    <a href="{{ pre_post.guid }}">#}
+        {#                        <span aria-hidden="true"><< {{ pre_post }}</span>#}
+        {#                    </a>#}
+        {#                {% endif %}#}
+        {#            </div>#}
+        {##}
+        {##}
+        {#            <div class="col-md-6 text-right align-center">#}
+        {#                {% if next_post %}#}
+        {#                    <a href="{{ next_post.guid }}">#}
+        {#                        <span aria-hidden="true">{{ next_post }} >></span>#}
+        {#                    </a>#}
+        {#                {% endif %}#}
+        {#            </div>#}
+        {##}
+        {#        </div>#}
+
+
+        <div class="col-md-12">
+            <div class="widget-box transparent" id="recent-box">
+                <div class="widget-header">
+                    <h4 class="lighter smaller">
+                        <i class="icon-rss orange"></i>
+                        最近
+                    </h4>
+
+                    <div class="widget-toolbar no-border">
+                        <ul class="nav nav-tabs" id="recent-tab">
+
+
+                            <li class="active">
+                                <a data-toggle="tab" href="#comment-tab">评论</a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="widget-body">
+                    <div class="widget-main padding-4">
+                        <div class="tab-content padding-8 overflow-visible">
+
+
+                            <div id="comment-tab" class="tab-pane active">
+
+                                <div class="comments">
+                                    <div class="itemdiv commentdiv">
+                                        <div class="user">
+                                            <img alt="Bob Doe's Avatar" src="/static/assets/avatars/avatar.png"/>
+                                        </div>
+
+                                        <div class="body">
+                                            <div class="name">
+                                                <a href="#">Bob Doe</a>
+                                            </div>
+
+                                            <div class="time">
+                                                <i class="icon-time"></i>
+                                                <span class="green">6 min</span>
+                                            </div>
+
+                                            <div class="text">
+                                                <i class="icon-quote-left"></i>
+                                                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque commodo
+                                                massa sed ipsum porttitor facilisis &hellip;
+                                            </div>
+                                        </div>
+
+                                        <div class="tools">
+                                            <div class="inline position-relative">
+                                                <button class="btn btn-minier bigger btn-yellow dropdown-toggle"
+                                                        data-toggle="dropdown">
+                                                    <i class="icon-angle-down icon-only bigger-120"></i>
+                                                </button>
+
+                                                <ul class="dropdown-menu dropdown-only-icon dropdown-yellow pull-right dropdown-caret dropdown-close">
+                                                    <li>
+                                                        <a href="#" class="tooltip-success" data-rel="tooltip"
+                                                           title="Approve">
+																						<span class="green">
+																							<i class="icon-ok bigger-110"></i>
+																						</span>
+                                                        </a>
+                                                    </li>
+
+                                                    <li>
+                                                        <a href="#" class="tooltip-warning" data-rel="tooltip"
+                                                           title="Reject">
+																						<span class="orange">
+																							<i class="icon-remove bigger-110"></i>
+																						</span>
+                                                        </a>
+                                                    </li>
+
+                                                    <li>
+                                                        <a href="#" class="tooltip-error" data-rel="tooltip"
+                                                           title="Delete">
+																						<span class="red">
+																							<i class="icon-trash bigger-110"></i>
+																						</span>
+                                                        </a>
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="itemdiv commentdiv">
+                                        <div class="user">
+                                            <img alt="Jennifer's Avatar" src="/static/assets/avatars/avatar1.png"/>
+                                        </div>
+
+                                        <div class="body">
+                                            <div class="name">
+                                                <a href="#">Jennifer</a>
+                                            </div>
+
+                                            <div class="time">
+                                                <i class="icon-time"></i>
+                                                <span class="blue">15 min</span>
+                                            </div>
+
+                                            <div class="text">
+                                                <i class="icon-quote-left"></i>
+                                                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque commodo
+                                                massa sed ipsum porttitor facilisis &hellip;
+                                            </div>
+                                        </div>
+
+                                        <div class="tools">
+                                            <div class="action-buttons bigger-125">
+                                                <a href="#">
+                                                    <i class="icon-pencil blue"></i>
+                                                </a>
+
+                                                <a href="#">
+                                                    <i class="icon-trash red"></i>
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="itemdiv commentdiv">
+                                        <div class="user">
+                                            <img alt="Joe's Avatar" src="/static/assets/avatars/avatar2.png"/>
+                                        </div>
+
+                                        <div class="body">
+                                            <div class="name">
+                                                <a href="#">Joe</a>
+                                            </div>
+
+                                            <div class="time">
+                                                <i class="icon-time"></i>
+                                                <span class="orange">22 min</span>
+                                            </div>
+
+                                            <div class="text">
+                                                <i class="icon-quote-left"></i>
+                                                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque commodo
+                                                massa sed ipsum porttitor facilisis &hellip;
+                                            </div>
+                                        </div>
+
+                                        <div class="tools">
+                                            <div class="action-buttons bigger-125">
+                                                <a href="#">
+                                                    <i class="icon-pencil blue"></i>
+                                                </a>
+
+                                                <a href="#">
+                                                    <i class="icon-trash red"></i>
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="itemdiv commentdiv">
+                                        <div class="user">
+                                            <img alt="Rita's Avatar" src="/static/assets/avatars/avatar3.png"/>
+                                        </div>
+
+                                        <div class="body">
+                                            <div class="name">
+                                                <a href="#">Rita</a>
+                                            </div>
+
+                                            <div class="time">
+                                                <i class="icon-time"></i>
+                                                <span class="red">50 min</span>
+                                            </div>
+
+                                            <div class="text">
+                                                <i class="icon-quote-left"></i>
+                                                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque commodo
+                                                massa sed ipsum porttitor facilisis &hellip;
+                                            </div>
+                                        </div>
+
+                                        <div class="tools">
+                                            <div class="action-buttons bigger-125">
+                                                <a href="#">
+                                                    <i class="icon-pencil blue"></i>
+                                                </a>
+
+                                                <a href="#">
+                                                    <i class="icon-trash red"></i>
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="hr hr8"></div>
+
+                                <div class="col-md-12">
+                                    <div class="center">
+                                        <i class="icon-comments-alt icon-2x green"></i>
+
+                                        &nbsp;<label class="control-label no-padding-left"
+                                                     for="form-field-textarea">发表评论</label>
+                                    </div>
+
+                                    <form class="form-horizontal" role="form" action="{% url 'comment' %}"
+                                          method="post">
+                                        {% csrf_token %}
+                                        {% if not request.session.user %}
+                                            <div class="form-group">
+                                                <label class="col-sm-1 control-label no-padding-right"
+                                                       for="form-field-1"> 姓名：</label>
+
+                                                <div class="col-sm-11">
+                                                    <input type="text" id="form-field-1" name="comment_author"
+                                                           placeholder="comment_author"
+                                                           class="col-xs-10 col-sm-5 align-left"/>
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label class="col-sm-1 control-label no-padding-right"
+                                                       for="form-field-2"> 邮箱：</label>
+
+                                                <div class="col-sm-11">
+                                                    <input type="text" id="form-field-2" name="comment_author_email"
+                                                           placeholder="comment_author_email"
+                                                           class="col-xs-10 col-sm-5 align-left"/>
+                                                </div>
+                                            </div>
+                                        {% endif %}
+                                        <textarea id="form-field-textarea" name="comment" value=""></textarea>
+                                        <input type="hidden" name="post_id">
+                                        <div class="space"></div>
+                                        <div class="form-group">
+                                            <button class="btn btn-sm btn-danger align-left" type="submit">
+                                                <i class="icon-ok bigger-110"></i>
+                                                发表评论
+                                            </button>
+                                        </div>
+                                    </form>
+
+                                    <div class="space"></div>
+
+                                </div>
+
+                                <div class="hr hr-double hr8"></div>
+                            </div>
+                        </div>
+                    </div><!-- /widget-main -->
+                </div><!-- /widget-body -->
+
+            </div><!-- /widget-box -->
+        </div><!-- /span -->
     </div>
     <div class="col-md-1"></div>
 
