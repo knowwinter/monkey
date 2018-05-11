@@ -52,9 +52,11 @@ def post_show(req, id):
     pre_post = posts.filter(pub_date__lt=post.pub_date).last()
     next_post = posts.filter(pub_date__gt=post.pub_date).first()
     post.content = post.content.replace("[!--more--]", "")
+    comments = Comment.objects.filter(article=post).order_by("-comment_date")
     nodes = Category.objects.get_queryset()
     context['post'] = post
     context['pre_post'] = pre_post
     context['next_post'] = next_post
     context['nodes'] = nodes
+    context['comments'] = comments
     return render(req, 'index/post-show.html', context)

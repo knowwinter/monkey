@@ -1,20 +1,24 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+import hashlib
+import json
+from django.core.serializers.json import DjangoJSONEncoder
+import os
+import time
+
+
+from django.conf import settings
 from django.contrib import auth
 # from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import *
 from django.db.models import Q
-from django.shortcuts import render, redirect
 from django.http import HttpResponse
-import json
-import os
+from django.shortcuts import render, redirect
+
 from das.models import *
 from forms import *
-from django.conf import settings
-import hashlib
-import time
 
 
 # from django.http import HttpResponse, HttpRequest
@@ -218,6 +222,7 @@ def tag_view(req, pindex):
     context['pages'] = page
     return render(req, 'das/tag.html', context)
 
+
 @login_required(login_url='/login')
 def json_get_tags(req):
     tags = Tag.objects.all()
@@ -321,10 +326,9 @@ def post_new_view(req):
                     try:
                         tag = Tag.objects.get(name=tagName)
                     except:
-                        tag = Tag.objects.create(name=tagName,description=tagName)
+                        tag = Tag.objects.create(name=tagName, description=tagName)
                     tagship = Tagship.objects.create(article=post, tag=tag)
                     tagship.save()
-
 
             if article_status == '2':
                 context['msg'] = '文章草稿保存成功'
@@ -465,7 +469,6 @@ def page_new_view(req):
                                           category=category, parent=parent, guid=guid)
             post.save()
 
-
             if article_status == '2':
                 context['msg'] = '文章草稿保存成功'
             else:
@@ -591,6 +594,7 @@ def upload(req):
 
     return HttpResponse(json.dumps(ret), content_type="application/json")  # 此处简单返回一个成功的消息，在实际应用中可以返回到指定的页面中
 
+
 # @login_required(login_url='/login')
 def handle_upload_file(file, filename, schema, host):
     m = hashlib.md5()
@@ -613,4 +617,42 @@ def handle_upload_file(file, filename, schema, host):
 
 
 def comment(req):
-    pass
+    context = {}
+    if req.method == "POST":
+        print req.POST
+        form = CommentForm(req.POST)
+        if form.is_valid():
+            comment = form.cleaned_data['comment']
+            user_id = form.cleaned_data['user']
+            if not user_id:
+                user = None
+            else:
+                user = User.objects.get(pk=user_id)
+            comment_author = form.cleaned_data['comment_author']
+            comment_author_email = form.cleaned_data['comment_author_email']
+            article_id = form.cleaned_data['article']
+            article = Article.objects.get(pk=article_id)
+            parent_id = form.cleaned_data['parent']
+            if not parent_id:
+                parent = None
+            else:
+                parent = Comment.objects.get(pk=parent_id)
+            comment_author_ip = form.cleaned_data['comment_author_ip']
+            comm = Comment.objects.create(comment=comment, user=user, comment_author=comment_author,
+                                          comment_author_email=comment_author_email, article=article, parent=parent,
+                                          comment_author_ip=comment_author_ip)
+            comm.save()
+            timeformat = "%Y年%m月%d日 %H:%m".encode('utf8')
+            comment_time = comm.comment_date.strftime(timeformat)
+            if user:
+                jsondata = {"comment": comm.comment, "comment_author": comm.comment_author, "comment_date": comment_time, "avatar": str(user.avatar)}
+            else:
+                jsondata = {"comment": comm.comment, "comment_author": comm.comment_author, "comment_date": comment_time, "avatar": "/static/assets/avatars/avatar.png"}
+
+            return HttpResponse(json.dumps(jsondata), content_type="application/json")
+        else:
+            context['msg'] = "表单错误"
+            return render(req, 'das/msg.html', context)
+    else:
+        context['msg'] = '非法操作'
+        return render(req, 'das/msg.html', context)

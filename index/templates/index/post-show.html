@@ -2,6 +2,8 @@
 {% load staticfiles %}
 {% load static %}
 {% block header %}
+    <link rel="stylesheet" href="/static/assets/css/ace.min.front.css"/>
+
     <script type="text/javascript" src="{% static 'tinymce/tinymce.min.js' %}"></script>
     <script type="text/javascript">
         tinymce.init({
@@ -10,14 +12,10 @@
             height: 300,
             forced_root_block: false,
             convert_urls: false,
-            imageupload_url: '{% url 'upload' %}',
-            plugins: [
-                "advlist autolink lists link image charmap print preview anchor sh4tinymce ",
-                "searchreplace visualblocks code fullscreen",
-                "insertdatetime table contextmenu paste addmore imageupload"
-            ],
-            toolbar: "insertfile undo redo | styleselect | bold italic | alignleft aligncenter" +
-            " alignright alignjustify | bullist numlist outdent indent | preview link image imageupload sh4tinymce"
+            {#            imageupload_url: '{% url 'upload' %}',#}
+            plugins: [],
+            toolbar: "styleselect | bold italic | alignleft aligncenter" +
+            " alignright alignjustify | bullist numlist outdent indent |  link image"
         });
     </script>
     <script type="text/javascript" src="{% static 'tinymce/plugins/jquery-form.js' %}"></script>
@@ -111,172 +109,51 @@
 
                             <div id="comment-tab" class="tab-pane active">
 
-                                <div class="comments">
-                                    <div class="itemdiv commentdiv">
-                                        <div class="user">
-                                            <img alt="Bob Doe's Avatar" src="/static/assets/avatars/avatar.png"/>
-                                        </div>
+                                <div class="comments" id="comments">
 
-                                        <div class="body">
-                                            <div class="name">
-                                                <a href="#">Bob Doe</a>
+                                    {% for comment in comments %}
+                                        <div class="itemdiv commentdiv">
+                                            <div class="user">
+                                                {% if comment.user %}
+                                                    <img alt="{{ comment.comment_author }}'s Avatar"
+                                                         src="{{ comment.user.avatar }}"/>
+                                                {% else %}
+                                                    <img alt="{{ comment.comment_author }}'s Avatar"
+                                                         src="/static/assets/avatars/avatar.png"/>
+                                                {% endif %}
                                             </div>
 
-                                            <div class="time">
-                                                <i class="icon-time"></i>
-                                                <span class="green">6 min</span>
+                                            <div class="body">
+                                                <div class="name">
+                                                    <a href="#">{{ comment.comment_author }}</a>
+                                                </div>
+
+                                                <div class="time">
+                                                    <i class="icon-time"></i>
+                                                    <span class="blue">{{ comment.comment_date }}</span>
+                                                </div>
+
+                                                <div class="text">
+                                                    {#                                                <i class="icon-quote-left"></i>#}
+                                                    {{ comment.comment|safe }}
+
+                                                </div>
                                             </div>
 
-                                            <div class="text">
-                                                <i class="icon-quote-left"></i>
-                                                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque commodo
-                                                massa sed ipsum porttitor facilisis &hellip;
-                                            </div>
-                                        </div>
+                                            <div class="tools">
+                                                <div class="action-buttons bigger-125">
+                                                    <a href="#">
+                                                        <i class="icon-pencil blue"></i>
+                                                    </a>
 
-                                        <div class="tools">
-                                            <div class="inline position-relative">
-                                                <button class="btn btn-minier bigger btn-yellow dropdown-toggle"
-                                                        data-toggle="dropdown">
-                                                    <i class="icon-angle-down icon-only bigger-120"></i>
-                                                </button>
-
-                                                <ul class="dropdown-menu dropdown-only-icon dropdown-yellow pull-right dropdown-caret dropdown-close">
-                                                    <li>
-                                                        <a href="#" class="tooltip-success" data-rel="tooltip"
-                                                           title="Approve">
-																						<span class="green">
-																							<i class="icon-ok bigger-110"></i>
-																						</span>
-                                                        </a>
-                                                    </li>
-
-                                                    <li>
-                                                        <a href="#" class="tooltip-warning" data-rel="tooltip"
-                                                           title="Reject">
-																						<span class="orange">
-																							<i class="icon-remove bigger-110"></i>
-																						</span>
-                                                        </a>
-                                                    </li>
-
-                                                    <li>
-                                                        <a href="#" class="tooltip-error" data-rel="tooltip"
-                                                           title="Delete">
-																						<span class="red">
-																							<i class="icon-trash bigger-110"></i>
-																						</span>
-                                                        </a>
-                                                    </li>
-                                                </ul>
+                                                    <a href="#">
+                                                        <i class="icon-trash red"></i>
+                                                    </a>
+                                                </div>
                                             </div>
                                         </div>
-                                    </div>
+                                    {% endfor %}
 
-                                    <div class="itemdiv commentdiv">
-                                        <div class="user">
-                                            <img alt="Jennifer's Avatar" src="/static/assets/avatars/avatar1.png"/>
-                                        </div>
-
-                                        <div class="body">
-                                            <div class="name">
-                                                <a href="#">Jennifer</a>
-                                            </div>
-
-                                            <div class="time">
-                                                <i class="icon-time"></i>
-                                                <span class="blue">15 min</span>
-                                            </div>
-
-                                            <div class="text">
-                                                <i class="icon-quote-left"></i>
-                                                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque commodo
-                                                massa sed ipsum porttitor facilisis &hellip;
-                                            </div>
-                                        </div>
-
-                                        <div class="tools">
-                                            <div class="action-buttons bigger-125">
-                                                <a href="#">
-                                                    <i class="icon-pencil blue"></i>
-                                                </a>
-
-                                                <a href="#">
-                                                    <i class="icon-trash red"></i>
-                                                </a>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div class="itemdiv commentdiv">
-                                        <div class="user">
-                                            <img alt="Joe's Avatar" src="/static/assets/avatars/avatar2.png"/>
-                                        </div>
-
-                                        <div class="body">
-                                            <div class="name">
-                                                <a href="#">Joe</a>
-                                            </div>
-
-                                            <div class="time">
-                                                <i class="icon-time"></i>
-                                                <span class="orange">22 min</span>
-                                            </div>
-
-                                            <div class="text">
-                                                <i class="icon-quote-left"></i>
-                                                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque commodo
-                                                massa sed ipsum porttitor facilisis &hellip;
-                                            </div>
-                                        </div>
-
-                                        <div class="tools">
-                                            <div class="action-buttons bigger-125">
-                                                <a href="#">
-                                                    <i class="icon-pencil blue"></i>
-                                                </a>
-
-                                                <a href="#">
-                                                    <i class="icon-trash red"></i>
-                                                </a>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div class="itemdiv commentdiv">
-                                        <div class="user">
-                                            <img alt="Rita's Avatar" src="/static/assets/avatars/avatar3.png"/>
-                                        </div>
-
-                                        <div class="body">
-                                            <div class="name">
-                                                <a href="#">Rita</a>
-                                            </div>
-
-                                            <div class="time">
-                                                <i class="icon-time"></i>
-                                                <span class="red">50 min</span>
-                                            </div>
-
-                                            <div class="text">
-                                                <i class="icon-quote-left"></i>
-                                                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque commodo
-                                                massa sed ipsum porttitor facilisis &hellip;
-                                            </div>
-                                        </div>
-
-                                        <div class="tools">
-                                            <div class="action-buttons bigger-125">
-                                                <a href="#">
-                                                    <i class="icon-pencil blue"></i>
-                                                </a>
-
-                                                <a href="#">
-                                                    <i class="icon-trash red"></i>
-                                                </a>
-                                            </div>
-                                        </div>
-                                    </div>
                                 </div>
 
                                 <div class="hr hr8"></div>
@@ -289,7 +166,8 @@
                                                      for="form-field-textarea">发表评论</label>
                                     </div>
 
-                                    <form class="form-horizontal" role="form" action="{% url 'comment' %}"
+                                    <form class="form-horizontal" role="form" id="commentForm"
+                                          action="{% url 'comment' %}"
                                           method="post">
                                         {% csrf_token %}
                                         {% if not request.session.user %}
@@ -313,12 +191,26 @@
                                                            class="col-xs-10 col-sm-5 align-left"/>
                                                 </div>
                                             </div>
+                                        {% else %}
+                                            <input type="hidden" name="user" value="{{ request.session.user.pk }}">
+                                            <input type="hidden" name="comment_author"
+                                                   value="{{ request.session.user.username }}">
+                                            <input type="hidden" name="comment_author_email"
+                                                   value="{{ request.session.user.email }}">
                                         {% endif %}
                                         <textarea id="form-field-textarea" name="comment" value=""></textarea>
-                                        <input type="hidden" name="post_id">
+                                        <input type="hidden" name="article" value="{{ post.pk }}">
+                                        <input type="hidden" name="comment_author_ip" value="
+                                    {% if not request.META.HTTP_X_FORWARDED_FOR %}
+                                        {{ request.META.REMOTE_ADDR }}
+                                    {% else %}
+                                        {{ request.META.HTTP_X_FORWARDED_FOR }}
+                                    {% endif %}
+                                    ">
+
                                         <div class="space"></div>
                                         <div class="form-group">
-                                            <button class="btn btn-sm btn-danger align-left" type="submit">
+                                            <button class="btn btn-sm btn-danger" type="button" id="submit">
                                                 <i class="icon-ok bigger-110"></i>
                                                 发表评论
                                             </button>
@@ -341,5 +233,66 @@
     <div class="col-md-1"></div>
 
 
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $("#submit").click(function () {
+                var tagUrl = $("#commentForm").attr("action");
+                var data = $("#commentForm").serialize();
+                $.ajax({
+                    type: 'post',
+                    url: tagUrl,
+                    cache: false,
+                    data: data,
+                    dataType: 'json',
+                    success: function (data) {
+                        alert('success');
+                        var datas = eval(data);
+                        $("#comments").prepend('<div class="itemdiv commentdiv">\n' +
+                            '                                            <div class="user">\n' +
+                                '                                                    <img alt="' +  datas.comment_author  + '\'s Avatar"\n'
+                                +
+                                '                                                         src="' + datas.avatar + '"/>\n'
+                                +
+                            '                                            </div>\n' +
+                            '\n' +
+                            '                                            <div class="body">\n' +
+                            '                                                <div class="name">\n' +
+                            '                                                    <a href="#">' + datas.comment_author + '</a>\n' +
+                            '                                                </div>\n' +
+                            '\n' +
+                            '                                                <div class="time">\n' +
+                            '                                                    <i class="icon-time"></i>\n' +
+                            '                                                    <span class="blue">' + datas.comment_date + '</span>\n' +
+                            '                                                </div>\n' +
+                            '\n' +
+                            '                                                <div class="text">\n' +
+                            '                                                    {#                                                <i class="icon-quote-left"></i>#}\n' +
+                            '                                                    ' + datas.comment + '\n' +
+                            '\n' +
+                            '                                                </div>\n' +
+                            '                                            </div>\n' +
+                            '\n' +
+                            '                                            <div class="tools">\n' +
+                            '                                                <div class="action-buttons bigger-125">\n' +
+                            '                                                    <a href="#">\n' +
+                            '                                                        <i class="icon-pencil blue"></i>\n' +
+                            '                                                    </a>\n' +
+                            '\n' +
+                            '                                                    <a href="#">\n' +
+                            '                                                        <i class="icon-trash red"></i>\n' +
+                            '                                                    </a>\n' +
+                            '                                                </div>\n' +
+                            '                                            </div>\n' +
+                            '                                        </div>')
+                        $("#commentForm").reset()
+                    },
 
+                    error: function () {
+                        alert("请求失败")
+                    }
+
+                })
+            });
+        });
+    </script>
 {% endblock %}
