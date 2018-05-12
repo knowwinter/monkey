@@ -231,28 +231,44 @@
         </div><!-- /span -->
     </div>
     <div class="col-md-1"></div>
+    {#    <script type="text/javascript" src="{% static 'tinymce/plugins/jquery-form.js' %}"></script>#}
 
-
-    <script type="text/javascript">
+    <script
+            type="text/javascript">
         $(document).ready(function () {
             $("#submit").click(function () {
                 var tagUrl = $("#commentForm").attr("action");
-                var data = $("#commentForm").serialize();
-                $.ajax({
+                {#                var veto = {};#}
+                {##}
+                {#                $('#commentForm').ajaxForm();#}
+                {#                $('#commentForm').bind('form-pre-serialize', function(event,form,options,veto){#}
+                {#    	tinyMCE.triggerSave();#}
+                {#{);#}
+                {#                var data = $("#commentForm").serialize();#}
+
+
+
+                // bind form using 'ajaxForm'
+                $('#commentForm').ajaxForm();
+                // 绑定form-pre-serialize事件，在触发form-serilaize事件前保存tinyMCE的数据到textarea中
+                $('#commentForm').bind('form-pre-serialize', function (event, form, options, veto) {
+                    tinyMCE.triggerSave();
+                });
+                $("#commentForm").ajaxSubmit({
                     type: 'post',
                     url: tagUrl,
                     cache: false,
-                    data: data,
+                    {#data: data,#}
                     dataType: 'json',
                     success: function (data) {
-                        alert('success');
+                        {#alert('success');#}
                         var datas = eval(data);
                         $("#comments").prepend('<div class="itemdiv commentdiv">\n' +
                             '                                            <div class="user">\n' +
-                                '                                                    <img alt="' +  datas.comment_author  + '\'s Avatar"\n'
-                                +
-                                '                                                         src="' + datas.avatar + '"/>\n'
-                                +
+                            '                                                    <img alt="' + datas.comment_author + '\'s Avatar"\n'
+                            +
+                            '                                                         src="' + datas.avatar + '"/>\n'
+                            +
                             '                                            </div>\n' +
                             '\n' +
                             '                                            <div class="body">\n' +
@@ -284,7 +300,9 @@
                             '                                                </div>\n' +
                             '                                            </div>\n' +
                             '                                        </div>')
-                        $("#commentForm").reset()
+                        tinymce.activeEditor.setContent("")
+                        {#tinymce.setActive()#}
+                        $("#commentForm").focus()
                     },
 
                     error: function () {
