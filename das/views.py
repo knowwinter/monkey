@@ -642,7 +642,7 @@ def comment(req):
                                           comment_author_email=comment_author_email, article=article, parent=parent,
                                           comment_author_ip=comment_author_ip)
             comm.save()
-            timeformat = "%Y年%m月%d日 %H:%m".encode('utf8')
+            timeformat = "%Y年%m月%d日 %H:%M".encode('utf8')
             comment_time = comm.comment_date.strftime(timeformat)
             if user:
                 jsondata = {"comment": comm.comment, "comment_author": comm.comment_author, "comment_date": comment_time, "avatar": str(user.avatar)}

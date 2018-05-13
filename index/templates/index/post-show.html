@@ -5,19 +5,19 @@
     <link rel="stylesheet" href="/static/assets/css/ace.min.front.css"/>
 
     <script type="text/javascript" src="{% static 'tinymce/tinymce.min.js' %}"></script>
-    <script type="text/javascript">
-        tinymce.init({
-            selector: "textarea",
+    {#    <script type="text/javascript">#}
+    {#        tinymce.init({#}
+    {#            selector: "textarea",#}
             {#width: 800,#}
-            height: 300,
-            forced_root_block: false,
-            convert_urls: false,
+    {#            height: 300,#}
+    {#            forced_root_block: false,#}
+    {#            convert_urls: false,#}
             {#            imageupload_url: '{% url 'upload' %}',#}
-            plugins: [],
-            toolbar: "styleselect | bold italic | alignleft aligncenter" +
-            " alignright alignjustify | bullist numlist outdent indent |  link image"
-        });
-    </script>
+    {#            plugins: [],#}
+    {#            toolbar: "styleselect | bold italic | alignleft aligncenter" +#}
+    {#            " alignright alignjustify | bullist numlist outdent indent |  link image"#}
+    {#        });#}
+    {#    </script>#}
     <script type="text/javascript" src="{% static 'tinymce/plugins/jquery-form.js' %}"></script>
     <script type="text/javascript">
         $.ajaxSetup({headers: {"X-CSRFToken": '{{ csrf_token }}'}});
@@ -134,23 +134,28 @@
                                                 </div>
 
                                                 <div class="text">
+                                                    <div class="space"></div>
                                                     {#                                                <i class="icon-quote-left"></i>#}
                                                     {{ comment.comment|safe }}
-
+                                                    <div class="space"></div>
                                                 </div>
-                                            </div>
 
+
+                                            </div>
                                             <div class="tools">
                                                 <div class="action-buttons bigger-125">
-                                                    <a href="#">
-                                                        <i class="icon-pencil blue"></i>
-                                                    </a>
+                                                    <button id="{{ comment.pk }}" class="comment">
+                                                        <i class="icon-comments blue"></i>
+                                                    </button>
 
                                                     <a href="#">
                                                         <i class="icon-trash red"></i>
                                                     </a>
                                                 </div>
+
                                             </div>
+
+
                                         </div>
                                     {% endfor %}
 
@@ -198,7 +203,8 @@
                                             <input type="hidden" name="comment_author_email"
                                                    value="{{ request.session.user.email }}">
                                         {% endif %}
-                                        <textarea id="form-field-textarea" name="comment" value=""></textarea>
+                                        <textarea id="form-field-textarea" name="comment" class="form-control" rows="5"
+                                                  value=""></textarea>
                                         <input type="hidden" name="article" value="{{ post.pk }}">
                                         <input type="hidden" name="comment_author_ip" value="
                                     {% if not request.META.HTTP_X_FORWARDED_FOR %}
@@ -236,6 +242,39 @@
     <script
             type="text/javascript">
         $(document).ready(function () {
+            $("#form-field-textarea").click(function () {
+                tinymce.init({
+                    selector: "textarea",
+                    {#width: 800,#}
+                    height: 100,
+                    forced_root_block: false,
+                    convert_urls: false,
+                    {#            imageupload_url: '{% url 'upload' %}',#}
+                    plugins: [],
+                    toolbar: "styleselect | bold italic | alignleft aligncenter" +
+                    " alignright alignjustify | bullist numlist outdent indent |  link image"
+                });
+
+            })
+
+            $(".comment").click(function () {
+                obj = $(this).parent().parent().prev().children('div.text');
+                alert(obj.prop("class"));
+                $("textarea").remove();
+                obj.append("<textarea id=\"form-field-textarea\" name=\"comment\" class=\"form-control\" rows=\"5\" value=\"\"></textarea>");
+                tinymce.init({
+                    selector: "textarea",
+                    {#width: 800,#}
+                    height: 100,
+                    forced_root_block: false,
+                    convert_urls: false,
+                    {#            imageupload_url: '{% url 'upload' %}',#}
+                    plugins: ["save"],
+                    toolbar: "save styleselect | bold italic | alignleft aligncenter" +
+                    " alignright alignjustify | bullist numlist outdent indent |  link image"
+                });
+            })
+
             $("#submit").click(function () {
                 var tagUrl = $("#commentForm").attr("action");
                 {#                var veto = {};#}
@@ -301,8 +340,9 @@
                             '                                            </div>\n' +
                             '                                        </div>')
                         tinymce.activeEditor.setContent("")
+                        tinymce.activeEditor.focus()
                         {#tinymce.setActive()#}
-                        $("#commentForm").focus()
+                        {#$("#commentForm").focus()#}
                     },
 
                     error: function () {
