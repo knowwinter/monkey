@@ -635,8 +635,10 @@ def comment(req):
             parent_id = form.cleaned_data['parent']
             if not parent_id:
                 parent = None
+                # parentjson = None
             else:
                 parent = Comment.objects.get(pk=parent_id)
+                # parentjson = {"comment_author": parent.comment_author, "comment_date": parent.comment_date, "comment": parent.comment}
             comment_author_ip = form.cleaned_data['comment_author_ip']
             comm = Comment.objects.create(comment=comment, user=user, comment_author=comment_author,
                                           comment_author_email=comment_author_email, article=article, parent=parent,
@@ -644,10 +646,23 @@ def comment(req):
             comm.save()
             timeformat = "%Y年%m月%d日 %H:%M".encode('utf8')
             comment_time = comm.comment_date.strftime(timeformat)
-            if user:
-                jsondata = {"comment": comm.comment, "comment_author": comm.comment_author, "comment_date": comment_time, "avatar": str(user.avatar)}
+
+            if user and parent:
+                jsondata = {"id": comm.pk, "comment": comm.comment, "comment_author": comm.comment_author,
+                            "comment_date": comment_time, "avatar": str(user.avatar),
+                            "parent_author": parent.comment_author, "parent_comment_date": parent.comment_date,
+                            "parent_comment": parent.comment}
+            elif parent:
+                jsondata = {"id": comm.pk, "comment": comm.comment, "comment_author": comm.comment_author,
+                            "comment_date": comment_time, "avatar": "/static/assets/avatars/avatar.png",
+                            "comment_author": parent.comment_author, "comment_date": parent.comment_date,
+                            "comment": parent.comment}
+            elif user:
+                jsondata = {"id": comm.pk, "comment": comm.comment, "comment_author": comm.comment_author,
+                            "comment_date": comment_time, "avatar": str(user.avatar)}
             else:
-                jsondata = {"comment": comm.comment, "comment_author": comm.comment_author, "comment_date": comment_time, "avatar": "/static/assets/avatars/avatar.png"}
+                jsondata = {"id": comm.pk, "comment": comm.comment, "comment_author": comm.comment_author,
+                            "comment_date": comment_time, "avatar": "/static/assets/avatars/avatar.png"}
 
             return HttpResponse(json.dumps(jsondata), content_type="application/json")
         else:
