@@ -52,11 +52,24 @@ def post_show(req, id):
     pre_post = posts.filter(pub_date__lt=post.pub_date).last()
     next_post = posts.filter(pub_date__gt=post.pub_date).first()
     post.content = post.content.replace("[!--more--]", "")
-    comments = Comment.objects.filter(article=post).order_by("-comment_date")
+    comments = Comment.objects.filter(article=post).order_by("-comment_date").values()
+    comments = list(comments)
+    comment_dict = {}
+    for item in comments:
+        item['child'] = []
+        comment_dict[item['id']] = item
+    result = []
+    for item in comments:
+        parent_id = item['parent_id']
+        if parent_id:
+            comment_dict[parent_id]['child'].append(item)
+        else:
+            result.append(item)
+    print result
     nodes = Category.objects.get_queryset()
     context['post'] = post
     context['pre_post'] = pre_post
     context['next_post'] = next_post
     context['nodes'] = nodes
-    context['comments'] = comments
+    context['comments'] = result
     return render(req, 'index/post-show.html', context)

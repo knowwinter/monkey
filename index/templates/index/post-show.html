@@ -144,9 +144,9 @@
                                             </div>
                                             <div class="tools">
                                                 <div class="action-buttons bigger-125">
-                                                    <button id="{{ comment.pk }}" class="comment">
+                                                    <a href="javascript:void(0);" id="{{ comment.pk }}" class="comment">
                                                         <i class="icon-comments blue"></i>
-                                                    </button>
+                                                    </a>
 
                                                     <a href="#">
                                                         <i class="icon-trash red"></i>
@@ -163,7 +163,7 @@
 
                                 <div class="hr hr8"></div>
 
-                                <div class="col-md-12">
+                                <div class="col-md-12" id="divcomment">
                                     <div class="center">
                                         <i class="icon-comments-alt icon-2x green"></i>
 
@@ -215,7 +215,7 @@
                                     ">
 
                                         <div class="space"></div>
-                                        <div class="form-group">
+                                        <div class="form-group" id="submitdiv">
                                             <button class="btn btn-sm btn-danger" type="button" id="submit">
                                                 <i class="icon-ok bigger-110"></i>
                                                 发表评论
@@ -257,11 +257,91 @@
 
             })
 
-            $(".comment").click(function () {
+            $("div#comment-tab").on("click",".comment", function () {
                 obj = $(this).parent().parent().prev().children('div.text');
-                alert(obj.prop("class"));
+{#                alert(obj.prop("class"));#}
+                tinymce.remove();
                 $("textarea").remove();
-                obj.append("<textarea id=\"form-field-textarea\" name=\"comment\" class=\"form-control\" rows=\"5\" value=\"\"></textarea>");
+                $("#divcomment").remove();
+                parent = $(this).attr("id");
+{#                alert(parent);#}
+                html = "<div  id='divcomment'>\n" +
+                    "                                    <div class=\"center\">\n" +
+                    "                                        <i class=\"icon-comments-alt icon-2x green\"></i>\n" +
+                    "\n" +
+                    "                                        &nbsp;<label class=\"control-label no-padding-left\"\n" +
+                    "                                                     for=\"form-field-textarea\">发表评论</label>\n" +
+                    "                                    </div>\n" +
+                    "\n" +
+                    "                                    <form class=\"form-horizontal\" role=\"form\" id=\"commentForm\"\n" +
+                    "                                          action=\"{% url 'comment' %}\"\n" +
+                    "                                          method=\"post\">\n" +
+                    "                                        {% csrf_token %}\n" +
+                    "                                        {% if not request.session.user %}\n"+
+                        "                                            <div class=\"form-group\">\n"+
+                        "                                                <label class=\"col-sm-1 control-label no-padding-right\"\n"
+                        +
+                        "                                                       for=\"form-field-1\"> 姓名：</label>\n"+
+                        "\n"+
+                        "                                                <div class=\"col-sm-11\">\n"+
+                        "                                                    <input type=\"text\" id=\"form-field-1\" name=\"comment_author\"\n"
+                        +
+                        "                                                           placeholder=\"comment_author\"\n"+
+                        "                                                           class=\"col-xs-10 col-sm-5 align-left\"/>\n"
+                        +
+                        "                                                </div>\n"+
+                        "                                            </div>\n"+
+                        "                                            <div class=\"form-group\">\n"+
+                        "                                                <label class=\"col-sm-1 control-label no-padding-right\"\n"
+                        +
+                        "                                                       for=\"form-field-2\"> 邮箱：</label>\n"+
+                        "\n"+
+                        "                                                <div class=\"col-sm-11\">\n"+
+                        "                                                    <input type=\"text\" id=\"form-field-2\" name=\"comment_author_email\"\n"
+                        +
+                        "                                                           placeholder=\"comment_author_email\"\n"
+                        +
+                        "                                                           class=\"col-xs-10 col-sm-5 align-left\"/>\n"
+                        +
+                        "                                                </div>\n"+
+                        "                                            </div>\n"+
+                        "                                        {% else %}\n"+
+                        "                                            <input type=\"hidden\" name=\"user\" value=\"{{ request.session.user.pk }}\">\n"
+                        +
+                        "                                            <input type=\"hidden\" name=\"comment_author\"\n"+
+                        "                                                   value=\"{{ request.session.user.username }}\">\n"
+                        +
+                        "                                            <input type=\"hidden\" name=\"comment_author_email\"\n"
+                        +
+                        "                                                   value=\"{{ request.session.user.email }}\">\n"
+                        +
+                        "                                        {% endif %}\n" +
+                    "                                        <textarea id=\"form-field-textarea\" name=\"comment\" class=\"form-control\" rows=\"5\"\n" +
+                    "                                                  value=\"\"></textarea>\n" +
+                    "                                        <input type=\"hidden\" name=\"article\" value=\"{{ post.pk }}\">\n" +
+                    "                                        <input type=\"hidden\" name=\"parent\" value=\" " + parent + "\">\n" +
+                    "                                        <input type=\"hidden\" name=\"comment_author_ip\" value=\"\n" +
+                    "                                    {% if not request.META.HTTP_X_FORWARDED_FOR %}\n"+
+                        "                                        {{ request.META.REMOTE_ADDR }}\n"+
+                        "                                    {% else %}\n"+
+                        "                                        {{ request.META.HTTP_X_FORWARDED_FOR }}\n"+
+                        "                                    {% endif %}\n" +
+                    "                                    \">\n" +
+                    "\n" +
+                    "                                        <div class=\"space\"></div>\n" +
+                    "                                        <div class=\"form-group\" id=\"submitdiv\">\n" +
+                    "                                            <button class=\"btn btn-sm btn-danger\" type=\"button\" id=\"submit\">\n" +
+                    "                                                <i class=\"icon-ok bigger-110\"></i>\n" +
+                    "                                                发表评论\n" +
+                    "                                            </button>\n" +
+                    "                                        </div>\n" +
+                    "                                    </form>\n" +
+                    "\n" +
+                    "                                    <div class=\"space\"></div>\n" +
+                    "\n" +
+                    "                                </div>"
+{#                obj.append("<textarea id=\"form-field-textarea\" name=\"comment\" class=\"form-control\" rows=\"5\" value=\"\"></textarea><div class=\"space\"></div>");#}
+                obj.append(html)
                 tinymce.init({
                     selector: "textarea",
                     {#width: 800,#}
@@ -275,7 +355,7 @@
                 });
             })
 
-            $("#submit").click(function () {
+            $("div#submitdiv").on('click', '#submit' ,function () {
                 var tagUrl = $("#commentForm").attr("action");
                 {#                var veto = {};#}
                 {##}
@@ -321,16 +401,111 @@
                             '                                                </div>\n' +
                             '\n' +
                             '                                                <div class="text">\n' +
+                                                                            '<div class="space"></div>\n' +
                             '                                                    {#                                                <i class="icon-quote-left"></i>#}\n' +
                             '                                                    ' + datas.comment + '\n' +
+                                                                             '<div class="space"></div>\n' +
                             '\n' +
                             '                                                </div>\n' +
                             '                                            </div>\n' +
                             '\n' +
                             '                                            <div class="tools">\n' +
                             '                                                <div class="action-buttons bigger-125">\n' +
+                            '                                                     <a href="javascript:void(0);" id="' + datas.id + '" class="comment">\n' +
+                            '                                                        <i class="icon-comments blue"></i>\n' +
+                            '                                                    </a>\n' +
+                            '\n' +
                             '                                                    <a href="#">\n' +
-                            '                                                        <i class="icon-pencil blue"></i>\n' +
+                            '                                                        <i class="icon-trash red"></i>\n' +
+                            '                                                    </a>\n' +
+                            '                                                </div>\n' +
+                            '                                            </div>\n' +
+                            '                                        </div>')
+                        tinymce.activeEditor.setContent("");
+                        tinymce.activeEditor.focus();
+                        {#tinymce.setActive()#}
+                        {#$("#commentForm").focus()#}
+                    },
+
+                    error: function () {
+                        alert("请求失败")
+                    }
+
+                })
+            });
+
+            $()
+            function commentTree(commentList) {
+                var comment_str="<div class='comment'>";
+                $.each(commentList,function (k,row) {
+                    var temp="<div class='content'>{content}</div>".Format({content:row.content});
+                    comment_str += temp;
+                    if (row.child.length>0){
+                        comment_str += commentTree(row.child);
+                    }
+                });
+                comment_str += '</div>';
+                return comment_str
+            }
+
+            $("div#comment-tab").on('click', '#submit' ,function () {
+                var tagUrl = $("#commentForm").attr("action");
+                {#                var veto = {};#}
+                {##}
+                {#                $('#commentForm').ajaxForm();#}
+                {#                $('#commentForm').bind('form-pre-serialize', function(event,form,options,veto){#}
+                {#    	tinyMCE.triggerSave();#}
+                {#{);#}
+                {#                var data = $("#commentForm").serialize();#}
+
+
+
+                // bind form using 'ajaxForm'
+                $('#commentForm').ajaxForm();
+                // 绑定form-pre-serialize事件，在触发form-serilaize事件前保存tinyMCE的数据到textarea中
+                $('#commentForm').bind('form-pre-serialize', function (event, form, options, veto) {
+                    tinyMCE.triggerSave();
+                });
+                $("#commentForm").ajaxSubmit({
+                    type: 'post',
+                    url: tagUrl,
+                    cache: false,
+                    {#data: data,#}
+                    dataType: 'json',
+                    success: function (data) {
+                        {#alert('success');#}
+                        var datas = eval(data);
+                        $("#comments").prepend('<div class="itemdiv commentdiv">\n' +
+                            '                                            <div class="user">\n' +
+                            '                                                    <img alt="' + datas.comment_author + '\'s Avatar"\n'
+                            +
+                            '                                                         src="' + datas.avatar + '"/>\n'
+                            +
+                            '                                            </div>\n' +
+                            '\n' +
+                            '                                            <div class="body">\n' +
+                            '                                                <div class="name">\n' +
+                            '                                                    <a href="#">' + datas.comment_author + '</a>\n' +
+                            '                                                </div>\n' +
+                            '\n' +
+                            '                                                <div class="time">\n' +
+                            '                                                    <i class="icon-time"></i>\n' +
+                            '                                                    <span class="blue">' + datas.comment_date + '</span>\n' +
+                            '                                                </div>\n' +
+                            '\n' +
+                            '                                                <div class="text">\n' +
+                                                                            '<div class="space"></div>\n' +
+                            '                                                    {#                                                <i class="icon-quote-left"></i>#}\n' +
+                            '                                                    ' + datas.comment + '\n' +
+                                                                             '<div class="space"></div>\n' +
+                            '\n' +
+                            '                                                </div>\n' +
+                            '                                            </div>\n' +
+                            '\n' +
+                            '                                            <div class="tools">\n' +
+                            '                                                <div class="action-buttons bigger-125">\n' +
+                            '                                                     <a href="javascript:void(0);" id="' + datas.id + '" class="comment">\n' +
+                            '                                                        <i class="icon-comments blue"></i>\n' +
                             '                                                    </a>\n' +
                             '\n' +
                             '                                                    <a href="#">\n' +
@@ -351,6 +526,7 @@
 
                 })
             });
+
         });
     </script>
 {% endblock %}
