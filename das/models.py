@@ -72,7 +72,7 @@ class Comment(models.Model):
     user = models.ForeignKey(User, blank=True, null=True, related_name="commenter")
     comment_author = models.CharField(max_length=30)
     article = models.ForeignKey(Article)
-    parent = models.ForeignKey("self", blank=True, null=True, related_name="children")
+    parent = models.ForeignKey("self", on_delete=models.CASCADE, blank=True, null=True, related_name="children")
     comment_date = models.DateTimeField(auto_now_add=True)
     comment_author_ip = models.GenericIPAddressField(blank=True, null=True)
     comment_author_email = models.EmailField(blank=True, null=True)

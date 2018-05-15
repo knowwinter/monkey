@@ -676,3 +676,58 @@ def comment(req):
     else:
         context['msg'] = '非法操作'
         return render(req, 'das/msg.html', context)
+
+
+@login_required(login_url="/login")
+def comment_show(req, status, pindex):
+    context = {}
+    comments = Comment.objects.filter(comment_status=status).order_by('comment_date')
+    paginator = Paginator(comments, 10)
+    if pindex == '':
+        pindex = '1'
+    try:
+        page = paginator.page(int(pindex))
+    except:
+        pindex = int(pindex) - 1
+        page = paginator.page(int(pindex))
+    context['pages'] = page
+    context['comments'] = comments
+    return render(req, 'das/comment-show.html', context)
+
+
+@login_required(login_url="/login")
+def comment_audit(req, comment_id, oper):
+    context = {}
+    comment = Comment.objects.get(pk=comment_id)
+    if comment:
+        if oper == "reject":
+            ret = comment_del(req, comment_id)
+            if ret['result'] == "success":
+                context['msg'] = "评论驳回成功"
+                context['result'] = "success"
+            else:
+                context['msg'] = "评论驳回失败"
+                context['result'] = "failure"
+        elif oper == "accept":
+            comment.comment_status = "1"
+            comment.save()
+            context['msg'] = "评论审核通过"
+            context['result'] = "success"
+    else:
+        context['msg'] = "评论不存在"
+        context['result'] = "failure"
+    return HttpResponse(json.dumps(context), content_type="application/json")
+
+
+@login_required(login_url="/login")
+def comment_del(req, comment_id):
+    context = {}
+    comment = Comment.objects.get(pk=comment_id)
+    if comment:
+        comment.delete()
+        context['result'] = "success"
+        context['msg'] = "评论删除成功"
+    else:
+        context['result'] = "failure"
+        context['msg'] = "评论不存在"
+    return HttpResponse(json.dumps(context), content_type="application/json")
