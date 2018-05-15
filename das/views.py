@@ -622,12 +622,18 @@ def comment(req):
         print req.POST
         form = CommentForm(req.POST)
         if form.is_valid():
+            timeformat = "%Y年%m月%d日 %H:%M".encode('utf8')
             comment = form.cleaned_data['comment']
             user_id = form.cleaned_data['user']
             if not user_id:
                 user = None
             else:
                 user = User.objects.get(pk=user_id)
+                if user.is_superuser == 1:
+                    comment_status = "1"
+                else:
+                    comment_status = "2"
+
             comment_author = form.cleaned_data['comment_author']
             comment_author_email = form.cleaned_data['comment_author_email']
             article_id = form.cleaned_data['article']
@@ -637,17 +643,31 @@ def comment(req):
                 parent = None
             else:
                 parent = Comment.objects.get(pk=parent_id)
+                parent_comment_date = parent.comment_date.strftime(timeformat)
             comment_author_ip = form.cleaned_data['comment_author_ip']
             comm = Comment.objects.create(comment=comment, user=user, comment_author=comment_author,
                                           comment_author_email=comment_author_email, article=article, parent=parent,
-                                          comment_author_ip=comment_author_ip)
+                                          comment_author_ip=comment_author_ip, comment_status=comment_status)
             comm.save()
-            timeformat = "%Y年%m月%d日 %H:%M".encode('utf8')
+
             comment_time = comm.comment_date.strftime(timeformat)
-            if user:
-                jsondata = {"id": comm.pk, "comment": comm.comment, "comment_author": comm.comment_author, "comment_date": comment_time, "avatar": str(user.avatar)}
+
+            if user and parent:
+                jsondata = {"id": comm.pk, "comment": comm.comment, "comment_author": comm.comment_author,
+                            "comment_date": comment_time, "avatar": str(user.avatar),
+                            "parent_author": parent.comment_author, "parent_comment_date": parent_comment_date,
+                            "parent_comment": parent.comment, "comment_status": comment_status}
+            elif parent:
+                jsondata = {"id": comm.pk, "comment": comm.comment, "comment_author": comm.comment_author,
+                            "comment_date": comment_time, "avatar": "/static/assets/avatars/avatar.png",
+                            "parent_author": parent.comment_author, "parent_comment_date": parent.comment_date,
+                            "parent_comment": parent.comment, "comment_status": comment_status}
+            elif user:
+                jsondata = {"id": comm.pk, "comment": comm.comment, "comment_author": comm.comment_author,
+                            "comment_date": comment_time, "avatar": str(user.avatar), "comment_status": comment_status}
             else:
-                jsondata = {"id": comm.pk, "comment": comm.comment, "comment_author": comm.comment_author, "comment_date": comment_time, "avatar": "/static/assets/avatars/avatar.png"}
+                jsondata = {"id": comm.pk, "comment": comm.comment, "comment_author": comm.comment_author,
+                            "comment_date": comment_time, "avatar": "/static/assets/avatars/avatar.png", "comment_status": comment_status}
 
             return HttpResponse(json.dumps(jsondata), content_type="application/json")
         else:

@@ -77,6 +77,16 @@ class Comment(models.Model):
     comment_author_ip = models.GenericIPAddressField(blank=True, null=True)
     comment_author_email = models.EmailField(blank=True, null=True)
     comment_modify_date = models.DateTimeField(auto_now=True)
+    comment_status_choice = (
+        ('1', 'open'),
+        ('2', 'close'),
+    )
+    comment_status = models.CharField(
+        max_length=1,
+        choices=comment_status_choice,
+        default='2',
+    )
+
 
 
 class Tag(models.Model):
