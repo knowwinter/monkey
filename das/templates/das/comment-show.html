@@ -1,4 +1,6 @@
 ﻿{% extends "das/base.html" %}
+{% load staticfiles %}
+{% load static %}
 
 {% block page %}
     {% load mptt_tags %}
@@ -7,6 +9,38 @@
             <!-- PAGE CONTENT BEGINS -->
 
             <div class="row">
+                <div class="form-group">
+                    <form class="form-horizontal" role="form" id="comment_status_form"
+                          action="{% url 'comment_list' '1' comment_status %}"
+                          method="post">
+                        {% csrf_token %}
+                        <div class="col-sm-3">
+                            <select class="col-xs-12 col-sm-6" name="comment_status" id="comment_status">
+
+                                <option value="0"
+                                        {% if comment_status == '0' %}
+                                        selected="selected"
+                                        {% endif %}
+                                >ALL
+                                </option>
+                                <option value="1"
+                                        {% if comment_status == '1' %}
+                                        selected="selected"
+                                        {% endif %}
+                                >已批准
+                                </option>
+                                <option value="2"
+                                        {% if comment_status == '2' %}
+                                        selected="selected"
+                                        {% endif %}
+                                >待审核
+                                </option>
+                            </select>
+                            <button class="btn btn-sm btn-group-sm btn-white" type="submit">筛选</button>
+                        </div>
+                    </form>
+                </div>
+
                 <div class="col-xs-12">
                     <div class="table-responsive">
                         <table id="sample-table-1" class="table table-striped table-bordered table-hover">
@@ -18,7 +52,7 @@
                                         <span class="lbl"></span>
                                     </label>
                                 </th>
-                                <th>作者</th>
+                                <th class="col-md-2">作者</th>
                                 <th>评论</th>
                                 <th>回应给</th>
 
@@ -40,10 +74,20 @@
                                     </td>
 
                                     <td>
-                                        <a href="#">{{ page.name }}</a>
+
+                                        <div class="col-sm-4"><img src="{{ page.user.avatar }}"></div>
+                                        <div class="col-sm-8"><a href="#">{{ page.user.username }}</a></div>
+                                        <div class="col-sm-8"><a href="#">{{ page.user.email }}</a></div>
+                                        <div class="col-sm-12"><span>{{ page.comment_author_ip }}</span></div>
+
+
                                     </td>
-                                    <td>{{ page.description }}</td>
-                                    <td class="hidden-480">{{ page.url_slug }}</td>
+                                    <td>
+                                        <span>提交于：{{ page.comment_date }}</span><br/>
+                                        {{ page.comment }}
+                                    </td>
+                                    <td class="hidden-480">
+                                        <a href="{{ page.article.guid }}">{{ page.article.title }}</a></td>
 
 
                                     <td class="hidden-480">
@@ -53,21 +97,22 @@
                                     <td>
                                         <div class="visible-md visible-lg hidden-sm hidden-xs btn-group">
 
-                                            <a href="{% url 'tag_modify' page.id %}">
+                                            <a href="javascript:void(0);" id="comment_accept">
                                                 <button class="btn btn-xs btn-info">
                                                     <i class="icon-edit bigger-120"></i>
                                                 </button>
                                             </a>
 
-                                            <a href="{% url 'tag_del' pages.number page.id %}">
+                                            <a href="javascript:void(0);" id="comment_reject">
                                                 <button class="btn btn-xs btn-danger">
                                                     <i class="icon-trash bigger-120"></i>
                                                 </button>
                                             </a>
-
-                                            <button class="btn btn-xs btn-warning">
-                                                <i class="icon-flag bigger-120"></i>
-                                            </button>
+                                            <a href="javascript:void(0);" id="comment_del">
+                                                <button class="btn btn-xs btn-warning">
+                                                    <i class="icon-flag bigger-120"></i>
+                                                </button>
+                                            </a>
                                         </div>
 
                                         <div class="visible-xs visible-sm hidden-md hidden-lg">
@@ -118,7 +163,7 @@
                             {% if index == pages.number %}
                                 {{ index }}
                             {% else %}
-                                <a href="/das/tag/{{ index }}">{{ index }}</a>
+                                <a href="{% url 'comment_list' index comment_status %}">{{ index }}</a>
                             {% endif %}
                         {% endfor %}
                     </div><!-- /.table-responsive -->
@@ -127,4 +172,31 @@
         </div><!-- /.col -->
 
     </div><!-- /.row -->
+    <script type="text/javascript" src="{% static 'tinymce/plugins/jquery-form.js' %}"></script>
+    <script type="text/javascript">
+        $.ajaxSetup({headers: {"X-CSRFToken": '{{ csrf_token }}'}});
+        $(document).ready(function () {
+            {#$("select#comment_status").change(function () {#}
+            {#    alert("aaa");#}
+            {#comment_status = $(this).children("option:selected").serialize();#}
+            {#    comment_status = $(this).serialize()#}
+            {#    alert(comment_status);#}
+            {#    var tagUrl = $("#comment_status_form").attr("action");#}
+            {#    alert(tagUrl);#}
+            {#    $('#comment_status_form').ajaxForm();#}
+            {#    $("#comment_status_form").ajaxSubmit({#}
+            {#        type: "post",#}
+            {#        url:  tagUrl,#}
+            {#        async: false,#}
+            {#        datatype: "json",#}
+            {#        success: function (data) {#}
+            {#            console.log("success")#}
+            {#        }#}
+            {#    })#}
+            {#})
+        #}
+
+        })
+        ;
+    </script>
 {% endblock %}

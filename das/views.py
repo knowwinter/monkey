@@ -619,7 +619,7 @@ def handle_upload_file(file, filename, schema, host):
 def comment(req):
     context = {}
     if req.method == "POST":
-        print req.POST
+        # print req.POST
         form = CommentForm(req.POST)
         if form.is_valid():
             timeformat = "%Y年%m月%d日 %H:%M".encode('utf8')
@@ -679,9 +679,19 @@ def comment(req):
 
 
 @login_required(login_url="/login")
-def comment_show(req, status, pindex):
+def comment_show(req, pindex, comment_status):
     context = {}
-    comments = Comment.objects.filter(comment_status=status).order_by('comment_date')
+    if comment_status == "":
+        comment_status = '0'
+    if req.method == "POST":
+        form = CommentStatusForm(req.POST)
+        if form.is_valid():
+            comment_status = form.cleaned_data['comment_status']
+
+    if comment_status == '0':
+        comments = Comment.objects.all().order_by('-comment_date')
+    else:
+        comments = Comment.objects.filter(comment_status=comment_status).order_by('-comment_date')
     paginator = Paginator(comments, 10)
     if pindex == '':
         pindex = '1'
@@ -692,6 +702,7 @@ def comment_show(req, status, pindex):
         page = paginator.page(int(pindex))
     context['pages'] = page
     context['comments'] = comments
+    context['comment_status'] = comment_status
     return render(req, 'das/comment-show.html', context)
 
 

@@ -51,3 +51,7 @@ class CommentForm(forms.Form):
     parent = forms.IntegerField(required=False)
     comment_author_ip = forms.GenericIPAddressField(required=False)
     comment_author_email = forms.EmailField(required=False)
+
+
+class CommentStatusForm(forms.Form):
+    comment_status = forms.CharField(required=True)
