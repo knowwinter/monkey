@@ -1,6 +1,7 @@
 ﻿{% extends 'index/base.html' %}
-{% load staticfiles %}
 {% load static %}
+{% load staticfiles %}
+
 {% block header %}
     <style type="text/css">
         .commentquote {
@@ -171,10 +172,12 @@
                                                     <a href="javascript:void(0);" id="{{ comment.pk }}" class="comment">
                                                         <i class="icon-comments blue"></i>
                                                     </a>
-
-                                                    <a href="#">
+                                                    {% if request.session.user.username == comment.comment_author or request.session.user.is_superuser %}
+                                                        <a href="javascript:void(0);" id="{{ comment.pk }}"
+                                                           class="comment_del">
                                                         <i class="icon-trash red"></i>
                                                     </a>
+                                                    {% endif %}
                                                 </div>
 
                                             </div>
@@ -272,6 +275,7 @@
                             </li>
                         </ul>
                     </div>
+                         <div class="space"></div>
                 </div>
                 {% endif %}
             </div><!-- /widget-box -->
@@ -564,9 +568,14 @@
                             '                                                        <i class="icon-comments blue"></i>\n' +
                             '                                                    </a>\n' +
                             '\n' +
-                            '                                                    <a href="#">\n' +
+                                '
+                                    {% if request.session.user.username == ' + datas.comment_author + ' or request.session.user.is_superuser %}
+                                        ' +
+                                        '                                                    <a href="javascript:void(0);" id="'
+                                        + datas.id + '" class="comment_del">\n' +
                             '                                                        <i class="icon-trash red"></i>\n' +
                             '                                                    </a>\n' +
+                                        '{% endif %}' +
                             '                                                </div>\n' +
                             '                                            </div>\n' +
                             '                                        </div>'
@@ -605,9 +614,14 @@
                             '                                                        <i class="icon-comments blue"></i>\n' +
                             '                                                    </a>\n' +
                             '\n' +
-                            '                                                    <a href="#">\n' +
+                                '
+                                    {% if request.session.user.username == ' + datas.comment_author + ' or request.session.user.is_superuser %}
+                                        ' +
+                                        '                                                    <a href="javascript:void(0);" id="'
+                                        + datas.id + '" class="comment_del">\n' +
                             '                                                        <i class="icon-trash red"></i>\n' +
                             '                                                    </a>\n' +
+                                        '{% endif %}' +
                             '                                                </div>\n' +
                             '                                            </div>\n' +
                             '                                        </div>'
@@ -691,9 +705,15 @@
                                 '                                                        <i class="icon-comments blue"></i>\n' +
                                 '                                                    </a>\n' +
                                 '\n' +
-                                '                                                    <a href="#">\n' +
-                                '                                                        <i class="icon-trash red"></i>\n' +
-                                '                                                    </a>\n' +
+                                '
+                                    {% if request.session.user.username == ' + datas.comment_author + ' or request.session.user.is_superuser %}
+                                        ' +
+                                        '                                                    <a href="javascript:void(0);" id="'
+                                        + datas.id + '" class="comment_del">\n' +
+                                        '                                                        <i class="icon-trash red"></i>\n'
+                                        +
+                                        '                                                    </a>\n' +
+                                        '{% endif %}' +
                                 '                                                </div>\n' +
                                 '                                            </div>\n' +
                                 '                                        </div>'
@@ -732,9 +752,15 @@
                                 '                                                        <i class="icon-comments blue"></i>\n' +
                                 '                                                    </a>\n' +
                                 '\n' +
-                                '                                                    <a href="#">\n' +
-                                '                                                        <i class="icon-trash red"></i>\n' +
-                                '                                                    </a>\n' +
+                                '
+                                    {% if request.session.user.username == ' + datas.comment_author + ' or request.session.user.is_superuser %}
+                                        ' +
+                                        '                                                    <a href="javascript:void(0);" id="'
+                                        + datas.id + '" class="comment_del">\n' +
+                                        '                                                        <i class="icon-trash red"></i>\n'
+                                        +
+                                        '                                                    </a>\n' +
+                                        '{% endif %}' +
                                 '                                                </div>\n' +
                                 '                                            </div>\n' +
                                 '                                        </div>'
@@ -841,9 +867,14 @@
                             '                                                        <i class="icon-comments blue"></i>\n' +
                             '                                                    </a>\n' +
                             '\n' +
-                            '                                                    <a href="#">\n' +
+                                '
+                                    {% if request.session.user.username == ' + datas.comment_author + ' or request.session.user.is_superuser %}
+                                        ' +
+                                        '                                                    <a href="javascript:void(0);" id="'
+                                        + datas.id + '" class="comment_del">\n' +
                             '                                                        <i class="icon-trash red"></i>\n' +
                             '                                                    </a>\n' +
+                                        '{% endif %}' +
                             '                                                </div>\n' +
                             '                                            </div>\n' +
                             '                                        </div>'
@@ -904,9 +935,14 @@
                             '                                                        <i class="icon-comments blue"></i>\n' +
                             '                                                    </a>\n' +
                             '\n' +
-                            '                                                    <a href="#">\n' +
+                                '
+                                    {% if request.session.user.username == ' + datas.comment_author + ' or request.session.user.is_superuser %}
+                                        ' +
+                                        '                                                    <a href="javascript:void(0);" id="'
+                                        + datas.id + '" class="comment_del">\n' +
                             '                                                        <i class="icon-trash red"></i>\n' +
                             '                                                    </a>\n' +
+                                        '{% endif %}' +
                             '                                                </div>\n' +
                             '                                            </div>\n' +
                             '                                        </div>'
@@ -924,6 +960,31 @@
 
                 })
             });
+
+            $("div.tools").on("click", "a.comment_del", function () {
+                var comment_id = $(this).attr("id")
+                var obj = $(this)
+                var div = obj.parents('div.commentdiv')
+                var url = "{% url 'comment_del' 123 %}"
+                url = url.replace('123', comment_id)
+
+                $.ajax({
+                    type: "GET",
+                    url: url,
+                    datatype: 'json',
+                    success: function (result) {
+                        if (result.result == 'success') {
+                            alert(result.msg)
+                            div.remove()
+                        } else {
+                            alert("处理失败")
+                        }
+                    },
+                    error: function () {
+                        alert('异常')
+                    }
+                })
+            })
 
 
         });

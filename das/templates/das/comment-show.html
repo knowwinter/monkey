@@ -58,7 +58,7 @@
 
                                 <th class="hidden-480">id</th>
 
-                                <th>操作</th>
+
                             </tr>
                             </thead>
 
@@ -82,9 +82,32 @@
 
 
                                     </td>
-                                    <td>
+                                    <td class="commenttd">
                                         <span>提交于：{{ page.comment_date }}</span><br/>
                                         {{ page.comment }}
+                                        <div class="tools hidden">
+                                            <div class="action-buttons bigger-125">
+                                                {% if page.comment_status == '2' %}
+                                                    <a href="javascript:void(0);" id="{{ page.pk }}"
+                                                       class="comment_accept">
+                                                        <i class="icon-check green"></i>
+                                                    </a>
+                                                {% elif page.comment_status == '1' %}
+                                                    <a href="javascript:void(0);" id="{{ page.pk }}"
+                                                       class="comment_reject">
+                                                        <i class="icon-remove red"></i>
+                                                    </a>
+                                                {% endif %}
+                                                <a href="javascript:void(0);" id="{{ page.pk }}" class="comment">
+                                                    <i class="icon-comments blue"></i>
+                                                </a>
+
+                                                <a href="javascript:void(0);" id="{{ page.pk }}" class="comment_del">
+                                                    <i class="icon-trash red"></i>
+                                                </a>
+                                            </div>
+
+                                        </div>
                                     </td>
                                     <td class="hidden-480">
                                         <a href="{{ page.article.guid }}">{{ page.article.title }}</a></td>
@@ -94,65 +117,7 @@
                                         {{ page.id }}
                                     </td>
 
-                                    <td>
-                                        <div class="visible-md visible-lg hidden-sm hidden-xs btn-group">
 
-                                            <a href="javascript:void(0);" id="comment_accept">
-                                                <button class="btn btn-xs btn-info">
-                                                    <i class="icon-edit bigger-120"></i>
-                                                </button>
-                                            </a>
-
-                                            <a href="javascript:void(0);" id="comment_reject">
-                                                <button class="btn btn-xs btn-danger">
-                                                    <i class="icon-trash bigger-120"></i>
-                                                </button>
-                                            </a>
-                                            <a href="javascript:void(0);" id="comment_del">
-                                                <button class="btn btn-xs btn-warning">
-                                                    <i class="icon-flag bigger-120"></i>
-                                                </button>
-                                            </a>
-                                        </div>
-
-                                        <div class="visible-xs visible-sm hidden-md hidden-lg">
-                                            <div class="inline position-relative">
-                                                <button class="btn btn-minier btn-primary dropdown-toggle"
-                                                        data-toggle="dropdown">
-                                                    <i class="icon-cog icon-only bigger-110"></i>
-                                                </button>
-
-                                                <ul class="dropdown-menu dropdown-only-icon dropdown-yellow pull-right dropdown-caret dropdown-close">
-                                                    <li>
-                                                        <a href="#" class="tooltip-info" data-rel="tooltip"
-                                                           title="View">
-																				<span class="blue">
-																					<i class="icon-zoom-in bigger-120"></i>
-																				</span>
-                                                        </a>
-                                                    </li>
-
-                                                    <li>
-                                                        <a href="#" class="tooltip-success" data-rel="tooltip"
-                                                           title="Edit">
-																				<span class="green">
-																					<i class="icon-edit bigger-120"></i>
-																				</span>
-                                                        </a>
-                                                    </li>
-
-                                                    <li>
-                                                        <a href="#" class="tooltip-error" data-rel="tooltip"
-                                                           title="Delete">
-																				<span class="red">
-																					<i class="icon-trash bigger-120"></i>
-																				</span>
-                                                        </a>
-                                                    </li>
-                                                </ul>
-                                            </div>
-                                        </div>
-                                    </td>
                                 </tr>
                             {% endfor %}
 
@@ -176,27 +141,95 @@
     <script type="text/javascript">
         $.ajaxSetup({headers: {"X-CSRFToken": '{{ csrf_token }}'}});
         $(document).ready(function () {
-            {#$("select#comment_status").change(function () {#}
-            {#    alert("aaa");#}
-            {#comment_status = $(this).children("option:selected").serialize();#}
-            {#    comment_status = $(this).serialize()#}
-            {#    alert(comment_status);#}
-            {#    var tagUrl = $("#comment_status_form").attr("action");#}
-            {#    alert(tagUrl);#}
-            {#    $('#comment_status_form').ajaxForm();#}
-            {#    $("#comment_status_form").ajaxSubmit({#}
-            {#        type: "post",#}
-            {#        url:  tagUrl,#}
-            {#        async: false,#}
-            {#        datatype: "json",#}
-            {#        success: function (data) {#}
-            {#            console.log("success")#}
-            {#        }#}
-            {#    })#}
-            {#})
-        #}
 
-        })
-        ;
+            $(".commenttd").hover(function () {
+                $(this).children('.tools').removeClass("hidden");
+            }, function () {
+                $(this).children('.tools').addClass("hidden");
+            })
+
+
+            $("div.tools").on("click", "a.comment_accept", function () {
+                var comment_id = $(this).attr("id")
+                var obj = $(this)
+                var url = "{% url 'comment_audit' 123 'accept' %}"
+                url = url.replace('123', comment_id)
+                url = url.replace('accept', 'accept')
+                $.ajax({
+                    type: "GET",
+                    url: url,
+                    datatype: 'json',
+                    success: function (result) {
+                        if (result.result == 'success') {
+                            alert(result.msg)
+                            obj.removeClass("comment_accept")
+                            obj.addClass("comment_reject")
+                            obj.children('i').removeClass("icon-check green")
+                            obj.children('i').addClass("icon-remove red")
+                        } else {
+                            alert("处理失败")
+                        }
+                    },
+                    error: function () {
+                        alert('异常')
+                    }
+                })
+            })
+
+            $("div.tools").on("click", "a.comment_reject", function () {
+                var comment_id = $(this).attr("id")
+                var obj = $(this)
+                var url = "{% url 'comment_audit' 123 'reject' %}"
+                url = url.replace('123', comment_id)
+                url = url.replace('reject', 'reject')
+                $.ajax({
+                    type: "GET",
+                    url: url,
+                    datatype: 'json',
+                    success: function (result) {
+                        if (result.result == 'success') {
+                            alert(result.msg)
+                            obj.removeClass("comment_reject")
+                            obj.addClass("comment_accept")
+
+                            obj.children('i').removeClass("icon-remove red")
+                            obj.children('i').addClass("icon-check green")
+                        } else {
+                            alert("处理失败")
+                        }
+                    },
+                    error: function () {
+                        alert('异常')
+                    }
+                })
+            })
+
+            $("div.tools").on("click", "a.comment_del", function () {
+                var comment_id = $(this).attr("id")
+                var obj = $(this)
+                var tr = obj.parents('tr')
+                var url = "{% url 'comment_del' 123 %}"
+                url = url.replace('123', comment_id)
+
+                $.ajax({
+                    type: "GET",
+                    url: url,
+                    datatype: 'json',
+                    success: function (result) {
+                        if (result.result == 'success') {
+                            alert(result.msg)
+                            tr.remove()
+                        } else {
+                            alert("处理失败")
+                        }
+                    },
+                    error: function () {
+                        alert('异常')
+                    }
+                })
+            })
+
+
+        });
     </script>
 {% endblock %}

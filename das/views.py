@@ -712,13 +712,13 @@ def comment_audit(req, comment_id, oper):
     comment = Comment.objects.get(pk=comment_id)
     if comment:
         if oper == "reject":
-            ret = comment_del(req, comment_id)
-            if ret['result'] == "success":
-                context['msg'] = "评论驳回成功"
-                context['result'] = "success"
-            else:
-                context['msg'] = "评论驳回失败"
-                context['result'] = "failure"
+            # ret = comment_del(req, comment_id)
+            comment.comment_status = "2"
+            comment.save()
+
+            context['msg'] = "评论驳回成功"
+            context['result'] = "success"
+
         elif oper == "accept":
             comment.comment_status = "1"
             comment.save()
