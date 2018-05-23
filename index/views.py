@@ -48,7 +48,8 @@ def post_show(req, id):
     posts = Article.objects.all().order_by('pub_date')
     post = posts.get(pk=id)
     post.view_count = post.view_count + 1
-    post.save()
+    post.comment_count = post.comment_set.filter(comment_status=1).count()
+    post.save(update_fields=['view_count',"comment_count"])
     pre_post = posts.filter(pub_date__lt=post.pub_date).last()
     next_post = posts.filter(pub_date__gt=post.pub_date).first()
     post.content = post.content.replace("[!--more--]", "")

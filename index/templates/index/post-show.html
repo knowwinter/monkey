@@ -41,7 +41,18 @@
                     class="icon-calendar"></i> {{ post.pub_date }}
                 <i class="icon-folder-open"></i> <a href="#"> {% if post.category is None %}未归档{% else %}
                     {{ post.category }}{% endif %}</a>
-                <i class="icon-eye-open"></i> {{ post.view_count }} views</h4>
+                <i class="icon-eye-open"></i> {{ post.view_count }}
+            {% if post.comment_count == 0 %}
+                <i class="icon-comment-alt"></i> <span id="comment_count">{{ post.comment_count }}</span>
+            {% else %}
+                <i class="icon-comment"></i> <span id="comment_count">{{ post.comment_count }}</span>
+            {% endif %}
+            {% if post.like_count == 0 %}
+                <i class="icon-heart-empty"></i> <span id="like_count">{{ post.like_count }}</span>
+            {% else %}
+                <i class="icon-heart"></i> <span id="like_count">{{ post.like_count }}</span>
+            {% endif %}
+            </h4>
 
             <p style=word-wrap:break-word;>
                 {{ post.content|safe }}
@@ -325,11 +336,11 @@
                     "                                        {% csrf_token %}\n" +
                     "                                        {% if not request.session.user %}\n"+
                         "                                            <div class=\"form-group\">\n"+
-                        "                                                <label class=\"col-sm-1 control-label no-padding-right\"\n"
+                        "                                                <label class=\"col-sm-2 control-label no-padding-left\"\n"
                         +
                         "                                                       for=\"form-field-1\"> 姓名：</label>\n"+
                         "\n"+
-                        "                                                <div class=\"col-sm-11\">\n"+
+                        "                                                <div class=\"col-sm-10\">\n"+
                         "                                                    <input type=\"text\" id=\"form-field-1\" name=\"comment_author\"\n"
                         +
                         "                                                           placeholder=\"comment_author\"\n"+
@@ -338,11 +349,11 @@
                         "                                                </div>\n"+
                         "                                            </div>\n"+
                         "                                            <div class=\"form-group\">\n"+
-                        "                                                <label class=\"col-sm-1 control-label no-padding-right\"\n"
+                        "                                                <label class=\"col-sm-2 control-label no-padding-left\"\n"
                         +
                         "                                                       for=\"form-field-2\"> 邮箱：</label>\n"+
                         "\n"+
-                        "                                                <div class=\"col-sm-11\">\n"+
+                        "                                                <div class=\"col-sm-10\">\n"+
                         "                                                    <input type=\"text\" id=\"form-field-2\" name=\"comment_author_email\"\n"
                         +
                         "                                                           placeholder=\"comment_author_email\"\n"
@@ -424,11 +435,11 @@
                     "                                        {% csrf_token %}\n" +
                     "                                        {% if not request.session.user %}\n"+
                         "                                            <div class=\"form-group\">\n"+
-                        "                                                <label class=\"col-sm-1 control-label no-padding-right\"\n"
+                        "                                                <label class=\"col-sm-2 control-label no-padding-left\"\n"
                         +
                         "                                                       for=\"form-field-1\"> 姓名：</label>\n"+
                         "\n"+
-                        "                                                <div class=\"col-sm-11\">\n"+
+                        "                                                <div class=\"col-sm-10\">\n"+
                         "                                                    <input type=\"text\" id=\"form-field-1\" name=\"comment_author\"\n"
                         +
                         "                                                           placeholder=\"comment_author\"\n"+
@@ -437,11 +448,11 @@
                         "                                                </div>\n"+
                         "                                            </div>\n"+
                         "                                            <div class=\"form-group\">\n"+
-                        "                                                <label class=\"col-sm-1 control-label no-padding-right\"\n"
+                        "                                                <label class=\"col-sm-2 control-label no-padding-left\"\n"
                         +
                         "                                                       for=\"form-field-2\"> 邮箱：</label>\n"+
                         "\n"+
-                        "                                                <div class=\"col-sm-11\">\n"+
+                        "                                                <div class=\"col-sm-10\">\n"+
                         "                                                    <input type=\"text\" id=\"form-field-2\" name=\"comment_author_email\"\n"
                         +
                         "                                                           placeholder=\"comment_author_email\"\n"
@@ -568,14 +579,9 @@
                             '                                                        <i class="icon-comments blue"></i>\n' +
                             '                                                    </a>\n' +
                             '\n' +
-                                '
-                                    {% if request.session.user.username == ' + datas.comment_author + ' or request.session.user.is_superuser %}
-                                        ' +
-                                        '                                                    <a href="javascript:void(0);" id="'
-                                        + datas.id + '" class="comment_del">\n' +
+                                 '                                                     <a href="javascript:void(0);" id="' + datas.id + '" class="comment_del">\n' +
                             '                                                        <i class="icon-trash red"></i>\n' +
                             '                                                    </a>\n' +
-                                        '{% endif %}' +
                             '                                                </div>\n' +
                             '                                            </div>\n' +
                             '                                        </div>'
@@ -614,17 +620,13 @@
                             '                                                        <i class="icon-comments blue"></i>\n' +
                             '                                                    </a>\n' +
                             '\n' +
-                                '
-                                    {% if request.session.user.username == ' + datas.comment_author + ' or request.session.user.is_superuser %}
-                                        ' +
-                                        '                                                    <a href="javascript:void(0);" id="'
-                                        + datas.id + '" class="comment_del">\n' +
+                                '                                                     <a href="javascript:void(0);" id="' + datas.id + '" class="comment_del">\n' +
                             '                                                        <i class="icon-trash red"></i>\n' +
                             '                                                    </a>\n' +
-                                        '{% endif %}' +
                             '                                                </div>\n' +
                             '                                            </div>\n' +
                             '                                        </div>'
+                            $("span#comment_count").text(datas.comment_count)
                         }
                         $("#comments").prepend(html)
                         tinymce.activeEditor.setContent("");
@@ -633,8 +635,8 @@
                         {#$("#commentForm").focus()#}
                     },
 
-                    error: function () {
-                        alert("请求失败")
+                    error: function (data) {
+                        alert("请求失败--" + data)
                     }
 
                 })
@@ -705,15 +707,9 @@
                                 '                                                        <i class="icon-comments blue"></i>\n' +
                                 '                                                    </a>\n' +
                                 '\n' +
-                                '
-                                    {% if request.session.user.username == ' + datas.comment_author + ' or request.session.user.is_superuser %}
-                                        ' +
-                                        '                                                    <a href="javascript:void(0);" id="'
-                                        + datas.id + '" class="comment_del">\n' +
-                                        '                                                        <i class="icon-trash red"></i>\n'
-                                        +
-                                        '                                                    </a>\n' +
-                                        '{% endif %}' +
+                                 '                                                     <a href="javascript:void(0);" id="' + datas.id + '" class="comment_del">\n' +
+                            '                                                        <i class="icon-trash red"></i>\n' +
+                            '                                                    </a>\n' +
                                 '                                                </div>\n' +
                                 '                                            </div>\n' +
                                 '                                        </div>'
@@ -752,18 +748,13 @@
                                 '                                                        <i class="icon-comments blue"></i>\n' +
                                 '                                                    </a>\n' +
                                 '\n' +
-                                '
-                                    {% if request.session.user.username == ' + datas.comment_author + ' or request.session.user.is_superuser %}
-                                        ' +
-                                        '                                                    <a href="javascript:void(0);" id="'
-                                        + datas.id + '" class="comment_del">\n' +
-                                        '                                                        <i class="icon-trash red"></i>\n'
-                                        +
-                                        '                                                    </a>\n' +
-                                        '{% endif %}' +
+                                '                                                     <a href="javascript:void(0);" id="' + datas.id + '" class="comment_del">\n' +
+                            '                                                        <i class="icon-trash red"></i>\n' +
+                            '                                                    </a>\n' +
                                 '                                                </div>\n' +
                                 '                                            </div>\n' +
                                 '                                        </div>'
+                            $("span#comment_count").text(datas.comment_count)
                         }
                         $("#comments").prepend(html)
                         tinymce.activeEditor.setContent("");
@@ -772,8 +763,8 @@
                         {#$("#commentForm").focus()#}
                     },
 
-                    error: function () {
-                        alert("请求失败")
+                    error: function (data) {
+                        alert("请求失败--" + data)
                     }
 
                 })
@@ -867,14 +858,9 @@
                             '                                                        <i class="icon-comments blue"></i>\n' +
                             '                                                    </a>\n' +
                             '\n' +
-                                '
-                                    {% if request.session.user.username == ' + datas.comment_author + ' or request.session.user.is_superuser %}
-                                        ' +
-                                        '                                                    <a href="javascript:void(0);" id="'
-                                        + datas.id + '" class="comment_del">\n' +
+                                '                                                     <a href="javascript:void(0);" id="' + datas.id + '" class="comment_del">\n' +
                             '                                                        <i class="icon-trash red"></i>\n' +
                             '                                                    </a>\n' +
-                                        '{% endif %}' +
                             '                                                </div>\n' +
                             '                                            </div>\n' +
                             '                                        </div>'
@@ -935,17 +921,13 @@
                             '                                                        <i class="icon-comments blue"></i>\n' +
                             '                                                    </a>\n' +
                             '\n' +
-                                '
-                                    {% if request.session.user.username == ' + datas.comment_author + ' or request.session.user.is_superuser %}
-                                        ' +
-                                        '                                                    <a href="javascript:void(0);" id="'
-                                        + datas.id + '" class="comment_del">\n' +
+                                '                                                     <a href="javascript:void(0);" id="' + datas.id + '" class="comment_del">\n' +
                             '                                                        <i class="icon-trash red"></i>\n' +
                             '                                                    </a>\n' +
-                                        '{% endif %}' +
                             '                                                </div>\n' +
                             '                                            </div>\n' +
                             '                                        </div>'
+                            $("span#comment_count").text(datas.comment_count)
                         }
                         $("#comments").prepend(html)
                         tinymce.activeEditor.setContent("")
@@ -954,14 +936,15 @@
                         {#$("#commentForm").focus()#}
                     },
 
-                    error: function () {
-                        alert("请求失败")
+                    error: function (data) {
+                        alert("请求失败--" + data)
                     }
 
                 })
             });
 
-            $("div.tools").on("click", "a.comment_del", function () {
+            $("div#comment-tab").on("click", "a.comment_del", function () {
+
                 var comment_id = $(this).attr("id")
                 var obj = $(this)
                 var div = obj.parents('div.commentdiv')
@@ -976,8 +959,13 @@
                         if (result.result == 'success') {
                             alert(result.msg)
                             div.remove()
+                            $('span#comment_count').text(result.comment_count)
                         } else {
-                            alert("处理失败")
+                            if(!result.result)
+                                alert("非注册用户不能自行删除评论")
+                            else {
+                                alert(result.msg)
+                            }
                         }
                     },
                     error: function () {

@@ -625,14 +625,15 @@ def comment(req):
             timeformat = "%Y年%m月%d日 %H:%M".encode('utf8')
             comment = form.cleaned_data['comment']
             user_id = form.cleaned_data['user']
+            comment_status = "2"
             if not user_id:
                 user = None
             else:
                 user = User.objects.get(pk=user_id)
                 if user.is_superuser == 1:
                     comment_status = "1"
-                else:
-                    comment_status = "2"
+
+
 
             comment_author = form.cleaned_data['comment_author']
             comment_author_email = form.cleaned_data['comment_author_email']
@@ -649,6 +650,9 @@ def comment(req):
                                           comment_author_email=comment_author_email, article=article, parent=parent,
                                           comment_author_ip=comment_author_ip, comment_status=comment_status)
             comm.save()
+            if comm.comment_status == 1:
+                article.comment_count = article.comment_count + 1
+                article.save(update_fields=['comment_count'])
 
             comment_time = comm.comment_date.strftime(timeformat)
 
@@ -656,18 +660,18 @@ def comment(req):
                 jsondata = {"id": comm.pk, "comment": comm.comment, "comment_author": comm.comment_author,
                             "comment_date": comment_time, "avatar": str(user.avatar),
                             "parent_author": parent.comment_author, "parent_comment_date": parent_comment_date,
-                            "parent_comment": parent.comment, "comment_status": comment_status}
+                            "parent_comment": parent.comment, "comment_status": comment_status, "comment_count": article.comment_count}
             elif parent:
                 jsondata = {"id": comm.pk, "comment": comm.comment, "comment_author": comm.comment_author,
                             "comment_date": comment_time, "avatar": "/static/assets/avatars/avatar.png",
-                            "parent_author": parent.comment_author, "parent_comment_date": parent.comment_date,
-                            "parent_comment": parent.comment, "comment_status": comment_status}
+                            "parent_author": parent.comment_author, "parent_comment_date": parent_comment_date,
+                            "parent_comment": parent.comment, "comment_status": comment_status, "comment_count": article.comment_count}
             elif user:
                 jsondata = {"id": comm.pk, "comment": comm.comment, "comment_author": comm.comment_author,
-                            "comment_date": comment_time, "avatar": str(user.avatar), "comment_status": comment_status}
+                            "comment_date": comment_time, "avatar": str(user.avatar), "comment_status": comment_status, "comment_count": article.comment_count}
             else:
                 jsondata = {"id": comm.pk, "comment": comm.comment, "comment_author": comm.comment_author,
-                            "comment_date": comment_time, "avatar": "/static/assets/avatars/avatar.png", "comment_status": comment_status}
+                            "comment_date": comment_time, "avatar": "/static/assets/avatars/avatar.png", "comment_status": comment_status, "comment_count": article.comment_count}
 
             return HttpResponse(json.dumps(jsondata), content_type="application/json")
         else:
@@ -722,6 +726,9 @@ def comment_audit(req, comment_id, oper):
         elif oper == "accept":
             comment.comment_status = "1"
             comment.save()
+            article = comment.article
+            article.comment_count = article.comment_count + 1
+            article.save()
             context['msg'] = "评论审核通过"
             context['result'] = "success"
     else:
@@ -735,9 +742,15 @@ def comment_del(req, comment_id):
     context = {}
     comment = Comment.objects.get(pk=comment_id)
     if comment:
+
+        article = comment.article
+
         comment.delete()
+        article.comment_count = article.comment_set.filter(comment_status=1).count()
+        article.save()
         context['result'] = "success"
         context['msg'] = "评论删除成功"
+        context['comment_count'] = article.comment_count
     else:
         context['result'] = "failure"
         context['msg'] = "评论不存在"

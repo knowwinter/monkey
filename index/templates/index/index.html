@@ -6,7 +6,7 @@
             {% for p in pages %}
                 <div class="blog-post">
                     <h2>{{ p.title }}.</h2>
-                    <h4>Posted by <a href="#">{{ p.pub_author }}</a> on {{ p.pub_date }} Views: {{ p.view_count }}</h4>
+                    <h4>Posted by <a href="#">{{ p.pub_author }}</a> on {{ p.pub_date }} Views: {{ p.view_count }} Comments: {{ p.comment_count }}</h4>
                     <h5>Tags：{% for tag in p.tag_set.all %}
                         <label class="label-info label-lg label">{{ tag }}</label>
                     {% endfor %}
