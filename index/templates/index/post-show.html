@@ -50,7 +50,8 @@
             {% if post.like_count == 0 %}
                 <i class="icon-heart-empty"></i> <span id="like_count">{{ post.like_count }}</span>
             {% else %}
-                <i class="icon-heart"></i> <span id="like_count">{{ post.like_count }}</span>
+                <a href="javascript:void (0);"> <i class="icon-heart"></i> </a>
+                <span id="like_count">{{ post.like_count }}</span>
             {% endif %}
             </h4>
 

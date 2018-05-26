@@ -31,6 +31,11 @@ class Article(models.Model):
     url_slug = models.SlugField(editable=False)
     view_count = models.IntegerField(default=0)
     like_count = models.IntegerField(default=0)
+    like_user = models.ManyToManyField(
+        User,
+        through='Likearticleship',
+        through_fields=('user', 'article'),
+    )
     comment_count = models.IntegerField(default=0)
     pub_author = models.ForeignKey(User)
     pub_date = models.DateTimeField(auto_now_add=True)
@@ -86,6 +91,11 @@ class Comment(models.Model):
         choices=comment_status_choice,
         default='2',
     )
+    like_user = models.ManyToManyField(
+        User,
+        through='Likecommentship',
+        through_fields=('user', 'comment'),
+    )
 
 
 
@@ -111,3 +121,13 @@ class Tag(models.Model):
 class Tagship(models.Model):
     article = models.ForeignKey(Article)
     tag = models.ForeignKey(Tag)
+
+
+class Likearticleship(models.Model):
+    article = models.ForeignKey(Article)
+    user = models.ForeignKey(User)
+
+
+class Likecommentship(models.Model):
+    user = models.ForeignKey(User)
+    comment = models.ForeignKey(Comment)

@@ -1,6 +1,13 @@
 ﻿{% extends "das/base.html" %}
 {% load staticfiles %}
 {% load static %}
+{% block header %}
+    <script type="text/javascript" src="{% static 'tinymce/tinymce.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'tinymce/plugins/jquery-form.js' %}"></script>
+    <script type="text/javascript">
+        $.ajaxSetup({headers: {"X-CSRFToken": '{{ csrf_token }}'}});
+    </script>
+{% endblock %}
 
 {% block page %}
     {% load mptt_tags %}
@@ -62,10 +69,10 @@
                             </tr>
                             </thead>
 
-                            <tbody>
+                            <tbody id="commenttbody">
                             {% for page in pages %}
 
-                                <tr>
+                                <tr class="commenttr">
                                     <td class="center">
                                         <label>
                                             <input type="checkbox" class="ace"/>
@@ -109,6 +116,7 @@
 
                                         </div>
                                     </td>
+                                    <td class="hidden">{{ page.article.pk }}</td>
                                     <td class="hidden-480">
                                         <a href="{{ page.article.guid }}">{{ page.article.title }}</a></td>
 
@@ -142,11 +150,21 @@
         $.ajaxSetup({headers: {"X-CSRFToken": '{{ csrf_token }}'}});
         $(document).ready(function () {
 
-            $(".commenttd").hover(function () {
-                $(this).children('.tools').removeClass("hidden");
-            }, function () {
-                $(this).children('.tools').addClass("hidden");
-            })
+
+            {#$("tbody#commenttbody .commenttd").on({#}
+            {#    mouseenter:function(){#}
+            {#        $(this).children('.tools').removeClass("hidden");#}
+            {#    },#}
+            {#    mouseleave:function(){#}
+            {#        $(this).children('.tools').addClass("hidden");#}
+            {#{})#}
+
+            $('tbody#commenttbody').on('mouseenter', '.commenttd', function () {
+                $(this).children('.tools').removeClass('hidden');
+            });
+            $('tbody#commenttbody').on('mouseleave', '.commenttd', function () {
+                $(this).children('.tools').addClass('hidden');
+            });
 
 
             $("div.tools").on("click", "a.comment_accept", function () {
@@ -228,6 +246,183 @@
                     }
                 })
             })
+
+            $("tbody").on("click", ".comment", function () {
+                obj = $(this).parents('td');
+                {#                alert(obj.prop("class"));#}
+                article_id = $(this).parents('td.commenttd').next().text()
+                tinymce.remove();
+                $("textarea").remove();
+                $("form").remove();
+                $("#divcomment").remove();
+                parent = $(this).attr("id");
+                {#                alert(parent);#}
+                html = "<div  id='divcomment'>\n" +
+                    "                                    <div class=\"center\">\n" +
+                    "                                        <i class=\"icon-comments-alt icon-2x green\"></i>\n" +
+                    "\n" +
+                    "                                        &nbsp;<label class=\"control-label no-padding-left\"\n" +
+                    "                                                     for=\"form-field-textarea\">发表评论</label>\n" +
+                    "                                    </div>\n" +
+                    "\n" +
+                    "                                    <form class=\"form-horizontal\" role=\"form\" id=\"commentForm\"\n" +
+                    "                                          action=\"{% url 'comment' %}\"\n" +
+                    "                                          method=\"post\">\n" +
+                    "                                        {% csrf_token %}\n" +
+
+                    "                                            <input type=\"hidden\" name=\"user\" value=\"{{ request.session.user.pk }}\">\n"
+                    +
+                    "                                            <input type=\"hidden\" name=\"comment_author\"\n" +
+                    "                                                   value=\"{{ request.session.user.username }}\">\n"
+                    +
+                    "                                            <input type=\"hidden\" name=\"comment_author_email\"\n"
+                    +
+                    "                                                   value=\"{{ request.session.user.email }}\">\n"
+                    +
+
+                    "                                        <textarea id=\"form-field-textarea\" name=\"comment\" class=\"form-control\" rows=\"5\"\n" +
+                    "                                                  value=\"\"></textarea>\n" +
+                    "                                        <input type=\"hidden\" name=\"article\" value=\"" + article_id + "\">\n" +
+                    "                                        <input type=\"hidden\" name=\"parent\" value=\" " + parent + "\">\n" +
+                    "                                        <input type=\"hidden\" name=\"comment_author_ip\" value=\"\n" +
+                    "                                    {% if not request.META.HTTP_X_FORWARDED_FOR %}\n"+
+                        "                                        {{ request.META.REMOTE_ADDR }}\n"+
+                        "                                    {% else %}\n"+
+                        "                                        {{ request.META.HTTP_X_FORWARDED_FOR }}\n"+
+                        "                                    {% endif %}\n" +
+                    "                                    \">\n" +
+                    "\n" +
+                    "                                        <div class=\"space\"></div>\n" +
+                    "                                        <div class=\"form-group center\" id=\"submitdiv\">\n" +
+                    "                                            <button class=\"btn btn-sm btn-danger\" type=\"button\" id=\"submit\">\n" +
+                    "                                                <i class=\"icon-ok bigger-110\"></i>\n" +
+                    "                                                发表评论\n" +
+                    "                                            </button>\n" +
+                    "                                            <button class=\"btn btn-sm btn-danger\" type=\"button\" id=\"cancel\">\n" +
+                    "                                                <i class=\"icon-ok bigger-110\"></i>\n" +
+                    "                                                取消评论\n" +
+                    "                                            </button>\n" +
+                    "                                        </div>\n" +
+                    "                                    </form>\n" +
+                    "\n" +
+                    "                                    <div class=\"space\"></div>\n" +
+                    "\n" +
+                    "                                </div>"
+                {#                obj.append("<textarea id=\"form-field-textarea\" name=\"comment\" class=\"form-control\" rows=\"5\" value=\"\"></textarea><div class=\"space\"></div>");#}
+                obj.append(html)
+                tinymce.init({
+                    selector: "textarea",
+                    {#width: 800,#}
+                    height: 100,
+                    forced_root_block: false,
+                    convert_urls: false,
+                    {#            imageupload_url: '{% url 'upload' %}',#}
+                    plugins: ["save"],
+                    toolbar: "save styleselect | bold italic | alignleft aligncenter" +
+                    " alignright alignjustify | bullist numlist outdent indent |  link image"
+                });
+            })
+
+            $("tbody").on('click', '#cancel', function () {
+                tinymce.remove();
+                $("textarea").remove();
+                $("form").remove();
+                $("#divcomment").remove();
+                $(".tools").addClass("hidden")
+
+
+            })
+
+            $("tbody").on('click', '#submit', function () {
+                var tagUrl = $("#commentForm").attr("action");
+                {#                var veto = {};#}
+                {##}
+                {#                $('#commentForm').ajaxForm();#}
+                {#                $('#commentForm').bind('form-pre-serialize', function(event,form,options,veto){#}
+                {#    	tinyMCE.triggerSave();#}
+                {#{);#}
+                {#                var data = $("#commentForm").serialize();#}
+
+
+
+                // bind form using 'ajaxForm'
+                $('#commentForm').ajaxForm();
+                // 绑定form-pre-serialize事件，在触发form-serilaize事件前保存tinyMCE的数据到textarea中
+                $('#commentForm').bind('form-pre-serialize', function (event, form, options, veto) {
+                    tinyMCE.triggerSave();
+                });
+                $("#commentForm").ajaxSubmit({
+                    type: 'post',
+                    url: tagUrl,
+                    cache: false,
+                    {#data: data,#}
+                    dataType: 'json',
+                    success: function (data) {
+                        {#alert('success');#}
+                        var datas = eval(data);
+                        var html = " <tr class=\"commenttr\">\n" +
+                            "                                    <td class=\"center\">\n" +
+                            "                                        <label>\n" +
+                            "                                            <input type=\"checkbox\" class=\"ace\"/>\n" +
+                            "                                            <span class=\"lbl\"></span>\n" +
+                            "                                        </label>\n" +
+                            "                                    </td>\n" +
+                            "\n" +
+                            "                                    <td>\n" +
+                            "\n" +
+                            "                                        <div class=\"col-sm-4\"><img src=\"{{ page.user.avatar }}" + datas.avatar + "\"></div>\n" +
+                            "                                        <div class=\"col-sm-8\"><a href=\"#\">" + datas.comment_author + "</a></div>\n" +
+                            "                                        <div class=\"col-sm-8\"><a href=\"#\">" + datas.comment_author_email + "</a></div>\n" +
+                            "                                        <div class=\"col-sm-12\"><span>" + datas.comment_author_ip + "</span></div>\n" +
+                            "\n" +
+                            "\n" +
+                            "                                    </td>\n" +
+                            "                                    <td class=\"commenttd\">\n" +
+                            "                                        <span>提交于：" + datas.comment_date + "</span><br/>\n" +
+                            "                                        " + datas.comment + "\n" +
+                            "                                        <div class=\"tools hidden\">\n" +
+                            "                                            <div class=\"action-buttons bigger-125\">\n" +
+                            "\n" +
+                            "                                                    <a href=\"javascript:void(0);\" id=\"" + datas.id + "\"\n" +
+                            "                                                       class=\"comment_reject\">\n" +
+                            "                                                        <i class=\"icon-remove red\"></i>\n" +
+                            "                                                    </a>\n" +
+                            "\n" +
+                            "                                                <a href=\"javascript:void(0);\" id=\"" + datas.id + "\" class=\"comment\">\n" +
+                            "                                                    <i class=\"icon-comments blue\"></i>\n" +
+                            "                                                </a>\n" +
+                            "\n" +
+                            "                                                <a href=\"javascript:void(0);\" id=\"" + datas.id + "\" class=\"comment_del\">\n" +
+                            "                                                    <i class=\"icon-trash red\"></i>\n" +
+                            "                                                </a>\n" +
+                            "                                            </div>\n" +
+                            "\n" +
+                            "                                        </div>\n" +
+                            "                                    </td>\n" +
+                            "                                <td class=\"hidden\">" + datas.article_id + "</td>\n" +
+                            "                                    <td class=\"hidden-480\">\n" +
+                            "                                        <a href=\"" + datas.article_guid + "\">" + datas.article_title + "</a></td>\n" +
+                            "\n" +
+                            "\n" +
+                            "                                    <td class=\"hidden-480\">" + datas.id + "</td>\n" +
+                            "\n" +
+                            "\n" +
+                            "                                </tr>";
+
+
+                        $("tbody").prepend(html)
+                        tinymce.activeEditor.setContent("")
+                        tinymce.activeEditor.focus()
+                        {#tinymce.setActive()#}
+                        {#$("#commentForm").focus()#}
+                    },
+
+                    error: function (data) {
+                        alert("请求失败--" + data)
+                    }
+
+                })
+            });
 
 
         });

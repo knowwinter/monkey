@@ -529,6 +529,7 @@ def page_del(req, pindex, article_id):
     return redirect('/das/page/' + pindex, context)
 
 
+
 # @login_required(login_url='/login')
 # def media_view(req, pindex):
 #     context = {}
@@ -650,7 +651,7 @@ def comment(req):
                                           comment_author_email=comment_author_email, article=article, parent=parent,
                                           comment_author_ip=comment_author_ip, comment_status=comment_status)
             comm.save()
-            if comm.comment_status == 1:
+            if comm.comment_status == '1':
                 article.comment_count = article.comment_count + 1
                 article.save(update_fields=['comment_count'])
 
@@ -660,18 +661,31 @@ def comment(req):
                 jsondata = {"id": comm.pk, "comment": comm.comment, "comment_author": comm.comment_author,
                             "comment_date": comment_time, "avatar": str(user.avatar),
                             "parent_author": parent.comment_author, "parent_comment_date": parent_comment_date,
-                            "parent_comment": parent.comment, "comment_status": comment_status, "comment_count": article.comment_count}
+                            "parent_comment": parent.comment, "comment_status": comment_status,
+                            "comment_count": article.comment_count, "comment_author_ip": comm.comment_author_ip,
+                            "article_guid": article.guid, "article_title": article.title,
+                            "comment_author_email": comm.comment_author_email, "article_id": article.pk}
             elif parent:
                 jsondata = {"id": comm.pk, "comment": comm.comment, "comment_author": comm.comment_author,
                             "comment_date": comment_time, "avatar": "/static/assets/avatars/avatar.png",
                             "parent_author": parent.comment_author, "parent_comment_date": parent_comment_date,
-                            "parent_comment": parent.comment, "comment_status": comment_status, "comment_count": article.comment_count}
+                            "parent_comment": parent.comment, "comment_status": comment_status,
+                            "comment_count": article.comment_count, "comment_author_ip": comm.comment_author_ip,
+                            "article_guid": article.guid, "article_title": article.title,
+                            "comment_author_email": comm.comment_author_email, "article_id": article.pk}
             elif user:
                 jsondata = {"id": comm.pk, "comment": comm.comment, "comment_author": comm.comment_author,
-                            "comment_date": comment_time, "avatar": str(user.avatar), "comment_status": comment_status, "comment_count": article.comment_count}
+                            "comment_date": comment_time, "avatar": str(user.avatar), "comment_status": comment_status,
+                            "comment_count": article.comment_count, "comment_author_ip": comm.comment_author_ip,
+                            "article_guid": article.guid, "article_title": article.title,
+                            "comment_author_email": comm.comment_author_email, "article_id": article.pk}
             else:
                 jsondata = {"id": comm.pk, "comment": comm.comment, "comment_author": comm.comment_author,
-                            "comment_date": comment_time, "avatar": "/static/assets/avatars/avatar.png", "comment_status": comment_status, "comment_count": article.comment_count}
+                            "comment_date": comment_time, "avatar": "/static/assets/avatars/avatar.png",
+                            "comment_status": comment_status, "comment_count": article.comment_count,
+                            "comment_author_ip": comm.comment_author_ip, "article_guid": article.guid,
+                            "article_title": article.title, "comment_author_email": comm.comment_author_email,
+                            "article_id": article.pk}
 
             return HttpResponse(json.dumps(jsondata), content_type="application/json")
         else:
