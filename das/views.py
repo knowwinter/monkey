@@ -769,3 +769,23 @@ def comment_del(req, comment_id):
         context['result'] = "failure"
         context['msg'] = "评论不存在"
     return HttpResponse(json.dumps(context), content_type="application/json")
+
+
+@login_required(login_url="/login")
+def like_article(req, article_id, user_id):
+    context = {}
+    article = Article.objects.get(pk=article_id)
+    user = User.objects.get(pk=user_id)
+    try:
+        likearticleship = Likearticleship.objects.filter(user=user, article=article)
+
+        if likearticleship:
+            likearticleship[0].delete()
+        else:
+            likearticleship = Likearticleship.objects.create(user=user, article=article)
+            likearticleship.save()
+        context['result'] = 'success'
+    except:
+        context['result'] = 'failure'
+    finally:
+        return HttpResponse(json.dumps(context), content_type="application/json")

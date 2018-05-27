@@ -12,6 +12,19 @@ class User(AbstractUser):
     nickname = models.CharField(verbose_name='昵称', max_length=32)
     telephone = models.CharField(max_length=11, null=True, unique=True)
     avatar = models.FileField(upload_to='static/assets/avatars/', default="/static/assets/avatar/avatar.png")
+    like_comment = models.ManyToManyField(
+        'Comment',
+        related_name="comment_like_user",
+        through='Likecommentship',
+        through_fields=('user', 'comment'),
+
+    )
+    like_article = models.ManyToManyField(
+        'Article',
+        related_name="article_like_user",
+        through='Likearticleship',
+        through_fields=('user', 'article'),
+    )
 
 
 class Category(MPTTModel):
@@ -31,13 +44,14 @@ class Article(models.Model):
     url_slug = models.SlugField(editable=False)
     view_count = models.IntegerField(default=0)
     like_count = models.IntegerField(default=0)
-    like_user = models.ManyToManyField(
-        User,
-        through='Likearticleship',
-        through_fields=('user', 'article'),
-    )
+
     comment_count = models.IntegerField(default=0)
-    pub_author = models.ForeignKey(User)
+    pub_author = models.ForeignKey(User, related_name='author')
+    # like_user = models.ManyToManyField(
+    #     User,
+    #     # through='Likearticleship',
+    #     # through_fields=('likeuser', 'likearticle'),
+    # )
     pub_date = models.DateTimeField(auto_now_add=True)
     last_modify = models.DateTimeField(auto_now=True)
     article_status_choice = (
@@ -91,12 +105,6 @@ class Comment(models.Model):
         choices=comment_status_choice,
         default='2',
     )
-    like_user = models.ManyToManyField(
-        User,
-        through='Likecommentship',
-        through_fields=('user', 'comment'),
-    )
-
 
 
 class Tag(models.Model):
@@ -124,8 +132,9 @@ class Tagship(models.Model):
 
 
 class Likearticleship(models.Model):
-    article = models.ForeignKey(Article)
     user = models.ForeignKey(User)
+    article = models.ForeignKey(Article)
+
 
 
 class Likecommentship(models.Model):

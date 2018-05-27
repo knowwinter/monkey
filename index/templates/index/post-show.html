@@ -10,6 +10,7 @@
             border: 1px dotted
         }
 
+
     </style>
     <link rel="stylesheet" href="/static/assets/css/ace.min.front.css"/>
 
@@ -47,10 +48,14 @@
             {% else %}
                 <i class="icon-comment"></i> <span id="comment_count">{{ post.comment_count }}</span>
             {% endif %}
-            {% if post.like_count == 0 %}
-                <i class="icon-heart-empty"></i> <span id="like_count">{{ post.like_count }}</span>
+                {#            {% print request.session.user %}#}
+                {% load likearticleship_tags %}
+                {% if request.session.user.pk not in post.likearticleship_set.all|pk_list %}
+                    <a href="javascript:void (0);" id="{{ post.pk }}" class="likearticle"> <i
+                            class="icon-heart-empty"></i></a> <span id="like_count">{{ post.like_count }}</span>
             {% else %}
-                <a href="javascript:void (0);"> <i class="icon-heart"></i> </a>
+                    <a href="javascript:void (0);" id="{{ post.pk }}" class="likearticle"> <i
+                            class="icon-heart red"></i> </a>
                 <span id="like_count">{{ post.like_count }}</span>
             {% endif %}
             </h4>
@@ -971,6 +976,43 @@
                     },
                     error: function () {
                         alert('异常')
+                    }
+                })
+            })
+
+            $(".likearticle").click(function () {
+                var islogin = null
+                {% if request.session.user.pk %}
+                    islogin = {{ request.session.user.pk }}
+                {% endif %}
+                if (!islogin) {
+                    alert("未登录！")
+                    return;
+                }
+                var url = "{% url 'like_article' post.pk  123 %}"
+                url = url.replace(123, islogin)
+                obj = $(this).children("i")
+                spanobj = $(this).next('span#like_count')
+                count = Number(spanobj.text())
+                $.ajax({
+                    type: "GET",
+                    url: url,
+                    datatype: 'json',
+                    success: function (result) {
+                        if (result.result == 'success') {
+
+                            if (obj.attr("class") == "icon-heart-empty") {
+                                obj.removeClass("icon-heart-empty")
+                                obj.addClass("icon-heart red")
+
+                                spanobj.text(count + 1)
+
+                            } else {
+                                obj.removeClass("icon-heart red")
+                                obj.addClass("icon-heart-empty")
+                                spanobj.text(count - 1)
+                            }
+                        }
                     }
                 })
             })
