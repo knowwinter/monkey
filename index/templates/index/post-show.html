@@ -156,6 +156,13 @@
                                                 </div>
 
                                                 <div class="time">
+                                                    {% if request.session.user.pk not in comment.likecommentship_set.all|pk_list %}
+                                                     <a href="javascript:void(0);" id="{{ comment.pk }}" class="likecomment"> <i class="icon-thumbs-up-alt"></i></a>
+                                                    <span id="like_comment_count">{{ comment.likecommentship_set.all.count }}</span>
+                                                    {% else %}
+                                                        <a href="javascript:void(0);" id="{{ comment.pk }}" class="likecomment"> <i class="icon-thumbs-up red"></i></a>
+                                                        <span id="like_comment_count">{{ comment.likecommentship_set.all.count }}</span>
+                                                    {% endif %}
                                                     <i class="icon-time"></i>
                                                     <span class="blue">{{ comment.comment_date }}</span>
                                                 </div>
@@ -606,6 +613,8 @@
                             '                                                </div>\n' +
                             '\n' +
                             '                                                <div class="time">\n' +
+                                 '   <a href="javascript:void(0);" id="'+ datas.id +'" class="likecomment"> <i class="icon-thumbs-up-alt"></i></a>'+
+                                                   ' <span id="like_comment_count">0</span>'+
                             '                                                    <i class="icon-time"></i>\n' +
                             '                                                    <span class="blue">' + datas.comment_date + '</span>\n' +
                             '                                                </div>\n' +
@@ -734,6 +743,8 @@
                                 '                                                </div>\n' +
                                 '\n' +
                                 '                                                <div class="time">\n' +
+                                    '   <a href="javascript:void(0);" id="'+ datas.id +'" class="likecomment"> <i class="icon-thumbs-up-alt"></i></a>'+
+                                                   ' <span id="like_comment_count">0</span>'+
                                 '                                                    <i class="icon-time"></i>\n' +
                                 '                                                    <span class="blue">' + datas.comment_date + '</span>\n' +
                                 '                                                </div>\n' +
@@ -885,6 +896,8 @@
                             '                                                </div>\n' +
                             '\n' +
                             '                                                <div class="time">\n' +
+                                    '   <a href="javascript:void(0);" id="'+ datas.id +'" class="likecomment"> <i class="icon-thumbs-up-alt"></i></a>'+
+                                                   ' <span id="like_comment_count">0</span>'+
                             '                                                    <i class="icon-time"></i>\n' +
                             '                                                    <span class="blue">' + datas.comment_date + '</span>\n' +
                             '                                                </div>\n' +
@@ -963,8 +976,103 @@
                     datatype: 'json',
                     success: function (result) {
                         if (result.result == 'success') {
-                            alert(result.msg)
-                            div.remove()
+                            alert(result.msg);
+                             tinymce.remove();
+                            $("textarea").remove();
+                            $("form").remove();
+                            $("#divcomment").remove();
+                            div.remove();
+                            html = "<div  id='divcomment'>\n" +
+                                "                                    <div class=\"center\">\n" +
+                                "                                        <i class=\"icon-comments-alt icon-2x green\"></i>\n" +
+                                "\n" +
+                                "                                        &nbsp;<label class=\"control-label no-padding-left\"\n" +
+                                "                                                     for=\"form-field-textarea\">发表评论</label>\n" +
+                                "                                    </div>\n" +
+                                "\n" +
+                                "                                    <form class=\"form-horizontal\" role=\"form\" id=\"commentForm\"\n" +
+                                "                                          action=\"{% url 'comment' %}\"\n" +
+                                "                                          method=\"post\">\n" +
+                                "                                        {% csrf_token %}\n" +
+                                "                                        {% if not request.session.user %}\n"+
+                                    "                                            <div class=\"form-group\">\n"+
+                                    "                                                <label class=\"col-sm-2 control-label no-padding-left\"\n"
+                                    +
+                                    "                                                       for=\"form-field-1\"> 姓名：</label>\n"+
+                                    "\n"+
+                                    "                                                <div class=\"col-sm-10\">\n"+
+                                    "                                                    <input type=\"text\" id=\"form-field-1\" name=\"comment_author\"\n"
+                                    +
+                                    "                                                           placeholder=\"comment_author\"\n"+
+                                    "                                                           class=\"col-xs-10 col-sm-5 align-left\"/>\n"
+                                    +
+                                    "                                                </div>\n"+
+                                    "                                            </div>\n"+
+                                    "                                            <div class=\"form-group\">\n"+
+                                    "                                                <label class=\"col-sm-2 control-label no-padding-left\"\n"
+                                    +
+                                    "                                                       for=\"form-field-2\"> 邮箱：</label>\n"+
+                                    "\n"+
+                                    "                                                <div class=\"col-sm-10\">\n"+
+                                    "                                                    <input type=\"text\" id=\"form-field-2\" name=\"comment_author_email\"\n"
+                                    +
+                                    "                                                           placeholder=\"comment_author_email\"\n"
+                                    +
+                                    "                                                           class=\"col-xs-10 col-sm-5 align-left\"/>\n"
+                                    +
+                                    "                                                </div>\n"+
+                                    "                                            </div>\n"+
+                                    "                                        {% else %}\n"+
+                                    "                                            <input type=\"hidden\" name=\"user\" value=\"{{ request.session.user.pk }}\">\n"
+                                    +
+                                    "                                            <input type=\"hidden\" name=\"comment_author\"\n"+
+                                    "                                                   value=\"{{ request.session.user.username }}\">\n"
+                                    +
+                                    "                                            <input type=\"hidden\" name=\"comment_author_email\"\n"
+                                    +
+                                    "                                                   value=\"{{ request.session.user.email }}\">\n"
+                                    +
+                                    "                                        {% endif %}\n" +
+                                "                                        <textarea id=\"form-field-textarea\" name=\"comment\" class=\"form-control\" rows=\"5\"\n" +
+                                "                                                  value=\"\"></textarea>\n" +
+                                "                                        <input type=\"hidden\" name=\"article\" value=\"{{ post.pk }}\">\n" +
+
+                                "                                        <input type=\"hidden\" name=\"comment_author_ip\" value=\"\n" +
+                                "                                    {% if not request.META.HTTP_X_FORWARDED_FOR %}\n"+
+                                    "                                        {{ request.META.REMOTE_ADDR }}\n"+
+                                    "                                    {% else %}\n"+
+                                    "                                        {{ request.META.HTTP_X_FORWARDED_FOR }}\n"+
+                                    "                                    {% endif %}\n" +
+                                "                                    \">\n" +
+                                "\n" +
+                                "                                        <div class=\"space\"></div>\n" +
+                                "                                        <div class=\"form-group\" id=\"submitcomment\">\n" +
+                                "                                            <button class=\"btn btn-sm btn-danger\" type=\"button\" id=\"subcomm2\">\n" +
+                                "                                                <i class=\"icon-ok bigger-110\"></i>\n" +
+                                "                                                发表评论\n" +
+                                "                                            </button>\n" +
+
+                                "                                        </div>\n" +
+                                "                                    </form>\n" +
+                                "\n" +
+                                "                                    <div class=\"space\"></div>\n" +
+                                "\n" +
+                                "                                </div>";
+                            obj = $('div#commenthr')
+
+                            obj.after(html);
+                            tinymce.init({
+                                selector: "textarea",
+                                {#width: 800,#}
+                                height: 100,
+                                forced_root_block: false,
+                                convert_urls: false,
+                                {#            imageupload_url: '{% url 'upload' %}',#}
+                                plugins: ["save"],
+                                toolbar: "save styleselect | bold italic | alignleft aligncenter" +
+                                " alignright alignjustify | bullist numlist outdent indent |  link image"
+                            });
+
                             $('span#comment_count').text(result.comment_count)
                         } else {
                             if(!result.result)
@@ -1010,6 +1118,45 @@
                             } else {
                                 obj.removeClass("icon-heart red")
                                 obj.addClass("icon-heart-empty")
+                                spanobj.text(count - 1)
+                            }
+                        }
+                    }
+                })
+            })
+
+         $("div#comment-tab").on("click", ".likecomment", function () {
+                var islogin = null
+                {% if request.session.user.pk %}
+                    islogin = {{ request.session.user.pk }}
+                {% endif %}
+                if (!islogin) {
+                    alert("未登录！")
+                    return;
+                }
+                var comment_id = $(this).attr("id")
+                var url = "{% url 'like_comment' 456  123 %}"
+                url = url.replace(123, islogin)
+                url = url.replace(456, comment_id)
+                obj = $(this).children("i")
+                spanobj = $(this).next('span#like_comment_count')
+                count = Number(spanobj.text())
+                $.ajax({
+                    type: "GET",
+                    url: url,
+                    datatype: 'json',
+                    success: function (result) {
+                        if (result.result == 'success') {
+
+                            if (obj.attr("class") == "icon-thumbs-up-alt") {
+                                obj.removeClass("icon-thumbs-up-alt")
+                                obj.addClass("icon-thumbs-up red")
+
+                                spanobj.text(count + 1)
+
+                            } else {
+                                obj.removeClass("icon-thumbs-up red")
+                                obj.addClass("icon-thumbs-up-alt")
                                 spanobj.text(count - 1)
                             }
                         }

@@ -81,11 +81,17 @@
                                     </td>
 
                                     <td>
-
-                                        <div class="col-sm-4"><img src="{{ page.user.avatar }}"></div>
-                                        <div class="col-sm-8"><a href="#">{{ page.user.username }}</a></div>
-                                        <div class="col-sm-8"><a href="#">{{ page.user.email }}</a></div>
-                                        <div class="col-sm-12"><span>{{ page.comment_author_ip }}</span></div>
+                                        {% if page.user %}
+                                            <div class="col-sm-4"><img src="{{ page.user.avatar }}"></div>
+                                            <div class="col-sm-8"><a href="#">{{ page.user.username }}</a></div>
+                                            <div class="col-sm-8"><a href="#">{{ page.user.email }}</a></div>
+                                            <div class="col-sm-12"><span>{{ page.comment_author_ip }}</span></div>
+                                        {% else %}
+                                            <div class="col-sm-4"><img src="{% static 'assets/avatars/avatar.png' %}"></div>
+                                            <div class="col-sm-8"><a href="#">{{ page.comment_author }}</a></div>
+                                            <div class="col-sm-8"><a href="#">{{ page.comment_author_email }}</a></div>
+                                            <div class="col-sm-12"><span>{{ page.comment_author_ip }}</span></div>
+                                        {% endif %}
 
 
                                     </td>

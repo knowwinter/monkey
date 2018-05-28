@@ -21,4 +21,5 @@ urlpatterns = [
     url(r'^comment/audit/(\d+)/(accept|reject)/$', views.comment_audit, name='comment_audit'),
     url(r'^comment/del/(\d+)/$', views.comment_del, name='comment_del'),
     url(r'^post/like/(\d+)/(\d+)/$', views.like_article, name='like_article'),
+    url(r'^comment/like/(\d+)/(\d+)/$', views.like_comment, name='like_comment'),
 ]

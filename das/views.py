@@ -789,3 +789,22 @@ def like_article(req, article_id, user_id):
         context['result'] = 'failure'
     finally:
         return HttpResponse(json.dumps(context), content_type="application/json")
+
+@login_required(login_url="/login")
+def like_comment(req, comment_id, user_id):
+    context = {}
+    comment = Comment.objects.get(pk=comment_id)
+    user = User.objects.get(pk=user_id)
+    try:
+        likecommentship = Likecommentship.objects.filter(user=user, comment=comment)
+
+        if likecommentship:
+            likecommentship[0].delete()
+        else:
+            likecommentship = Likecommentship.objects.create(user=user, comment=comment)
+            likecommentship.save()
+        context['result'] = 'success'
+    except:
+        context['result'] = 'failure'
+    finally:
+        return HttpResponse(json.dumps(context), content_type="application/json")

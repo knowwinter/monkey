@@ -11,7 +11,7 @@ from uuslug import slugify
 class User(AbstractUser):
     nickname = models.CharField(verbose_name='昵称', max_length=32)
     telephone = models.CharField(max_length=11, null=True, unique=True)
-    avatar = models.FileField(upload_to='static/assets/avatars/', default="/static/assets/avatar/avatar.png")
+    avatar = models.FileField(upload_to='static/assets/avatars/', default="/static/assets/avatars/avatar.png")
     like_comment = models.ManyToManyField(
         'Comment',
         related_name="comment_like_user",
