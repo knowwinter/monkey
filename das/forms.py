@@ -55,3 +55,7 @@ class CommentForm(forms.Form):
 
 class CommentStatusForm(forms.Form):
     comment_status = forms.CharField(required=True)
+
+
+class ArticleStatusForm(forms.Form):
+    article_status = forms.CharField(required=True)

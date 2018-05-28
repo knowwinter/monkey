@@ -1,0 +1,428 @@
+﻿{% extends "das/base.html" %}
+{% load staticfiles %}
+{% load static %}
+{% block header %}
+    <script type="text/javascript" src="{% static 'tinymce/tinymce.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'tinymce/plugins/jquery-form.js' %}"></script>
+    <script type="text/javascript">
+        $.ajaxSetup({headers: {"X-CSRFToken": '{{ csrf_token }}'}});
+    </script>
+{% endblock %}
+
+{% block page %}
+    {% load mptt_tags %}
+    <div class="row">
+        <div class="col-xs-12">
+            <!-- PAGE CONTENT BEGINS -->
+
+            <div class="row">
+                <div class="form-group">
+                    <form class="form-horizontal" role="form" id="article_status_form"
+                          action="{% url 'post_list' '1' article_status %}"
+                          method="post">
+                        {% csrf_token %}
+                        <div class="col-sm-3">
+                            <select class="col-xs-12 col-sm-6" name="article_status" id="article_status">
+
+                                <option value="0"
+                                        {% if article_status == '0' %}
+                                        selected="selected"
+                                        {% endif %}
+                                >ALL
+                                </option>
+                                <option value="1"
+                                        {% if article_status == '1' %}
+                                        selected="selected"
+                                        {% endif %}
+                                >已发布
+                                </option>
+                                <option value="2"
+                                        {% if article_status == '2' %}
+                                        selected="selected"
+                                        {% endif %}
+                                >草稿
+                                </option>
+                            </select>
+                            <button class="btn btn-sm btn-group-sm btn-white" type="submit">筛选</button>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="col-xs-12">
+                    <div class="table-responsive">
+                        <table id="sample-table-1" class="table table-striped table-bordered table-hover">
+                            <thead>
+                            <tr>
+                                <th class="center">
+                                    <label>
+                                        <input type="checkbox" class="ace"/>
+                                        <span class="lbl"></span>
+                                    </label>
+                                </th>
+                                <th class="col-md-2">标题</th>
+                                <th>作者</th>
+                                <th>分类目录</th>
+                                <th>标签</th>
+                                <th><i class="icon-comment"></i></th>
+                                <th>日期</th>
+                                <th>Views</th>
+                                <th class="hidden-480">id</th>
+
+
+                            </tr>
+                            </thead>
+
+                            <tbody id="commenttbody">
+                            {% for page in pages %}
+
+                                <tr class="commenttr">
+                                    <td class="center">
+                                        <label>
+                                            <input type="checkbox" class="ace"/>
+                                            <span class="lbl"></span>
+                                        </label>
+                                    </td>
+
+                                    <td>
+                                        {% if page.article_status == '1' %}
+                                            <div class="col-sm-12"><a href="{% url 'post_modify' page.pk %}">
+                                                <span>{{ page.title }}</span></a></div>
+                                        {% else %}
+                                            <div class="col-sm-12"><a
+                                                    href="{% url 'post_modify' page.pk %}"><span>{{ page.title }} - 草稿</span></a>
+                                            </div>
+                                        {% endif %}
+                                        <div class="tools hidden">
+                                            <div class="action-buttons bigger-125">
+
+                                                <a href="{% url 'post_modify' page.pk %}" id="{{ page.pk }}">
+                                                    <i class="icon-edit"></i>
+                                                </a>
+
+                                                <a href="javascript:void(0);" id="{{ page.pk }}" class="comment">
+                                                    <i class="icon-comments blue"></i>
+                                                </a>
+
+                                                <a href="javascript:void(0);" id="{{ page.pk }}" class="comment_del">
+                                                    <i class="icon-trash red"></i>
+                                                </a>
+                                            </div>
+
+                                        </div>
+
+                                    </td>
+                                    <td class="commenttd">
+                                        {{ page.pub_author.username }}
+                                    </td>
+                                    <td class="hidden-480"><a href="#"> {{ page.category.name }}</a></td>
+                                    <td class="hidden-480">
+                                        <a href="{{ page.article.guid }}">{{ page.article.title }}</a></td>
+
+
+                                    <td class="hidden-480">
+                                        {{ page.id }}
+                                    </td>
+
+
+                                </tr>
+                            {% endfor %}
+
+
+                            </tbody>
+                        </table>
+                        {% for index in pages.paginator.page_range %}
+                            {% if index == pages.number %}
+                                {{ index }}
+                            {% else %}
+                                <a href="{% url 'comment_list' index comment_status %}">{{ index }}</a>
+                            {% endif %}
+                        {% endfor %}
+                    </div><!-- /.table-responsive -->
+                </div><!-- /span -->
+            </div><!-- /row -->
+        </div><!-- /.col -->
+
+    </div><!-- /.row -->
+    <script type="text/javascript" src="{% static 'tinymce/plugins/jquery-form.js' %}"></script>
+    <script type="text/javascript">
+        $.ajaxSetup({headers: {"X-CSRFToken": '{{ csrf_token }}'}});
+        $(document).ready(function () {
+
+
+            {#$("tbody#commenttbody .commenttd").on({#}
+            {#    mouseenter:function(){#}
+            {#        $(this).children('.tools').removeClass("hidden");#}
+            {#    },#}
+            {#    mouseleave:function(){#}
+            {#        $(this).children('.tools').addClass("hidden");#}
+            {#{})#}
+
+            $('tbody#commenttbody').on('mouseenter', '.commenttd', function () {
+                $(this).children('.tools').removeClass('hidden');
+            });
+            $('tbody#commenttbody').on('mouseleave', '.commenttd', function () {
+                $(this).children('.tools').addClass('hidden');
+            });
+
+
+            $("div.tools").on("click", "a.comment_accept", function () {
+                var comment_id = $(this).attr("id")
+                var obj = $(this)
+                var url = "{% url 'comment_audit' 123 'accept' %}"
+                url = url.replace('123', comment_id)
+                url = url.replace('accept', 'accept')
+                $.ajax({
+                    type: "GET",
+                    url: url,
+                    datatype: 'json',
+                    success: function (result) {
+                        if (result.result == 'success') {
+                            alert(result.msg)
+                            obj.removeClass("comment_accept")
+                            obj.addClass("comment_reject")
+                            obj.children('i').removeClass("icon-check green")
+                            obj.children('i').addClass("icon-remove red")
+                        } else {
+                            alert("处理失败")
+                        }
+                    },
+                    error: function () {
+                        alert('异常')
+                    }
+                })
+            })
+
+            $("div.tools").on("click", "a.comment_reject", function () {
+                var comment_id = $(this).attr("id")
+                var obj = $(this)
+                var url = "{% url 'comment_audit' 123 'reject' %}"
+                url = url.replace('123', comment_id)
+                url = url.replace('reject', 'reject')
+                $.ajax({
+                    type: "GET",
+                    url: url,
+                    datatype: 'json',
+                    success: function (result) {
+                        if (result.result == 'success') {
+                            alert(result.msg)
+                            obj.removeClass("comment_reject")
+                            obj.addClass("comment_accept")
+
+                            obj.children('i').removeClass("icon-remove red")
+                            obj.children('i').addClass("icon-check green")
+                        } else {
+                            alert("处理失败")
+                        }
+                    },
+                    error: function () {
+                        alert('异常')
+                    }
+                })
+            })
+
+            $("div.tools").on("click", "a.comment_del", function () {
+                var comment_id = $(this).attr("id")
+                var obj = $(this)
+                var tr = obj.parents('tr')
+                var url = "{% url 'comment_del' 123 %}"
+                url = url.replace('123', comment_id)
+
+                $.ajax({
+                    type: "GET",
+                    url: url,
+                    datatype: 'json',
+                    success: function (result) {
+                        if (result.result == 'success') {
+                            alert(result.msg)
+                            tr.remove()
+                        } else {
+                            alert("处理失败")
+                        }
+                    },
+                    error: function () {
+                        alert('异常')
+                    }
+                })
+            })
+
+            $("tbody").on("click", ".comment", function () {
+                obj = $(this).parents('td');
+                {#                alert(obj.prop("class"));#}
+                article_id = $(this).parents('td.commenttd').next().text()
+                tinymce.remove();
+                $("textarea").remove();
+                $("form").remove();
+                $("#divcomment").remove();
+                parent = $(this).attr("id");
+                {#                alert(parent);#}
+                html = "<div  id='divcomment'>\n" +
+                    "                                    <div class=\"center\">\n" +
+                    "                                        <i class=\"icon-comments-alt icon-2x green\"></i>\n" +
+                    "\n" +
+                    "                                        &nbsp;<label class=\"control-label no-padding-left\"\n" +
+                    "                                                     for=\"form-field-textarea\">发表评论</label>\n" +
+                    "                                    </div>\n" +
+                    "\n" +
+                    "                                    <form class=\"form-horizontal\" role=\"form\" id=\"commentForm\"\n" +
+                    "                                          action=\"{% url 'comment' %}\"\n" +
+                    "                                          method=\"post\">\n" +
+                    "                                        {% csrf_token %}\n" +
+
+                    "                                            <input type=\"hidden\" name=\"user\" value=\"{{ request.session.user.pk }}\">\n"
+                    +
+                    "                                            <input type=\"hidden\" name=\"comment_author\"\n" +
+                    "                                                   value=\"{{ request.session.user.username }}\">\n"
+                    +
+                    "                                            <input type=\"hidden\" name=\"comment_author_email\"\n"
+                    +
+                    "                                                   value=\"{{ request.session.user.email }}\">\n"
+                    +
+
+                    "                                        <textarea id=\"form-field-textarea\" name=\"comment\" class=\"form-control\" rows=\"5\"\n" +
+                    "                                                  value=\"\"></textarea>\n" +
+                    "                                        <input type=\"hidden\" name=\"article\" value=\"" + article_id + "\">\n" +
+                    "                                        <input type=\"hidden\" name=\"parent\" value=\" " + parent + "\">\n" +
+                    "                                        <input type=\"hidden\" name=\"comment_author_ip\" value=\"\n" +
+                    "                                    {% if not request.META.HTTP_X_FORWARDED_FOR %}\n"+
+                        "                                        {{ request.META.REMOTE_ADDR }}\n"+
+                        "                                    {% else %}\n"+
+                        "                                        {{ request.META.HTTP_X_FORWARDED_FOR }}\n"+
+                        "                                    {% endif %}\n" +
+                    "                                    \">\n" +
+                    "\n" +
+                    "                                        <div class=\"space\"></div>\n" +
+                    "                                        <div class=\"form-group center\" id=\"submitdiv\">\n" +
+                    "                                            <button class=\"btn btn-sm btn-danger\" type=\"button\" id=\"submit\">\n" +
+                    "                                                <i class=\"icon-ok bigger-110\"></i>\n" +
+                    "                                                发表评论\n" +
+                    "                                            </button>\n" +
+                    "                                            <button class=\"btn btn-sm btn-danger\" type=\"button\" id=\"cancel\">\n" +
+                    "                                                <i class=\"icon-ok bigger-110\"></i>\n" +
+                    "                                                取消评论\n" +
+                    "                                            </button>\n" +
+                    "                                        </div>\n" +
+                    "                                    </form>\n" +
+                    "\n" +
+                    "                                    <div class=\"space\"></div>\n" +
+                    "\n" +
+                    "                                </div>"
+                {#                obj.append("<textarea id=\"form-field-textarea\" name=\"comment\" class=\"form-control\" rows=\"5\" value=\"\"></textarea><div class=\"space\"></div>");#}
+                obj.append(html)
+                tinymce.init({
+                    selector: "textarea",
+                    {#width: 800,#}
+                    height: 100,
+                    forced_root_block: false,
+                    convert_urls: false,
+                    {#            imageupload_url: '{% url 'upload' %}',#}
+                    plugins: ["save"],
+                    toolbar: "save styleselect | bold italic | alignleft aligncenter" +
+                    " alignright alignjustify | bullist numlist outdent indent |  link image"
+                });
+            })
+
+            $("tbody").on('click', '#cancel', function () {
+                tinymce.remove();
+                $("textarea").remove();
+                $("form").remove();
+                $("#divcomment").remove();
+                $(".tools").addClass("hidden")
+
+
+            })
+
+            $("tbody").on('click', '#submit', function () {
+                var tagUrl = $("#commentForm").attr("action");
+                {#                var veto = {};#}
+                {##}
+                {#                $('#commentForm').ajaxForm();#}
+                {#                $('#commentForm').bind('form-pre-serialize', function(event,form,options,veto){#}
+                {#    	tinyMCE.triggerSave();#}
+                {#{);#}
+                {#                var data = $("#commentForm").serialize();#}
+
+
+
+                // bind form using 'ajaxForm'
+                $('#commentForm').ajaxForm();
+                // 绑定form-pre-serialize事件，在触发form-serilaize事件前保存tinyMCE的数据到textarea中
+                $('#commentForm').bind('form-pre-serialize', function (event, form, options, veto) {
+                    tinyMCE.triggerSave();
+                });
+                $("#commentForm").ajaxSubmit({
+                    type: 'post',
+                    url: tagUrl,
+                    cache: false,
+                    {#data: data,#}
+                    dataType: 'json',
+                    success: function (data) {
+                        {#alert('success');#}
+                        var datas = eval(data);
+                        var html = " <tr class=\"commenttr\">\n" +
+                            "                                    <td class=\"center\">\n" +
+                            "                                        <label>\n" +
+                            "                                            <input type=\"checkbox\" class=\"ace\"/>\n" +
+                            "                                            <span class=\"lbl\"></span>\n" +
+                            "                                        </label>\n" +
+                            "                                    </td>\n" +
+                            "\n" +
+                            "                                    <td>\n" +
+                            "\n" +
+                            "                                        <div class=\"col-sm-4\"><img src=\"{{ page.user.avatar }}" + datas.avatar + "\"></div>\n" +
+                            "                                        <div class=\"col-sm-8\"><a href=\"#\">" + datas.comment_author + "</a></div>\n" +
+                            "                                        <div class=\"col-sm-8\"><a href=\"#\">" + datas.comment_author_email + "</a></div>\n" +
+                            "                                        <div class=\"col-sm-12\"><span>" + datas.comment_author_ip + "</span></div>\n" +
+                            "\n" +
+                            "\n" +
+                            "                                    </td>\n" +
+                            "                                    <td class=\"commenttd\">\n" +
+                            "                                        <span>提交于：" + datas.comment_date + "</span><br/>\n" +
+                            "                                        " + datas.comment + "\n" +
+                            "                                        <div class=\"tools hidden\">\n" +
+                            "                                            <div class=\"action-buttons bigger-125\">\n" +
+                            "\n" +
+                            "                                                    <a href=\"javascript:void(0);\" id=\"" + datas.id + "\"\n" +
+                            "                                                       class=\"comment_reject\">\n" +
+                            "                                                        <i class=\"icon-remove red\"></i>\n" +
+                            "                                                    </a>\n" +
+                            "\n" +
+                            "                                                <a href=\"javascript:void(0);\" id=\"" + datas.id + "\" class=\"comment\">\n" +
+                            "                                                    <i class=\"icon-comments blue\"></i>\n" +
+                            "                                                </a>\n" +
+                            "\n" +
+                            "                                                <a href=\"javascript:void(0);\" id=\"" + datas.id + "\" class=\"comment_del\">\n" +
+                            "                                                    <i class=\"icon-trash red\"></i>\n" +
+                            "                                                </a>\n" +
+                            "                                            </div>\n" +
+                            "\n" +
+                            "                                        </div>\n" +
+                            "                                    </td>\n" +
+                            "                                <td class=\"hidden\">" + datas.article_id + "</td>\n" +
+                            "                                    <td class=\"hidden-480\">\n" +
+                            "                                        <a href=\"" + datas.article_guid + "\">" + datas.article_title + "</a></td>\n" +
+                            "\n" +
+                            "\n" +
+                            "                                    <td class=\"hidden-480\">" + datas.id + "</td>\n" +
+                            "\n" +
+                            "\n" +
+                            "                                </tr>";
+
+
+                        $("tbody").prepend(html)
+                        tinymce.activeEditor.setContent("")
+                        tinymce.activeEditor.focus()
+                        {#tinymce.setActive()#}
+                        {#$("#commentForm").focus()#}
+                    },
+
+                    error: function (data) {
+                        alert("请求失败--" + data)
+                    }
+
+                })
+            });
+
+
+        });
+    </script>
+{% endblock %}

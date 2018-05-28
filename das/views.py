@@ -410,9 +410,18 @@ def post_del(req, pindex, article_id):
 
 
 @login_required(login_url='/login')
-def post_view(req, pindex):
+def post_view(req, pindex, article_status):
     context = {}
-    articles = Article.objects.all()
+    if article_status == "":
+        article_status = '0'
+    if req.method == 'POST':
+        form = ArticleStatusForm(req.POST)
+        if form.is_valid():
+            article_status = form.cleaned_data['article_status']
+    if article_status == '0':
+        articles = Article.objects.all().order_by("-pub_date")
+    else:
+        articles = Article.objects.filter(article_status=article_status).order_by("-pub_date")
     paginator = Paginator(articles, 10)
     if pindex == '':
         pindex = '1'
@@ -423,7 +432,7 @@ def post_view(req, pindex):
         page = paginator.page(int(pindex))
     context['pages'] = page
     context['post'] = articles
-    return render(req, 'das/post.html', context)
+    return render(req, 'das/posts-list.html', context)
 
 
 @login_required(login_url='/login')
