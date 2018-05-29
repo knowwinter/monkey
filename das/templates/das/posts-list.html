@@ -95,17 +95,22 @@
                                         <div class="tools hidden">
                                             <div class="action-buttons bigger-125">
 
-                                                <a href="{% url 'post_modify' page.pk %}" id="{{ page.pk }}">
-                                                    <i class="icon-edit"></i>
+                                                <a href="{% url 'post_modify' page.pk %}" id="{{ page.pk }}" class="post_modify">
+                                                    <i class="icon-edit green"></i>
                                                 </a>
 
-                                                <a href="javascript:void(0);" id="{{ page.pk }}" class="comment">
-                                                    <i class="icon-comments blue"></i>
-                                                </a>
-
-                                                <a href="javascript:void(0);" id="{{ page.pk }}" class="comment_del">
+                                                 <a href="{% url 'post_del' page.pk %}" id="{{ page.pk }}" class="post_del">
                                                     <i class="icon-trash red"></i>
                                                 </a>
+                                                {% if page.article_status == '1' %}
+                                                    <a href="{{ page.guid }}" id="{{ page.pk }}" class="view">
+                                                        <i class="icon-eye-open blue"></i>
+                                                    </a>
+                                                {% else %}
+                                                    <a href="{{ page.guid }}" id="{{ page.pk }}" class="preview">
+                                                        <i class="icon-search yellow"></i>
+                                                    </a>
+                                                {% endif %}
                                             </div>
 
                                         </div>
