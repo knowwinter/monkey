@@ -44,7 +44,7 @@
             <h1>{{ post.title }}.</h1>
             <h4><i class="icon-user"></i> <a href="#">{{ post.pub_author }}</a> <i
                     class="icon-calendar"></i> {{ post.pub_date }}
-                <i class="icon-folder-open"></i> <a href="#"> {% if post.category is None %}未归档{% else %}
+                <i class="icon-folder-open"></i> <a href="#"> {% if post.category is None %}未分类{% else %}
                     {{ post.category }}{% endif %}</a>
                 <i class="icon-eye-open"></i> {{ post.view_count }}
             {% if post.comment_count == 0 %}

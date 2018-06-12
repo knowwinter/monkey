@@ -7,10 +7,23 @@
                 <div class="blog-post">
                     <h2>{{ p.title }}.</h2>
                     <h4>Posted by <a href="#">{{ p.pub_author }}</a> on {{ p.pub_date }} Views: {{ p.view_count }} Comments: {{ p.comment_count }}</h4>
-                    <h5>Tags：{% for tag in p.tag_set.all %}
-                        <label class="label-info label-lg label">{{ tag }}</label>
-                    {% endfor %}
+                    <h5>分类目录：
+                        {% if p.category %}
+                            <a href="#"> {{ p.category.name }}</a>
+                        {% else %}
+                            <a href="#">未分类</a>
+                        {% endif %}
                     </h5>
+                    <h5>Tags：
+                        {% if p.tag_set.all %}
+                            {% for tag in p.tag_set.all %}
+                                <label class="label-info label-lg label">{{ tag }}</label>
+                            {% endfor %}
+                        {% else %}
+                            无
+                        {% endif %}
+                    </h5>
+
                     <p  style=word-wrap:break-word;>
                         {{ p.content|silice_content:'200'|safe }}
                     </p>

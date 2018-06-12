@@ -371,20 +371,25 @@ def post_modify(req, article_id):
             post.article_status = article_status
             post.comment_status = comment_status
             post.category = category
+            post.tag_set.clear()
             post.save()
-            post_tags = Tagship.objects.get(article=post)
-            for post_tag in post_tags:
-                post_tag.delete()
-            if tags != None:
-                for tag_id in tags:
-                    tag = Tag.objects.get(pk=tag_id)
-                    tagship = Tagship.objects.create(post, tag)
+            # post_tags = Tagship.objects.get(article=post)
+            # for post_tag in post_tags:
+            #     post_tag.delete()
+            if tags != '':
+                tags = tags.split(',')
+                for tagName in tags:
+                    try:
+                        tag = Tag.objects.get(name=tagName)
+                    except:
+                        tag = Tag.objects.create(name=tagName, description=tagName)
+                    tagship = Tagship.objects.create(article=post, tag=tag)
                     tagship.save()
             if article_status == '2':
                 context['msg'] = '文章草稿保存成功'
             else:
                 context['msg'] = "文章发表成功"
-            return redirect('/das/post/', context)
+            return redirect('/das/post/list/1', context)
         else:
             context['msg'] = "表单错误"
             return render(req, 'das/msg.html', context)
@@ -406,7 +411,21 @@ def post_del(req, pindex, article_id):
     post.delete()
     context['msg'] = '删除成功'
 
-    return redirect('/das/post/' + pindex, context)
+    return redirect('/das/post/list/' + pindex, context)
+
+
+@login_required(login_url='/login')
+def post_revoke(req, pindex, article_id):
+    context = {}
+    post = Article.objects.get(pk=article_id)
+    if not post:
+        context['msg'] = '文章不存在'
+        return render(req, 'das/msg.html', context)
+    post.article_status = "2"
+    post.save()
+    context['msg'] = '文章撤回成功'
+
+    return redirect('/das/post/list/' + pindex, context)
 
 
 @login_required(login_url='/login')
@@ -432,6 +451,7 @@ def post_view(req, pindex, article_status):
         page = paginator.page(int(pindex))
     context['pages'] = page
     context['post'] = articles
+    context['article_status'] = article_status
     return render(req, 'das/posts-list.html', context)
 
 

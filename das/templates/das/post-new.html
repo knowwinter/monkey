@@ -168,7 +168,12 @@
                     </div>
                     <input type="hidden" name="pub_author" value="{{ request.session.user.id }}">
                     <input type="hidden" name="article_type" value="post">
-                    <input type="hidden" name="article_status" value="1">
+                    {#                    <input type="hidden" name="article_status" value="1">#}
+                    <div class="form-group">
+                        <label class="col-sm-1 control-label no-padding-right" for="article_status">保存草稿：</label>
+                        <input type="radio" id="article_status" name="article_status" value="2"> 是
+                        <input type="radio" id="article_status" name="article_status" value="1" checked> 否
+                    </div>
 
                     {#                        <div class="wysiwyg-editor" id="editor1"></div>#}
                 <div class="clearfix form-actions col-md-10">
@@ -181,7 +186,7 @@
                         &nbsp; &nbsp; &nbsp;
                         <button class="btn btn-sm" type="reset">
                             <i class="icon-undo bigger-110"></i>
-                            保存草稿
+                            重置输入
                         </button>
                     </div>
                 </div>

@@ -1,0 +1,226 @@
+﻿{% extends "das/base.html" %}
+{% load static %}
+{% load staticfiles %}
+{% block header %}
+    {#    <link rel="stylesheet" href="{% static 'tinymce/plugins/upload/plugin.css' %}">#}
+    {#    <script type="text/javascript" src="{% static 'tinymce/plugins/jquery.form.js' %}"></script>#}
+    <script type="text/javascript" src="{% static 'tag/js/jquery.tagsinput.js' %}"></script>
+    <script type='text/javascript' src="{% static 'tag/js/jquery-ui.min.js' %}"></script>
+    <link rel="stylesheet" type="text/css" href="{% static 'tag/css/jquery-ui.css' %}"/>
+    <link rel="stylesheet" type="text/css" href="{% static 'tag/css/jquery.tagsinput.css' %}"/>
+    <script type="text/javascript">
+
+        function onAddTag(tag) {
+            alert("Added a tag: " + tag);
+        }
+
+        function onRemoveTag(tag) {
+            alert("Removed a tag: " + tag);
+        }
+
+        function onChangeTag(input, tag) {
+            alert("Changed a tag: " + tag);
+        }
+
+        $(function () {
+
+            $('#tags_1').tagsInput({width: 'auto'});
+            $('#tags_2').tagsInput({
+                width: 'auto',
+                onChange: function (elem, elem_tags) {
+                    var languages = ['php', 'ruby', 'javascript'];
+                    $('.tag', elem_tags).each(function () {
+                        if ($(this).text().search(new RegExp('\\b(' + languages.join('|') + ')\\b')) >= 0)
+                            $(this).css('background-color', 'yellow');
+                    });
+                }
+            });
+            $('#form-field-tags').tagsInput({
+                width: 'auto',
+
+                //autocomplete_url:'test/fake_plaintext_endpoint.html' //jquery.autocomplete (not jquery ui)
+                autocomplete_url: '{% url "getTag" %}' // jquery ui autocomplete requires a json endpoint
+            });
+
+
+// Uncomment this line to see the callback functions in action
+//			$('input.tags').tagsInput({onAddTag:onAddTag,onRemoveTag:onRemoveTag,onChange: onChangeTag});
+
+// Uncomment this line to see an input with no interface for adding new tags.
+//			$('input.tags').tagsInput({interactive:false});
+        });
+
+
+    </script>
+    <script type="text/javascript" src="{% static 'tinymce/tinymce.min.js' %}"></script>
+    <script type="text/javascript">
+        tinymce.init({
+            selector: "textarea",
+            width: 800,
+            height: 300,
+            forced_root_block: false,
+            convert_urls: false,
+            imageupload_url: '{% url 'upload' %}',
+            plugins: [
+                "advlist autolink lists link image charmap print preview anchor sh4tinymce ",
+                "searchreplace visualblocks code fullscreen",
+                "insertdatetime table contextmenu paste addmore imageupload"
+            ],
+            toolbar: "insertfile undo redo | styleselect | bold italic | alignleft aligncenter" +
+            " alignright alignjustify | bullist numlist outdent indent | preview link image imageupload sh4tinymce"
+        });
+    </script>
+    <script type="text/javascript" src="{% static 'tinymce/plugins/jquery-form.js' %}"></script>
+    <script type="text/javascript">
+        $.ajaxSetup({headers: {"X-CSRFToken": '{{ csrf_token }}'}});
+    </script>
+
+{% endblock %}
+{% block page %}
+    {% load mptt_tags %}
+
+    <div class="page-content">
+        <div class="page-header">
+            <h1>发表文章 </h1>
+        </div><!-- /.page-header -->
+
+        <div class="row">
+            <div class="col-xs-12">
+                <!-- PAGE CONTENT BEGINS -->
+                <form class="form-horizontal" role="form" action="{% url 'post_modify'  post.pk %}" method="post">
+                    {% csrf_token %}
+
+
+                    <div class="form-group">
+                        <label class="col-sm-1 control-label no-padding-right" for="form-field-1"> 文章标题：</label>
+
+                        <div class="col-sm-11">
+                            <input type="text" id="form-field-1" name="title" placeholder="title"
+                                   value="{{ post.title }}"
+                                   class="col-xs-10 col-sm-5 align-left"/>
+                        </div>
+                    </div>
+
+
+                    <div class="space-4"></div>
+                    <div class="form-group">
+                        <label class="col-sm-1 control-label no-padding-right" for="form-field-tags">标签：</label>
+
+                        <div class="col-sm-5">
+                            <input type="text" name="tags" id="form-field-tags" value="{% for tag in post.tag_set.all %}
+                                                                                        {{ tag }},
+                                                                                        {% endfor %}"
+                                   placeholder="Enter tags ..."/>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="col-sm-1 control-label no-padding-right" for="form-field-select-3">目录：</label>
+                        <div class="col-sm-11">
+                            <select class="col-xs-10 col-sm-5" name="category" id="form-field-select-3"
+                                    data-placeholder="选择目录">
+
+                                <option value="0">无</option>
+                                {% load category_tags %}
+
+                                {% for node,structure in nodes|tree_info:"ancestors" %}
+                                    {% if post.category_id == node.pk %}
+                                        {% if node.is_root_node %}
+                                            <option value="{{ node.pk }}" selected>
+                                                {{ node }}
+                                            </option>
+                                        {% else %}
+                                            <option value="{{ node.pk }}" selected>
+                                                {{ structure.ancestors|cate_tree_path:"--" }}{{ node }}
+                                            </option>
+                                        {% endif %}
+                                    {% else %}
+                                        {% if node.is_root_node %}
+                                            <option value="{{ node.pk }}">
+                                                {{ node }}
+                                            </option>
+                                        {% else %}
+                                            <option value="{{ node.pk }}">
+                                                {{ structure.ancestors|cate_tree_path:"--" }}{{ node }}
+                                            </option>
+                                        {% endif %}
+                                    {% endif %}
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="space-4"></div>
+                    <div class="form-group">
+                        <label class="col-sm-1 control-label no-padding-right">允许评论：</label>
+
+                        <div class="controls col-sm-11">
+
+
+                            <div class="row">
+
+
+                                <div class="col-xs-2">
+                                    <label>
+                                        {% if post.comment_status == "1" %}
+                                            <input name="comment_status" class="ace ace-switch ace-switch-7"
+                                                   id="comment_status"
+                                                   type="checkbox" checked="checked" value="1"/>
+                                        {% else %}
+                                            <input name="comment_status" class="ace ace-switch ace-switch-7"
+                                                   id="comment_status"
+                                                   type="checkbox" value="1"/>
+                                        {% endif %}
+                                        <span class="lbl"></span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="space-4"></div>
+                    <div class="form-group">
+                        <label class="col-sm-1 control-label no-padding-right" for="form-field-textarea">文章内容：</label>
+
+                        <div class="col-sm-11">
+                            <textarea id="form-field-textarea" name="content" value="">{{ post.content }}</textarea>
+                        </div>
+                    </div>
+                    <input type="hidden" name="pub_author" value="{{ request.session.user.id }}">
+                    <input type="hidden" name="article_type" value="post">
+                    {#                    <input type="hidden" name="article_status" value="1">#}
+                    <div class="form-group">
+                        <label class="col-sm-1 control-label no-padding-right" for="article_status">保存草稿：</label>
+                        <input type="radio" id="article_status" name="article_status" value="2"> 是
+                        <input type="radio" id="article_status" name="article_status" value="1" checked> 否
+                    </div>
+
+                    {#                        <div class="wysiwyg-editor" id="editor1"></div>#}
+                    <div class="clearfix form-actions col-md-10">
+                        <div class="col-md-offset-5 col-md-9">
+                            <button class="btn btn-sm btn-info" type="submit">
+                                <i class="icon-ok bigger-110"></i>
+                                发表文章
+                            </button>
+
+                            &nbsp; &nbsp; &nbsp;
+                            <button class="btn btn-sm" type="reset">
+                                <i class="icon-undo bigger-110"></i>
+                                重置输入
+                            </button>
+                        </div>
+                    </div>
+                </form>
+
+                <div class="hr hr-double dotted"></div>
+
+
+                <script type="text/javascript">
+                    var $path_assets = "assets";//this will be used in loading jQuery UI if needed!
+                </script>
+
+                <!-- PAGE CONTENT ENDS -->
+            </div><!-- /.col -->
+        </div><!-- /.row -->
+    </div><!-- /.page-content -->
+
+{% endblock %}

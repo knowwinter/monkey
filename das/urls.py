@@ -24,4 +24,7 @@ urlpatterns = [
     url(r'^comment/like/(\d+)/(\d+)/$', views.like_comment, name='like_comment'),
     url(r'^post/list/(\d*)/(\d*)', views.post_view, name='post_list'),
     url(r'^post/modify/(\d*)', views.post_modify, name='post_modify'),
+    url(r'^post/(\d+)/del/(\d+)', views.post_del, name='post_del'),
+    url(r'^post/(\d+)/revoke/(\d+)', views.post_revoke, name='post_revoke'),
+
 ]

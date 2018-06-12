@@ -31,5 +31,6 @@ urlpatterns = [
     url(r'^logout/', logout_view, name='logout'),
     url(r'^(\d*)$', views.index_view, name='index'),
     url(r'^p/(\d*)', views.post_show, name='show'),
+    url(r'^preview/(\d*)', views.post_preview, name='preview'),
 
 ]
