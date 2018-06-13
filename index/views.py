@@ -83,3 +83,35 @@ def post_preview(req, id):
     context['nodes'] = nodes
     context['comments'] = comments
     return render(req, 'index/post-show.html', context)
+
+def category_show(req, cate_id, pindex):
+    context = {}
+    category = None
+    if cate_id == '0':
+        posts = Article.objects.filter(category=None)
+    else:
+        category = Category.objects.get(pk=cate_id)
+        try:
+            posts = Article.objects.filter(category=category).order_by('-pub_date')
+        except:
+            posts = None
+            nodes = Category.objects.get_queryset()
+            context['nodes'] = nodes
+            context['cate'] = category
+            context['pages'] = posts
+            return render(req, 'index/category-show.html', context)
+
+    paginator = Paginator(posts, 10)
+    if pindex == '':
+        pindex = '1'
+    try:
+        page = paginator.page(int(pindex))
+    except:
+        pindex = int(pindex) - 1
+        page = paginator.page(int(pindex))
+
+    nodes = Category.objects.get_queryset()
+    context['nodes'] = nodes
+    context['pages'] = page
+    context['cate'] = category
+    return render(req, 'index/category-show.html', context)

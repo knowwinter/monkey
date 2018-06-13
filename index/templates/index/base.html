@@ -109,14 +109,17 @@
                     {% for node,structure in nodes|tree_info:"ancestors" %}
                         {% if node.is_root_node %}
                             <li class="list-group-item">
-                                <a href="#"> {{ node }}</a>
+                                <a href="{% url 'category_show' node.pk '1' %}"> {{ node }}</a>
                             </li>
                         {% else %}
                             <li class="list-group-item">
-                                <a href="#"> {{ structure.ancestors|cate_tree_path:"--" }}{{ node }}</a>
+                                <a href="{% url 'category_show' node.pk '1' %}"> {{ structure.ancestors|cate_tree_path:"--" }}{{ node }}</a>
                             </li>
                         {% endif %}
                     {% endfor %}
+                    <li class="list-group-item">
+                        <a href="{% url 'category_show' 0 '1' %}"> 未分类</a>
+                    </li>
                 </ul>
             </div>
             <div class="row">
