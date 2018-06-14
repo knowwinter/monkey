@@ -13,6 +13,8 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
 <![endif]-->
     <title>Nice responsive template for blogger</title>
+    {% block header %}
+    {% endblock %}
     <!-- BOOTSTRAP CORE STYLE -->
     <link href="/static/assets/css/bootstrap.css" rel="stylesheet"/>
     <!-- FONT AWESOME ICON STYLE -->
@@ -36,8 +38,7 @@
     </script>
     <script src="/static/assets/js/ace-extra.min.js"></script>
     <link href="/static/assets/css/style.css" rel="stylesheet"/>
-    {% block header %}
-    {% endblock %}
+
     <link type="text/css" rel="stylesheet" href="{% static 'syntaxhighlighter/styles/shCoreDefault.css' %}"/>
     <script type="text/javascript" src="{% static 'syntaxhighlighter/scripts/shCore.js' %}"></script>
     <script type="text/javascript">SyntaxHighlighter.all();</script>
@@ -123,9 +124,15 @@
                 </ul>
             </div>
             <div class="row">
-                <h3>Advertising</h3>
+                <h3>标签墙</h3>
+            <p>
+            {% load btn_tags %}
+                {% for tag in tags %}
 
-
+                    <a href="{% url 'tag_show' tag.pk '1' %}" > <button class="btn {{ 'btn'|randombtn }}">{{ tag }}</button></a>
+                    &nbsp;
+                {% endfor %}
+            </p>
             </div>
         </div>
     </div>

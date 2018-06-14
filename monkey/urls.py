@@ -33,5 +33,6 @@ urlpatterns = [
     url(r'^p/(\d*)', views.post_show, name='show'),
     url(r'^preview/(\d*)', views.post_preview, name='preview'),
     url(r'^category/(\d*)/(\d*)', views.category_show, name='category_show'),
+    url(r'^tag/(\d*)/(\d*)', views.tag_show, name='tag_show'),
 
 ]

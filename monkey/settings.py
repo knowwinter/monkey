@@ -69,6 +69,7 @@ TEMPLATES = [
                 'category_tags': 'das.templatetags.category_tags',
                 'silice_tags': 'index.templatetags.silice_tags',
                 'likearticleship_tags': 'index.templatetags.likearticleship_tags',
+                'btn_tags': 'index.templatetags.btn_tags',
             },
         },
     },

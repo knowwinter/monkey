@@ -39,12 +39,16 @@ def index_view(req, pindex):
     except:
         pindex = int(pindex) - 1
         page = paginator.page(int(pindex))
+    tags = Tag.objects.all()
+    context['tags'] = tags
     context['pages'] = page
     context['nodes'] = nodes
     return render(req, 'index/index.html', context)
 
 def post_show(req, id):
     context = {}
+    tags = Tag.objects.all()
+    context['tags'] = tags
     posts = Article.objects.filter(article_status="1").order_by('pub_date')
     post = posts.get(pk=id)
     post.view_count = post.view_count + 1
@@ -66,6 +70,8 @@ def post_show(req, id):
 
 def post_preview(req, id):
     context = {}
+    tags = Tag.objects.all()
+    context['tags'] = tags
     posts = Article.objects.filter(article_status="1").order_by('pub_date')
     post = Article.objects.get(pk=id, article_status="2")
 
@@ -87,6 +93,8 @@ def post_preview(req, id):
 def category_show(req, cate_id, pindex):
     context = {}
     category = None
+    tags = Tag.objects.all()
+    context['tags'] = tags
     if cate_id == '0':
         posts = Article.objects.filter(category=None)
     else:
@@ -111,7 +119,38 @@ def category_show(req, cate_id, pindex):
         page = paginator.page(int(pindex))
 
     nodes = Category.objects.get_queryset()
+
     context['nodes'] = nodes
     context['pages'] = page
     context['cate'] = category
     return render(req, 'index/category-show.html', context)
+
+def tag_show(req, tag_id, pindex):
+    context = {}
+    tag = Tag.objects.get(pk=tag_id)
+    tags = Tag.objects.all()
+    context['tags'] = tags
+    try:
+        posts = Article.objects.filter(tag=tag).order_by('-pub_date')
+    except:
+        posts = None
+        nodes = Category.objects.get_queryset()
+        context['nodes'] = nodes
+        context['tag'] = tag
+        context['pages'] = posts
+        return render(req, 'index/tag-show.html', context)
+    paginator = Paginator(posts, 2)
+    if pindex == '':
+        pindex = '1'
+    try:
+        page = paginator.page(int(pindex))
+    except:
+        pindex = int(pindex) - 1
+        page = paginator.page(int(pindex))
+
+    nodes = Category.objects.get_queryset()
+
+    context['nodes'] = nodes
+    context['pages'] = page
+    context['tag'] = tag
+    return render(req, 'index/tag-show.html', context)

@@ -67,8 +67,11 @@
             <p style=word-wrap:break-word;>
                 {{ post.content|safe }}
             </p>
+        {% load btn_tags %}
             <h3><i class="icon-tags"></i> ：{% for tag in post.tag_set.all %}
-                <label class="label-info label-lg label">{{ tag }}</label>
+                 <a href="{% url 'tag_show' tag.pk '1' %}">
+                <button class="{{ 'label'|randomlabel }} label-lg label">{{ tag }}</button>
+                 </a>
             {% endfor %}
             </h3>
             <div class="col-md-6 text-left">

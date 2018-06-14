@@ -4,7 +4,7 @@
 {% block page %}
         <div class="col-md-8 ">
             <div class="blog-post">
-                <h2>分类：{% if cate %}{{ cate.name }}{% else %}未分类{% endif %} <i class="icon-rss"></i> </h2>
+                <h2>标签：{{ tag.name }} <i class="icon-rss"></i> </h2>
             </div>
         {% if pages %}
             {% for p in pages %}
@@ -23,15 +23,11 @@
                 <ul class="pagination">
                 {% if pages.has_previous %}
                     <li>
-                        {% if cate %}
-                            <a href="{% url 'category_show' cate.pk pages.previous_page_number %}" aria-label="Previous">
+
+                            <a href="{% url 'tag_show' tag.pk pages.previous_page_number %}" aria-label="Previous">
                                 <span aria-hidden="true">&laquo;</span>
                             </a>
-                            {% else %}
-                            <a href="{% url 'category_show' 0 pages.previous_page_number %}" aria-label="Previous">
-                                <span aria-hidden="true">&laquo;</span>
-                            </a>
-                            {% endif %}
+
                     </li>
                 {% endif %}
                 {% if pages %}
@@ -40,11 +36,9 @@
                             <li><a href="javascript:return false" style="cursor:default; color: black;">{{ index }}</a>
                             </li>
                         {% else %}
-                            {% if cate %}
-                                <li><a href="{% url 'category_show' cate.pk index %}">{{ index }}</a></li>
-                                {% else %}
-                                    <li><a href="{% url 'category_show' 0 index %}">{{ index }}</a></li>
-                                {% endif %}
+
+                                <li><a href="{% url 'tag_show' tag.pk index %}">{{ index }}</a></li>
+
                         {% endif %}
                     {% endfor %}
                 {% else %}
@@ -53,15 +47,11 @@
                 {% endif %}
                 {% if pages.has_next %}
                     <li>
-                        {% if cate %}
-                        <a href="{% url 'category_show' cate.pk pages.next_page_number %}" aria-label="Next">
+
+                        <a href="{% url 'tag_show' tag.pk pages.next_page_number %}" aria-label="Next">
                             <span aria-hidden="true">&raquo;</span>
                         </a>
-                            {% else %}
-                            <a href="{% url 'category_show' 0 pages.next_page_number %}" aria-label="Next">
-                            <span aria-hidden="true">&raquo;</span>
-                        </a>
-                            {% endif %}
+
                     </li>
                 {% endif %}
                 </ul>

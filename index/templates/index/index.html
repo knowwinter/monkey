@@ -15,9 +15,12 @@
                         {% endif %}
                     </h5>
                     <h5>Tags：
+                        {% load btn_tags %}
                         {% if p.tag_set.all %}
                             {% for tag in p.tag_set.all %}
-                                <label class="label-info label-lg label">{{ tag }}</label>
+                                <a href="{% url 'tag_show' tag.pk '1' %}">
+                                <button class="{{ 'label'|randomlabel }} label-lg label">{{ tag }}</button>
+                                </a>
                             {% endfor %}
                         {% else %}
                             无
@@ -35,11 +38,13 @@
             <br/>
             <nav>
                 <ul class="pagination">
+                {% if pages.has_previous %}
                     <li>
-                        <a href="#" aria-label="Previous">
+                        <a href="{% url 'index' pages.previous_page_number %}" aria-label="Previous">
                             <span aria-hidden="true">&laquo;</span>
                         </a>
                     </li>
+                {% endif %}
                     {% for index in pages.paginator.page_range %}
                         {% if index == pages.number %}
                             <li><a href="javascript:return false" style="cursor:default; color: black;">{{ index }}</a>
@@ -48,11 +53,13 @@
                             <li><a href="{% url 'index' index %}">{{ index }}</a></li>
                         {% endif %}
                     {% endfor %}
+                {% if pages.has_next %}
                     <li>
-                        <a href="#" aria-label="Next">
+                        <a href="{% url 'index' pages.next_page_number %}" aria-label="Next">
                             <span aria-hidden="true">&raquo;</span>
                         </a>
                     </li>
+                {% endif %}
                 </ul>
             </nav>
         </div>
