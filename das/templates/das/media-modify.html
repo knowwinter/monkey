@@ -1,0 +1,167 @@
+﻿{% extends "das/base.html" %}
+{% load static %}
+{% load staticfiles %}
+
+
+{% block page %}
+    {% load mptt_tags %}
+    {% load comm_tags %}
+        <div class="row  align-center">
+            <div class="col-xs-12">
+                <!-- PAGE CONTENT BEGINS -->
+                <form class="form-horizontal" role="form" action="{% url 'media_modify'  media.pk %}" method="post">
+                    {% csrf_token %}
+
+
+                    <div class="form-group">
+                        <div class="col-sm-12 ace-thumbnails">
+                            {{ media.file_type|if_in:media.file_url|safe }}
+                        </div>
+
+                    </div>
+
+
+                    <div class="space-4"></div>
+                    <div class="form-group">
+                        <label class="col-sm-3 control-label no-padding-right" for="form-field-o_file_name">媒体名称：</label>
+
+                        <div class="col-sm-9">
+                            <input type="text" name="o_file_name" id="form-field-o_file_name" value="{{ media.o_file_name }}"
+                                   placeholder="媒体名称" class="col-xs-10 col-sm-5"/>
+                        </div>
+                    </div>
+                    <div class="space-4"></div>
+                    <div class="form-group">
+                        <label class="col-sm-3 control-label no-padding-right" >文件名称：</label>
+                        <div class="col-sm-9">
+                            <label class="control-label col-xs-10 col-sm-5 align-left" >{{ media.file_name }}</label>
+                        </div>
+                    </div>
+                    <div class="space-4"></div>
+                    <div class="form-group">
+                        <label class="col-sm-3 control-label no-padding-right" >文件类型：</label>
+                        <div class="col-sm-9">
+                            <label class="col-xs-10 col-sm-5 control-label align-left" >{{ media.file_type }}</label>
+                        </div>
+                    </div>
+                    <div class="space-4"></div>
+                    <div class="form-group">
+                        <label class="col-sm-3 control-label no-padding-right" >本地路径：</label>
+                        <div class="col-sm-9">
+                            <label class="col-xs-10 col-sm-5 control-label align-left" >{{ media.file_local_path }}</label>
+                        </div>
+                    </div>
+                    <div class="space-4"></div>
+                    <div class="form-group">
+                        <label class="col-sm-3 control-label no-padding-right" >URL：</label>
+                        <div class="col-sm-9">
+                        <label class="col-xs-10 col-sm-5 control-label align-left" >{{ media.file_url }}</label>
+                        </div>
+                    </div>
+                    <div class="space-4"></div>
+                    <div class="form-group">
+                        <label class="col-sm-3 control-label no-padding-right" >上传者：</label>
+                        <div class="col-sm-9">
+                        <label class="col-xs-10 col-sm-5 control-label align-left" >{{ media.file_author }}</label>
+                        </div>
+                    </div>
+                    <div class="space-4"></div>
+                    <div class="form-group">
+                        <label class="col-sm-3 control-label no-padding-right" >上传时间：</label>
+                        <div class="col-sm-9">
+                        <label class="col-xs-10 col-sm-5 control-label align-left" >{{ media.upload_date|date }}</label>
+                        </div>
+                    </div>
+                    <div class="space-4"></div>
+                    <div class="form-group">
+                        <label class="col-sm-3 control-label no-padding-right" for="form-field-alt">替代文字：</label>
+
+                        <div class="col-sm-9">
+                            <input type="text" name="alt" id="form-field-alt" value="{{ media.alt }}"
+                                   placeholder="替代文字" class="col-xs-10 col-sm-5"/>
+                        </div>
+                    </div>
+                    <div class="space-4"></div>
+                    <div class="form-group">
+                        <label class="col-sm-3 control-label no-padding-right" for="form-field-desription">描述：</label>
+
+                        <div class="col-sm-9">
+                            <textarea name="description" id="form-field-description"
+                                   placeholder="描述" cols="25" class="col-xs-10 col-sm-5">{{ media.description }}</textarea>
+                        </div>
+                    </div>
+                    <div class="space-4"></div>
+                    <div class="form-group">
+                        <label class="col-sm-3 control-label no-padding-right" >关联至：</label>
+                        <div class="col-sm-9 align-left">
+                            {% for post in media.members.all %}
+                                            <a href="{{ post.guid }}">{{ post.title }}</a>
+                                                {{ post.pk|get_mediaship_date:media.pk }}<br/>
+                                                {% endfor %}
+                        </div>
+                    </div>
+
+
+
+                    <div class="clearfix form-actions col-md-12">
+                        <div class="col-md-9">
+                            <button class="btn btn-sm btn-info" type="submit">
+                                <i class="icon-ok bigger-110"></i>
+                                保存修改
+                            </button>
+
+                            &nbsp; &nbsp; &nbsp;
+                            <button class="btn btn-sm" type="reset">
+                                <i class="icon-undo bigger-110"></i>
+                                重置输入
+                            </button>
+                        </div>
+                    </div>
+                </form>
+
+                <div class="hr hr-double dotted"></div>
+
+
+                <script type="text/javascript">
+                    var $path_assets = "assets";//this will be used in loading jQuery UI if needed!
+                </script>
+
+                <!-- PAGE CONTENT ENDS -->
+            </div><!-- /.col -->
+        </div><!-- /.row -->
+    </div><!-- /.page-content -->
+<script type="text/javascript">
+			jQuery(function($) {
+	var colorbox_params = {
+		reposition:true,
+		scalePhotos:true,
+		scrolling:false,
+		previous:'<i class="icon-arrow-left"></i>',
+		next:'<i class="icon-arrow-right"></i>',
+		close:'&times;',
+		current:'{current} of {total}',
+		maxWidth:'100%',
+		maxHeight:'100%',
+		onOpen:function(){
+			document.body.style.overflow = 'hidden';
+		},
+		onClosed:function(){
+			document.body.style.overflow = 'auto';
+		},
+		onComplete:function(){
+			$.colorbox.resize();
+		}
+	};
+
+	$('.ace-thumbnails [data-rel="colorbox"]').colorbox(colorbox_params);
+	$("#cboxLoadingGraphic").append("<i class='icon-spinner orange'></i>");//let's add a custom loading icon
+
+	/**$(window).on('resize.colorbox', function() {
+		try {
+			//this function has been changed in recent versions of colorbox, so it won't work
+			$.fn.colorbox.load();//to redraw the current frame
+		} catch(e){}
+	});*/
+})
+		</script>
+{% endblock %}

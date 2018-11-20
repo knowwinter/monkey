@@ -1,0 +1,137 @@
+{% extends "das/base.html" %}
+{% load staticfiles %}
+{% load static %}
+
+{% block page %}
+
+
+
+
+
+
+
+
+                <div class="row">
+                    <div class="col-xs-12">
+                        <!-- PAGE CONTENT BEGINS -->
+                                        <div class="alert alert-info">
+                                            <i class="icon-hand-right"></i>
+
+                                           从你的计算机本地添加媒体文件
+{#                                            <button class="close" data-dismiss="alert">#}
+{#                                                <i class="icon-remove"></i>#}
+{#                                            </button>#}
+                                        </div>
+
+                                        <div id="dropzone">
+                                            <form action="{% url 'upload' request.session.user.id %}" class="dropzone">
+                                                {% csrf_token %}
+                                                <div class="fallback">
+                                                    <input name="file" type="file" multiple=""/>
+                                                </div>
+                                            </form>
+                                            <div class="dropzone-previews" id="adds"></div>
+                                        </div>
+
+
+
+
+
+
+                    </div><!-- /.col -->
+                </div><!-- /.row -->
+
+
+
+
+<script src="/static/assets/js/dropzone.min.js"></script>
+<script type="text/javascript">
+    jQuery(function ($) {
+
+        try {
+            $(".dropzone").dropzone({
+                paramName: "file", // The name that will be used to transfer the file
+                maxFilesize: 0.5, // MB
+                maxFiles: 1,
+                addRemoveLinks: true,
+                uploadMultiple: false,
+                {#autoProcessQueue: false,#}
+                previewsContainer: "#adds",
+                init: function () {
+                    this.on("addedfile", function (file) {
+                        //上传文件时触发的事件
+
+                    });
+                    this.on("success", function (file, data) {
+                        //上传完成后触发的方法
+
+
+                        var url = "{% url 'media_modify' 123 %}"
+                        url = url.replace('123', data.id)
+                        html = '<form class="form-horizontal" role="form" id="upload_form" action="' + url + '" method="post">\n' +
+                                                               " {% csrf_token %} \n" +
+                            '                <div class="form-group">\n' +
+                            '                    <label class="col-sm-3 control-label no-padding-right" for="alt"> 替代文字： </label>\n' +
+                            '\n' +
+                            '                    <div class="col-sm-9">\n' +
+                            '                        <input type="text" id="alt" name="alt" placeholder="替代文字" class="col-xs-10 col-sm-5" value="' + data.alt + '"/>\n' +
+                            '                    </div>\n' +
+                            '                </div>\n' +
+                            '\n' +
+                            '\n' +
+                            '                <div class="space-4"></div>\n' +
+                            '\n' +
+                            '                <div class="form-group">\n' +
+                            '                    <label class="col-sm-3 control-label no-padding-right" for="description"> 描述： </label>\n' +
+                            '\n' +
+                            '                    <div class="col-sm-9">\n' +
+                            '                        <textarea id="description" name="description" placeholder="description"  class="col-xs-10 col-sm-5" rows="5", cols="10" >' + data.description + '</textarea>\n' +
+                            '                    </div>\n' +
+                            '                </div>\n' +
+                                '<input type="hidden" name="o_file_name" value="' + data.o_filename + ' "/>\n' +
+                            '<div class="clearfix form-actions col-md-10">\n' +
+                            '                        <div class="col-md-offset-5 col-md-9">\n' +
+                            '                            <button class="btn btn-sm btn-info use-media-btn" type="submit" id="upload_media">\n' +
+                            '                                <i class="icon-ok bigger-110"></i>\n' +
+                            '                                保存新媒体\n' +
+                            '                            </button>\n' +
+                            '                        </div>\n' +
+                            '</div>\n' +
+
+                            '</form>'
+
+                        $('#adds').after(html)
+                    });
+                    this.on("removedfile", function (file) {
+                        //删除文件时触发的方法
+                        {#console.log(file)#}
+                        if (file.status == 'success'){
+                            var url = "{% url 'media_del_by_o_name' 123 %}"
+                            url = url.replace('123', file.name)
+                            $.get(url)
+                            $("form#upload_form").remove()
+                        }
+
+
+                    });
+                },
+                dictDefaultMessage:
+                    '<span class="bigger-150 bolder"><i class="icon-caret-right red"></i> 将文件</span> 拖到这里 \
+                    <span class="smaller-80 grey">(或点击)</span> <br /> \
+                    <i class="upload-icon icon-cloud-upload blue icon-3x"></i>'
+                ,
+                dictResponseError: 'Error while uploading file!',
+
+                //change the previewTemplate to use Bootstrap progress bars
+                previewTemplate: "<div class=\"dz-preview dz-file-preview\">\n  <div class=\"dz-details\">\n    <div class=\"dz-filename\"><span data-dz-name></span></div>\n    <div class=\"dz-size\" data-dz-size></div>\n    <img data-dz-thumbnail />\n  </div>\n  <div class=\"progress progress-small progress-striped active\"><div class=\"progress-bar progress-bar-success\" data-dz-uploadprogress></div></div>\n  <div class=\"dz-success-mark\"><span></span></div>\n  <div class=\"dz-error-mark\" id=\"error\"><span></span></div>\n  <div class=\"dz-error-message\"><span data-dz-errormessage></span></div>\n</div>"
+
+            });
+        } catch (e) {
+            alert('Dropzone.js does not support older browsers!');
+        }
+
+
+    });
+</script>
+
+{% endblock %}

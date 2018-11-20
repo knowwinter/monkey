@@ -140,3 +140,51 @@ class Likearticleship(models.Model):
 class Likecommentship(models.Model):
     user = models.ForeignKey(User)
     comment = models.ForeignKey(Comment)
+
+class Sitemeta(models.Model):
+    site_name = models.CharField(max_length=30, null=False)
+    description = models.CharField(max_length=100, null=True)
+    keywords = models.CharField(max_length=100, null=True)
+    author = models.CharField(max_length=100, null=False)
+    title = models.CharField(max_length=100, null=True)
+    subtitle = models.CharField(max_length=100, null=True)
+    announcement = models.CharField(max_length=50, null=True)
+    favicon = models.CharField(max_length=255, null=True)
+    head_background_img = models.CharField(max_length=100, default='static/assets/img/1.jpg', null=False)
+    author_img = models.CharField(max_length=255, null=True)
+    head_code = models.CharField(max_length=2000, null=True)
+    foot_code = models.CharField(max_length=2000, null=True)
+    is_weibo = models.CharField(max_length=1, default='0')
+    wb_uid = models.CharField(max_length=15, null=True)
+    is_wechat = models.CharField(max_length=1, default='0')
+    wechat_qrcode = models.CharField(max_length=255, null=True)
+    is_qqgroup = models.CharField(max_length=1, default='0')
+    qqgroup_url = models.CharField(max_length=500, null=True)
+    is_twitter = models.CharField(max_length=1, default='0')
+    twitter_id = models.CharField(max_length=50, null=True)
+
+class Media(models.Model):
+    file_name = models.CharField(max_length=100, null=False)
+    o_file_name = models.CharField(max_length=100, null=False)
+    file_local_path = models.CharField(max_length=200, null=False, unique=True)
+    file_url = models.CharField(max_length=255, null=False, unique=True)
+    file_type = models.CharField(max_length=10, null=False)
+    file_author = models.ForeignKey(User, related_name='file_author')
+    upload_date = models.DateTimeField(auto_now_add=True)
+    description = models.CharField(max_length=200, null=True)
+    alt = models.CharField(max_length=50, null=True)
+    members = models.ManyToManyField(
+        Article,
+        through='Mediaship',
+        through_fields=('media', 'article'),
+    )
+    def save(self, *args, **kwargs):
+        super(Media, self).save(*args, **kwargs)
+
+    def __unicode__(self):
+        return unicode(self.file_name)
+
+class Mediaship(models.Model):
+    media = models.ForeignKey(Media)
+    article = models.ForeignKey(Article)
+    ship_date = models.DateTimeField(auto_now_add=True)

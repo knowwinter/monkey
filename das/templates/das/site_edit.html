@@ -1,0 +1,298 @@
+﻿{% extends "das/base.html" %}
+{% block header %}
+{% endblock %}
+{% block page %}
+    {% load mptt_tags %}
+    <div class="row">
+        <div class="col-md-12">
+            <!-- PAGE CONTENT BEGINS -->
+
+            <form class="form-horizontal" role="form" action="{% url 'site_edit' %}" method="post">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label class="col-sm-3 control-label no-padding-right" for="site_name"> 站点名称： </label>
+
+                    <div class="col-sm-9">
+                        <input type="text" id="site_name" name="site_name" placeholder="site_name" class="col-xs-10 col-sm-5" value="{{ site_meta.site_name }}"/>
+                    </div>
+                </div>
+
+
+                <div class="space-4"></div>
+
+                <div class="form-group">
+                    <label class="col-sm-3 control-label no-padding-right" for="description"> 站点描述： </label>
+
+                    <div class="col-sm-9">
+                        <textarea id="description" name="description" placeholder="description"  class="col-xs-10 col-sm-5" rows="5", cols="10" >{{ site_meta.description }}</textarea>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="col-sm-3 control-label no-padding-right" for="keywords"> 关键字： </label>
+
+                    <div class="col-sm-9">
+                        <input type="text" id="keywords" name="keywords" placeholder="keywords" class="col-xs-10 col-sm-5" value="{{ site_meta.keywords }}"/>
+                    </div>
+                </div>
+                <div class="space-4"></div>
+
+                 <div class="form-group">
+                    <label class="col-sm-3 control-label no-padding-right" for="author"> 站长： </label>
+
+                    <div class="col-sm-9">
+                        <input type="text" id="author" name="author" placeholder="author" class="col-xs-10 col-sm-5" value="{{ site_meta.author }}"/>
+                    </div>
+                </div>
+                <div class="space-4"></div>
+
+                <div class="form-group">
+                    <label class="col-sm-3 control-label no-padding-right" for="title"> 标题： </label>
+
+                    <div class="col-sm-9">
+                        <input type="text" id="title" name="title" placeholder="title" class="col-xs-10 col-sm-5" value="{{ site_meta.title }}"/>
+                    </div>
+                </div>
+                <div class="space-4"></div>
+
+                 <div class="form-group">
+                    <label class="col-sm-3 control-label no-padding-right" for="subtitle"> 副标题： </label>
+
+                    <div class="col-sm-9">
+                        <input type="text" id="subtitle" name="subtitle" placeholder="subtitle" class="col-xs-10 col-sm-5" value="{{ site_meta.subtitle }}"/>
+                    </div>
+                </div>
+                <div class="space-4"></div>
+
+                 <div class="form-group">
+                    <label class="col-sm-3 control-label no-padding-right" for="announcement"> 公告： </label>
+
+                    <div class="col-sm-9">
+                        <input type="text" id="announcement" name="announcement" placeholder="announcement" class="col-xs-10 col-sm-5" value="{{ site_meta.announcement }}"/>
+                    </div>
+                </div>
+                <div class="space-4"></div>
+
+                 <div class="form-group">
+                    <label class="col-sm-3 control-label no-padding-right" for="favicon"> favicon： </label>
+
+                    <div class="col-sm-6">
+                        <input type="text" id="favicon" name="favicon" placeholder="favicon" class="col-xs-8 col-sm-8" value="{{ site_meta.favicon }}"/>
+                    </div>
+                     <div class="col-sm-3">
+                         <button class="btn btn-info uploadBtn" type="button" id="favicon">上传</button>
+                     </div>
+                    <div id="addCaseDiv" style="display:none;overflow:hidden;">
+                        <iframe></iframe>
+                    </div>
+                     <div class="col-sm-12 align-center">
+                         <img src="{{ site_meta.favicon }}" id="favicon" class="img-thumbnail"/>
+                     </div>
+
+                </div>
+
+                <div class="space-4"></div>
+
+                <div class="form-group">
+                    <label class="col-sm-3 control-label no-padding-right" for="head_background_img"> 头部背景图： </label>
+
+                    <div class="col-sm-6">
+                        <input type="text" id="head_background_img" name="head_background_img" placeholder="头部背景图" class="col-xs-8 col-sm-8" value="{{ site_meta.head_background_img }}"/>
+                    </div>
+                     <div class="col-sm-3">
+                         <button class="btn btn-info uploadBtn" type="button" id="head_background_img">上传</button>
+                     </div>
+                     <div class="col-sm-12 align-center">
+                         <img src="{{ site_meta.head_background_img }}" id="head_background_img" class="img-thumbnail"/>
+                     </div>
+
+                </div>
+
+                <div class="space-4"></div>
+                <div class="form-group">
+                    <label class="col-sm-3 control-label no-padding-right" for="author_img"> 作者头像： </label>
+
+                    <div class="col-sm-6">
+                        <input type="text" id="author_img" name="author_img" placeholder="作者头像" class="col-xs-8 col-sm-8" value="{{ site_meta.author_img }}"/>
+                    </div>
+                     <div class="col-sm-3">
+                         <button class="btn btn-info uploadBtn" type="button" id="author_img">上传</button>
+                     </div>
+                     <div class="col-sm-12 align-center">
+                         <img src="{{ site_meta.author_img }}" id="author_img" class="img-thumbnail img-circle"/>
+                     </div>
+
+                </div>
+
+                <div class="space-4"></div>
+
+                <div class="form-group">
+                    <label class="col-sm-3 control-label no-padding-right" for="is_wechat"> 开启微信： </label>
+
+                    <div class="col-sm-9">
+                        <input type="checkbox" id="is_wechat" name="is_wechat" placeholder="开启微信"  {% if site_meta.is_wechat %}
+                                    checked
+                                {% endif %}
+                        value="1"
+                        />
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-3 control-label " for="wechat_qrcode"> 微信二维码： </label>
+
+                    <div class="col-sm-6">
+                        <input type="text" id="wechat_qrcode" name="wechat_qrcode" placeholder="微信二维码地址" class="col-xs-8 col-sm-8" value="{{ site_meta.wechat_qrcode }}"/>
+                    </div>
+                     <div class="col-sm-3">
+                         <button class="btn btn-info uploadBtn" type="button" id="wechat_qrcode">上传</button>
+                     </div>
+                     <div class="col-sm-12 align-center">
+                         <img src="{{ site_meta.wechat_qrcode }}" id="wechat_qrcode" class="img-thumbnail"/>
+                     </div>
+
+                </div>
+
+                <div class="space-4"></div>
+
+                <div class="form-group">
+                    <label class="col-sm-3 control-label no-padding-right" for="is_weibo"> 开启微博： </label>
+
+                    <div class="col-sm-9">
+                        <input type="checkbox" id="is_weibo" name="is_weibo" placeholder="开启微博"  {% if site_meta.is_weibo %}
+                                    checked
+                                {% endif %}
+                        value="1"
+                        />
+                    </div>
+                </div>
+            <div class="form-group">
+                    <label class="col-sm-3 control-label no-padding-right" for="wb_uid"> 微博ID： </label>
+
+                    <div class="col-sm-6">
+                        <input type="text" id="wb_uid" name="wb_uid" placeholder="微博ID" class="col-xs-8 col-sm-8" value="{{ site_meta.wb_uid }}"/>
+                    </div>
+
+
+                </div>
+
+                <div class="space-4"></div>
+
+                <div class="form-group">
+                    <label class="col-sm-3 control-label no-padding-right" for="is_qqgroup"> 开启QQ群： </label>
+
+                    <div class="col-sm-9">
+                        <input type="checkbox" id="is_qqgroup" name="is_qqgroup" placeholder="开启QQ群"  {% if site_meta.is_qqgroup %}
+                                    checked
+                                {% endif %}
+                        value="1"
+                        />
+                    </div>
+                </div>
+            <div class="form-group">
+                    <label class="col-sm-3 control-label no-padding-right" for="qqgroup_url"> QQ群地址： </label>
+
+                    <div class="col-sm-6">
+                        <input type="text" id="qqgroup_url" name="qqgroup_url" placeholder="QQ群地址" class="col-xs-8 col-sm-8" value="{{ site_meta.qqgroup_url }}"/>
+                    </div>
+
+
+                </div>
+
+                <div class="space-4"></div>
+
+                <div class="form-group">
+                    <label class="col-sm-3 control-label no-padding-right" for="is_twitter"> 开启twitter： </label>
+
+                    <div class="col-sm-6">
+                        <input type="checkbox" id="is_twitter" name="is_twitter" placeholder="开启twitter" class="checkbox" {% if site_meta.is_twitter %}
+                                    checked
+                                {% endif %}
+                        value="1"
+                        />
+                    </div>
+                </div>
+            <div class="form-group">
+                    <label class="col-sm-3 control-label no-padding-right" for="twitter_id"> Twitter ID： </label>
+
+                    <div class="col-sm-6">
+                        <input type="text" id="twitter_id" name="twitter_id" placeholder="Twitter ID" class="col-xs-8 col-sm-8" value="{{ site_meta.twitter_id }}"/>
+                    </div>
+
+
+                </div>
+                     <div class="space-4"></div>
+                    <div class="form-group">
+                        <label class="col-sm-3 control-label no-padding-right" for="head_code"> 头部代码： </label>
+
+                        <div class="col-sm-9">
+                            <textarea id="head_code" name="head_code" placeholder="头部代码"  class="col-xs-10 col-sm-9" rows="5", cols="25" >{{ site_meta.head_code }}</textarea>
+                        </div>
+                    </div>
+
+                <div class="space-4"></div>
+                    <div class="form-group">
+                        <label class="col-sm-3 control-label no-padding-right" for="foot_code"> 尾部代码： </label>
+
+                        <div class="col-sm-9">
+                            <textarea id="foot_code" name="foot_code" placeholder="尾部代码"  class="col-xs-10 col-sm-9" rows="5", cols="25" >{{ site_meta.foot_code }}</textarea>
+                        </div>
+                    </div>
+
+
+                <div class="space-4"></div>
+
+                <div class="clearfix form-actions col-md-10">
+                    <div class="col-md-offset-3 col-md-9">
+                        <button class="btn btn-sm btn-info" type="submit">
+                            <i class="icon-ok bigger-110"></i>
+                            Submit
+                        </button>
+
+                        &nbsp; &nbsp; &nbsp;
+                        <button class="btn btn-sm" type="reset">
+                            <i class="icon-undo bigger-110"></i>
+                            Reset
+                        </button>
+                    </div>
+                </div>
+
+
+            </form>
+        </div><!-- /.col -->
+
+    </div><!-- /.row -->
+<script type="text/javascript">
+			jQuery(function($) {
+                 $(".uploadBtn").click(function(){
+
+
+                     window.dialog = $("#addCaseDiv").dialog({
+                            title: "",
+                            width : '50%',
+                            height : 600,
+                            modal : true
+
+                        });
+
+                                    //$("iframe",dialog).attr("scrolling","no");
+                                    $("iframe",dialog).attr("frameborder","0");
+                                    $("iframe",dialog).attr("height","100%");
+                                    $("iframe",dialog).attr("width","100%");
+                                    $("iframe",dialog).attr("src","{% url 'upload_page' ''%}");
+                                    $("iframe").attr("id", this.id);
+                                    $("iframe").attr("name", this.id)
+
+
+
+                                })
+
+            });
+
+			function closeDialog(selector, media_url) {
+			            jQuery(function($) {
+                            $(selector).attr('src', media_url)
+                        })
+                       dialog.dialog("close")
+                    }
+</script>
+{% endblock %}

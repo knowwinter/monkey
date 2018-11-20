@@ -60,7 +60,7 @@
             height: 300,
             forced_root_block: false,
             convert_urls: false,
-            imageupload_url: '{% url 'upload' %}',
+            imageupload_url: '{% url 'upload' request.session.user.id %}',
             plugins: [
                 "advlist autolink lists link image charmap print preview anchor sh4tinymce ",
                 "searchreplace visualblocks code fullscreen",

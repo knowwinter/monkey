@@ -7,6 +7,14 @@
     <script type="text/javascript">
         $.ajaxSetup({headers: {"X-CSRFToken": '{{ csrf_token }}'}});
     </script>
+    <style type="text/css">
+
+        a.tag {
+            text-decoration: none
+        }
+
+
+    </style>
 {% endblock %}
 
 {% block page %}
@@ -133,19 +141,22 @@
                                         {{ page.pub_author.username }}
                                     </td>
                                     <td class="hidden-480">
-                                        <a href="#">
-                                            {% if page.category %}
-                                                {{ page.category.name }}
-                                            {% else %}
-                                                未分类
-                                            {% endif %}
-
-                                        </a>
+                                       {% if page.category %}
+                                            <a href="{% url 'category_show' page.category.pk '1' %}"> {{ page.category.name }}</a>
+                                        {% else %}
+                                            <a href="{% url 'category_show' 0 '1' %}">未分类</a>
+                                        {% endif %}
 
                                     </td>
-                                    <td class="hidden-480">{% for tag in page.tag_set.all %}
-                                        <label class="label-info label-lg label">{{ tag }}</label>
-                                    {% endfor %}</td>
+                                    <td class="hidden-480">
+                                         {% load btn_tags %}
+                                            {% for tag in page.tag_set.all %}
+                                                 <a href="{% url 'tag_show' tag.pk '1' %}" class="tag">
+                                                <button class="{{ 'label'|randomlabel }} label-lg label">{{ tag }}</button>
+                                                 </a>
+                                            {% endfor %}
+
+                                    </td>
                                     <td class="hidden-480"><a href="#"> {{ page.comment_count }}</a></td>
                                     <td class="hidden-480"><a href="#"> {{ page.like_count }}</a></td>
                                     <td class="hidden-480"><a href="#"> {{ page.view_count }}</a></td>

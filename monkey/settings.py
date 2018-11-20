@@ -70,6 +70,7 @@ TEMPLATES = [
                 'silice_tags': 'index.templatetags.silice_tags',
                 'likearticleship_tags': 'index.templatetags.likearticleship_tags',
                 'btn_tags': 'index.templatetags.btn_tags',
+                'comm_tags':'das.templatetags.comm_tags',
             },
         },
     },

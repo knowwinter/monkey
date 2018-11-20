@@ -3,10 +3,8 @@ from __future__ import unicode_literals
 
 import hashlib
 import json
-from django.core.serializers.json import DjangoJSONEncoder
 import os
 import time
-
 
 from django.conf import settings
 from django.contrib import auth
@@ -19,6 +17,7 @@ from django.shortcuts import render, redirect
 
 from das.models import *
 from forms import *
+from common import *
 
 
 # from django.http import HttpResponse, HttpRequest
@@ -330,6 +329,28 @@ def post_new_view(req):
                     tagship = Tagship.objects.create(article=post, tag=tag)
                     tagship.save()
 
+            pattern = 'img src="(.*?)"'
+            imgtmp = parseContent(post.content, pattern)
+            if imgtmp:
+               for file_url in imgtmp:
+                   try:
+                        media = Media.objects.get(file_url=file_url)
+                        mediaship = Mediaship.objects.create(media=media, article=post)
+                        mediaship.save()
+                   except:
+                       pass
+
+            pattern_2 = 'a href="(.*?)"'
+            attachmenttmp = parseContent(post.content, pattern_2)
+            if attachmenttmp:
+                for file_url in attachmenttmp:
+                    try:
+                        media = Media.objects.get(file_url=file_url)
+                        mediaship = Mediaship.objects.create(media=media, article=post)
+                        mediaship.save()
+                    except:
+                        pass
+
             if article_status == '2':
                 context['msg'] = '文章草稿保存成功'
             else:
@@ -372,7 +393,10 @@ def post_modify(req, article_id):
             post.comment_status = comment_status
             post.category = category
             post.tag_set.clear()
+
+            post.media_set.clear()
             post.save()
+
             # post_tags = Tagship.objects.get(article=post)
             # for post_tag in post_tags:
             #     post_tag.delete()
@@ -385,6 +409,29 @@ def post_modify(req, article_id):
                         tag = Tag.objects.create(name=tagName, description=tagName)
                     tagship = Tagship.objects.create(article=post, tag=tag)
                     tagship.save()
+
+            pattern = 'img src="(.*?)"'
+            imgtmp = parseContent(post.content, pattern)
+            if imgtmp:
+                for file_url in imgtmp:
+                    try:
+                        media = Media.objects.get(file_url=file_url)
+                        mediaship = Mediaship.objects.create(media=media, article=post)
+                        mediaship.save()
+                    except:
+                        pass
+
+            pattern_2 = 'a href="(.*?)"'
+            attachmenttmp = parseContent(post.content, pattern_2)
+            if attachmenttmp:
+                for file_url in attachmenttmp:
+                    try:
+                        media = Media.objects.get(file_url=file_url)
+                        mediaship = Mediaship.objects.create(media=media, article=post)
+                        mediaship.save()
+                    except:
+                        pass
+
             if article_status == '2':
                 context['msg'] = '文章草稿保存成功'
             else:
@@ -498,6 +545,9 @@ def page_new_view(req):
                                           category=category, parent=parent, guid=guid)
             post.save()
 
+
+
+
             if article_status == '2':
                 context['msg'] = '文章草稿保存成功'
             else:
@@ -558,7 +608,6 @@ def page_del(req, pindex, article_id):
     return redirect('/das/page/' + pindex, context)
 
 
-
 # @login_required(login_url='/login')
 # def media_view(req, pindex):
 #     context = {}
@@ -617,18 +666,24 @@ def page_del(req, pindex, article_id):
 #     return render(req, 'das/attachment-new.html', context)
 
 # @login_required(login_url='/login')
-def upload(req):
+def upload(req, user_id):
     ret = {"error": True, "path": ""}
     if req.method == "POST":
-        ret = handle_upload_file(req.FILES['file'], str(req.FILES['file']), req.scheme, req.get_host())
+        uploadtype = None
+        if 'uploadtype' in req.POST.keys():
+            uploadtype = req.POST['uploadtype']
+        ret = handle_upload_file(req.FILES['file'], str(req.FILES['file']), req.scheme, req.get_host(), uploadtype, user_id, str(req.FILES['file']), str(req.FILES['file']))
 
     return HttpResponse(json.dumps(ret), content_type="application/json")  # 此处简单返回一个成功的消息，在实际应用中可以返回到指定的页面中
 
 
 # @login_required(login_url='/login')
-def handle_upload_file(file, filename, schema, host):
+def handle_upload_file(file, filename, schema, host, uploadtype, user_id, description, alt):
     m = hashlib.md5()
     m.update(bytes(str(time.time()).encode('utf8')))
+
+    o_filename = filename
+
     filename = m.hexdigest() + os.path.splitext(filename)[1]
     uploadpath = time.strftime('%Y%m%d', time.localtime(time.time()))
     path = os.path.join(settings.UPLOAD_ROOT, uploadpath)  # 上传文件的保存路径，可以自己指定任意的路径
@@ -642,7 +697,16 @@ def handle_upload_file(file, filename, schema, host):
         ret = {"error": True, "path": ""}
         return ret
     url = schema + '://' + host + settings.MEDIA_ROOT + uploadpath + "/" + filename
-    ret = {"error": 'false', "url": url}
+    file_type = os.path.splitext(filename)[1][1:]
+    file_local_path = path + '/' + filename
+    file_author = User.objects.get(pk=user_id)
+    media = Media.objects.create(file_name=filename, o_file_name=o_filename, file_local_path=file_local_path, file_url=url, file_type=file_type, file_author=file_author, description=description, alt=alt)
+    try:
+        media.save()
+    except:
+        ret = {"error": True, "path": ""}
+        return ret
+    ret = {"error": 'false', "url": url, "uploadtype": uploadtype, "o_filename": o_filename, "description": media.description, "alt": media.alt, "id":  media.pk}
     return ret
 
 
@@ -662,8 +726,6 @@ def comment(req):
                 user = User.objects.get(pk=user_id)
                 if user.is_superuser == 1:
                     comment_status = "1"
-
-
 
             comment_author = form.cleaned_data['comment_author']
             comment_author_email = form.cleaned_data['comment_author_email']
@@ -819,6 +881,7 @@ def like_article(req, article_id, user_id):
     finally:
         return HttpResponse(json.dumps(context), content_type="application/json")
 
+
 @login_required(login_url="/login")
 def like_comment(req, comment_id, user_id):
     context = {}
@@ -837,3 +900,194 @@ def like_comment(req, comment_id, user_id):
         context['result'] = 'failure'
     finally:
         return HttpResponse(json.dumps(context), content_type="application/json")
+
+
+@login_required(login_url="/login")
+def set_site(req):
+    context = {}
+    site_meta = None
+    try:
+        site_meta = Sitemeta.objects.all()[0]
+    except:
+        site_meta = None
+    if req.method == 'POST':
+        form = SiteMetaForm(req.POST)
+        if form.is_valid():
+            site_name = form.cleaned_data['site_name']
+            description = form.cleaned_data['description']
+            keywords = form.cleaned_data['keywords']
+            author = form.cleaned_data['author']
+            title = form.cleaned_data['title']
+            subtitle = form.cleaned_data['subtitle']
+            announcement = form.cleaned_data['announcement']
+            favicon = form.cleaned_data['favicon']
+            head_background_img = form.cleaned_data['head_background_img']
+            author_img = form.cleaned_data['author_img']
+            head_code = form.cleaned_data['head_code']
+            foot_code = form.cleaned_data['foot_code']
+            is_weibo = form.cleaned_data['is_weibo']
+            if not is_weibo:
+                is_weibo = 0
+            wb_uid = form.cleaned_data['wb_uid']
+            is_wechat = form.cleaned_data['is_wechat']
+            if not is_wechat:
+                is_wechat = 0
+            wechat_qrcode = form.cleaned_data['wechat_qrcode']
+            is_qqgroup = form.cleaned_data['is_qqgroup']
+            if not is_qqgroup:
+                is_qqgroup = 0
+            qqgroup_url = form.cleaned_data['qqgroup_url']
+            is_twitter = form.cleaned_data['is_twitter']
+            if not is_twitter:
+                is_twitter = 0
+            twitter_id = form.cleaned_data['twitter_id']
+            if not site_meta:
+                site_meta = Sitemeta.objects.create(site_name=site_name, description=description, keywords=keywords,
+                                                    author=author, title=title, subtitle=subtitle,
+                                                    announcement=announcement,
+                                                    favicon=favicon, head_background_img=head_background_img,
+                                                    author_img=author_img, head_code=head_code, foot_code=foot_code,
+                                                    is_weibo=is_weibo, wb_uid=wb_uid, is_wechat=is_wechat,
+                                                    wechat_qrcode=wechat_qrcode, is_qqgroup=is_qqgroup,
+                                                    qqgroup_url=qqgroup_url, is_twitter=is_twitter, twitter_id=twitter_id)
+            else:
+                site_meta.site_name = site_name
+                site_meta.description = description
+                site_meta.keywords = keywords
+                site_meta.author = author
+                site_meta.title = title
+                site_meta.subtitle = subtitle
+                site_meta.announcement = announcement
+                site_meta.favicon = favicon
+                site_meta.head_background_img = head_background_img
+                site_meta.author_img = author_img
+                site_meta.head_code = head_code
+                site_meta.foot_code = foot_code
+                site_meta.is_weibo = is_weibo
+                site_meta.wb_uid = wb_uid
+                site_meta.is_wechat = is_wechat
+                site_meta.wechat_qrcode = wechat_qrcode
+                site_meta.is_qqgroup = is_qqgroup
+                site_meta.qqgroup_url = qqgroup_url
+                site_meta.is_twitter = is_twitter
+                site_meta.twitter_id = twitter_id
+            site_meta.save()
+            context['site_meta'] = site_meta
+            return render(req, 'das/site_edit.html', context)
+        else:
+            context['msg'] = "表单错误"
+            return render(req, 'das/msg.html', context)
+    context['site_meta'] = site_meta
+    return render(req, 'das/site_edit.html', context)
+
+@login_required(login_url="/login")
+def upload_page(req, pindex):
+    context = {}
+    medias = Media.objects.all().order_by("-upload_date")
+    paginator = Paginator(medias, 10)
+    active = 'active'
+    if pindex == '':
+        pindex = '1'
+        active = None
+    try:
+        page = paginator.page(int(pindex))
+    except:
+        pindex = int(pindex) - 1
+        page = paginator.page(int(pindex))
+    context['pages'] = page
+
+    context['media'] = medias
+    context['active'] = active
+    return render(req, 'das/dropzone.html', context)
+
+@login_required(login_url="/login")
+def media_view(req, pindex):
+    context = {}
+    medias = Media.objects.all().order_by("-upload_date")
+    paginator = Paginator(medias, 10)
+    if pindex == '':
+        pindex = '1'
+    try:
+        page = paginator.page(int(pindex))
+    except:
+        pindex = int(pindex) - 1
+        page = paginator.page(int(pindex))
+    context['pages'] = page
+
+    context['media'] = medias
+    return render(req, 'das/media-show.html', context)
+
+
+@login_required(login_url="/login")
+def media_modify(req, id):
+    context = {}
+    media = Media.objects.get(pk=id)
+    if not media:
+        context['msg'] = "媒体不存在"
+        return render(req, 'das/msg.html', context)
+    if req.method == 'POST':
+        form = MediaForm(req.POST)
+        if form.is_valid():
+            description = form.cleaned_data['description']
+            alt = form.cleaned_data['alt']
+            o_file_name = form.cleaned_data['o_file_name']
+            media.o_file_name = o_file_name
+            media.description = description
+            media.alt = alt
+            try:
+                media.save()
+                context['msg'] = '修改成功'
+                return redirect('/das/media/list/1', context)
+            except:
+                context['msg'] = '失败，请重试'
+                return render(req, 'das/msg.html', context)
+        else:
+            context['msg'] = "表单错误"
+            return render(req, 'das/msg.html', context)
+    context['media'] = media
+    return render(req, 'das/media-modify.html', context)
+
+@login_required(login_url="/login")
+def media_del(req, id):
+    context = {}
+    try:
+        media = Media.objects.get(pk=id)
+    except:
+        context['msg'] = "媒体不存在"
+        context['result'] = 'failure'
+        return HttpResponse(json.dumps(context), content_type="application/json")
+    try:
+        os.remove(media.file_local_path)
+        media.delete()
+        context['msg'] = '媒体删除成功'
+        context['result'] = 'success'
+        return HttpResponse(json.dumps(context), content_type="application/json")
+    except:
+        context['msg'] = "媒体删除失败，请重试"
+        context['result'] = 'failure'
+        return HttpResponse(json.dumps(context), content_type="application/json")
+
+@login_required(login_url="/login")
+def media_del_by_o_name(req, o_name):
+    context = {}
+    try:
+        media = Media.objects.filter(o_file_name=o_name).order_by("-upload_date")[0]
+    except:
+        context['msg'] = "媒体不存在"
+        context['result'] = 'failure'
+        return HttpResponse(json.dumps(context), content_type="application/json")
+    try:
+        os.remove(media.file_local_path)
+        media.delete()
+        context['msg'] = '媒体删除成功'
+        context['result'] = 'success'
+        return HttpResponse(json.dumps(context), content_type="application/json")
+    except:
+        context['msg'] = "媒体删除失败，请重试"
+        context['result'] = 'failure'
+        return HttpResponse(json.dumps(context), content_type="application/json")
+
+
+@login_required(login_url="/login")
+def media_new_view(req):
+    return render(req, 'das/media_add.html')

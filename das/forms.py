@@ -59,3 +59,30 @@ class CommentStatusForm(forms.Form):
 
 class ArticleStatusForm(forms.Form):
     article_status = forms.CharField(required=True)
+
+class SiteMetaForm(forms.Form):
+    site_name = forms.CharField(max_length=30, required=True)
+    description = forms.CharField(max_length=100, required=False)
+    keywords = forms.CharField(max_length=100, required=False)
+    author = forms.CharField(max_length=100, required=True)
+    title = forms.CharField(max_length=100, required=False)
+    subtitle = forms.CharField(max_length=100, required=False)
+    announcement = forms.CharField(max_length=50, required=False)
+    favicon = forms.CharField(max_length=255, required=False)
+    head_background_img = forms.CharField(max_length=255, required=False)
+    author_img = forms.CharField(max_length=255, required=False)
+    head_code = forms.CharField(max_length=2000, required=False)
+    foot_code = forms.CharField(max_length=2000, required=False)
+    is_weibo = forms.CharField(max_length=1, required=False)
+    wb_uid = forms.CharField(max_length=15, required=False)
+    is_wechat = forms.CharField(max_length=1, required=False)
+    wechat_qrcode = forms.CharField(max_length=255, required=False)
+    is_qqgroup = forms.CharField(max_length=1, required=False)
+    qqgroup_url = forms.CharField(max_length=500, required=False)
+    is_twitter = forms.CharField(max_length=1, required=False)
+    twitter_id = forms.CharField(max_length=50, required=False)
+
+class MediaForm(forms.Form):
+    o_file_name = forms.CharField(max_length=100, required=False)
+    description = forms.CharField(max_length=200, required=False)
+    alt = forms.CharField(max_length=50, required=False)

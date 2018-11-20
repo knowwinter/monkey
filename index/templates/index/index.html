@@ -30,8 +30,10 @@
                     <p  style=word-wrap:break-word;>
                         {{ p.content|silice_content:'200'|safe }}
                     </p>
+                <p>
                     <a href="{{ p.guid }}" class="btn btn-default btn-lg ">Read More <i
                             class="fa fa-angle-right"></i></a>
+                </p>
                 </div>
             {% endfor %}
 

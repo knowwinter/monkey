@@ -40,9 +40,11 @@ def index_view(req, pindex):
         pindex = int(pindex) - 1
         page = paginator.page(int(pindex))
     tags = Tag.objects.all()
+    sitemeta = get_sitemeta(req)
     context['tags'] = tags
     context['pages'] = page
     context['nodes'] = nodes
+    context['sitemeta'] = sitemeta
     return render(req, 'index/index.html', context)
 
 def post_show(req, id):
@@ -65,6 +67,8 @@ def post_show(req, id):
     context['next_post'] = next_post
     context['nodes'] = nodes
     context['comments'] = comments
+    sitemeta = get_sitemeta(req)
+    context['sitemeta'] = sitemeta
     return render(req, 'index/post-show.html', context)
 
 
@@ -88,6 +92,8 @@ def post_preview(req, id):
     context['next_post'] = next_post
     context['nodes'] = nodes
     context['comments'] = comments
+    sitemeta = get_sitemeta(req)
+    context['sitemeta'] = sitemeta
     return render(req, 'index/post-show.html', context)
 
 def category_show(req, cate_id, pindex):
@@ -123,6 +129,8 @@ def category_show(req, cate_id, pindex):
     context['nodes'] = nodes
     context['pages'] = page
     context['cate'] = category
+    sitemeta = get_sitemeta(req)
+    context['sitemeta'] = sitemeta
     return render(req, 'index/category-show.html', context)
 
 def tag_show(req, tag_id, pindex):
@@ -153,4 +161,14 @@ def tag_show(req, tag_id, pindex):
     context['nodes'] = nodes
     context['pages'] = page
     context['tag'] = tag
+    sitemeta = get_sitemeta(req)
+    context['sitemeta'] = sitemeta
     return render(req, 'index/tag-show.html', context)
+
+def get_sitemeta(req):
+    sitemeta = Sitemeta.objects.all()[0]
+    return sitemeta
+
+def get_favicon(req):
+    sitemeta = get_sitemeta(req)
+    return redirect(sitemeta.favicon)

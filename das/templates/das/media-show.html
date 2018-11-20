@@ -1,0 +1,241 @@
+﻿{% extends "das/base.html" %}
+{% load staticfiles %}
+{% load static %}
+{% block header %}
+    <script type="text/javascript" src="{% static 'tinymce/tinymce.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'tinymce/plugins/jquery-form.js' %}"></script>
+    <script type="text/javascript">
+        $.ajaxSetup({headers: {"X-CSRFToken": '{{ csrf_token }}'}});
+    </script>
+
+
+{% endblock %}
+
+{% block page %}
+    {% load mptt_tags %}
+    <div class="row">
+        <div class="col-xs-12">
+            <!-- PAGE CONTENT BEGINS -->
+
+            <div class="row">
+{#                <div class="form-group">#}
+{#                    <form class="form-horizontal" role="form" id="comment_status_form"#}
+{#                          action="{% url 'comment_list' '1' comment_status %}"#}
+{#                          method="post">#}
+{#                        {% csrf_token %}#}
+{#                        <div class="col-sm-3">#}
+{#                            <select class="col-xs-12 col-sm-6" name="comment_status" id="comment_status">#}
+{##}
+{#                                <option value="0"#}
+{#                                        {% if comment_status == '0' %}#}
+{#                                        selected="selected"#}
+{#                                        {% endif %}#}
+{#                                >ALL#}
+{#                                </option>#}
+{#                                <option value="1"#}
+{#                                        {% if comment_status == '1' %}#}
+{#                                        selected="selected"#}
+{#                                        {% endif %}#}
+{#                                >已批准#}
+{#                                </option>#}
+{#                                <option value="2"#}
+{#                                        {% if comment_status == '2' %}#}
+{#                                        selected="selected"#}
+{#                                        {% endif %}#}
+{#                                >待审核#}
+{#                                </option>#}
+{#                            </select>#}
+{#                            <button class="btn btn-sm btn-group-sm btn-white" type="submit">筛选</button>#}
+{#                        </div>#}
+{#                    </form>#}
+{#                </div>#}
+
+                <div class="col-xs-12">
+                    <div class="table-responsive">
+                        <table id="sample-table-1" class="table table-striped table-bordered table-hover">
+                            <thead>
+                            <tr>
+                                <th class="center">
+                                    <label>
+                                        <input type="checkbox" class="ace"/>
+                                        <span class="lbl"></span>
+                                    </label>
+                                </th>
+                                <th class="col-md-2"></th>
+                                <th>文件</th>
+                                <th>作者</th>
+                                <th class="hidden-480">上传至</th>
+                                <th>日期</th>
+                                <th>URL</th>
+                                <th>ID</th>
+
+
+                            </tr>
+                            </thead>
+
+                            <tbody id="commenttbody">
+                            {% for page in pages %}
+
+                                <tr class="commenttr">
+                                    <td class="center">
+                                        <label>
+                                            <input type="checkbox" class="ace"/>
+                                            <span class="lbl"></span>
+                                        </label>
+                                    </td>
+                                    {% load comm_tags %}
+                                    <td>
+
+
+
+                                           <div class="ace-thumbnails">
+                                        {{ page.file_type|if_in:page.file_url|safe }}
+
+                                        </div>
+
+                                    </td>
+                                    <td class="commenttd">
+                                        <span>{{ page.o_file_name }}</span><br/>
+                                        {{ page.file_type }}
+                                        <div class="tools hidden">
+                                            <div class="action-buttons bigger-125">
+
+                                                <a href="{% url "media_modify" page.pk %}" id="{{ page.pk }}" class="comment">
+                                                    <i class="icon-edit blue"></i>
+                                                </a>
+
+                                                <a href="javascript:void(0);" id="{{ page.pk }}" class="comment_del">
+                                                    <i class="icon-trash red"></i>
+                                                </a>
+                                            </div>
+
+                                        </div>
+                                    </td>
+                                    <td>{{ page.file_author}}</td>
+                                    <td class="hidden-480">
+                                        {% for post in page.members.all %}
+                                        <a href="{{ post.guid }}">{{ post.title }}</a>
+                                            {{ post.pk|get_mediaship_date:page.pk }}
+                                            {% endfor %}
+                                </td>
+
+                                    <td class="hidden-480">
+                                        {{ page.upload_date }}
+                                    </td>
+                                <td class="hidden-480">
+                                        {{ page.file_url }}
+                                    </td>
+                                <td class="hidden-480">
+                                        {{ page.id }}
+                                    </td>
+
+
+                                </tr>
+                            {% endfor %}
+
+
+                            </tbody>
+                        </table>
+                        {% for index in pages.paginator.page_range %}
+                            {% if index == pages.number %}
+                                {{ index }}
+                            {% else %}
+                                <a href="{% url 'media_view' index %}">{{ index }}</a>
+                            {% endif %}
+                        {% endfor %}
+                    </div><!-- /.table-responsive -->
+                </div><!-- /span -->
+            </div><!-- /row -->
+        </div><!-- /.col -->
+
+    </div><!-- /.row -->
+    <script type="text/javascript" src="{% static 'tinymce/plugins/jquery-form.js' %}"></script>
+    <script type="text/javascript">
+        $.ajaxSetup({headers: {"X-CSRFToken": '{{ csrf_token }}'}});
+        $(document).ready(function () {
+
+
+            $("tbody#commenttbody .commenttd").on({
+                mouseenter:function(){
+                    $(this).children('.tools').removeClass("hidden");
+                },
+                mouseleave:function() {
+                    $(this).children('.tools').addClass("hidden");
+                }})
+
+            $('tbody#commenttbody').on('mouseenter', '.commenttd', function () {
+                $(this).children('.tools').removeClass('hidden');
+            });
+            $('tbody#commenttbody').on('mouseleave', '.commenttd', function () {
+                $(this).children('.tools').addClass('hidden');
+            });
+
+            $("div.tools").on("click", "a.comment_del", function () {
+                var media_id = $(this).attr("id")
+                var obj = $(this)
+                var tr = obj.parents('tr')
+                var url = "{% url 'media_del' 123 %}"
+                url = url.replace('123', media_id)
+
+                $.ajax({
+                    type: "GET",
+                    url: url,
+                    datatype: 'json',
+                    success: function (result) {
+                        if (result.result == 'success') {
+                            alert(result.msg)
+                            tr.remove()
+                        } else {
+                            alert("处理失败")
+                        }
+                    },
+                    error: function () {
+                        alert('异常')
+                    }
+                })
+            })
+
+
+
+
+
+
+         } );
+    </script>
+   <script type="text/javascript">
+			jQuery(function($) {
+	var colorbox_params = {
+		reposition:true,
+		scalePhotos:true,
+		scrolling:false,
+		previous:'<i class="icon-arrow-left"></i>',
+		next:'<i class="icon-arrow-right"></i>',
+		close:'&times;',
+		current:'{current} of {total}',
+		maxWidth:'100%',
+		maxHeight:'100%',
+		onOpen:function(){
+			document.body.style.overflow = 'hidden';
+		},
+		onClosed:function(){
+			document.body.style.overflow = 'auto';
+		},
+		onComplete:function(){
+			$.colorbox.resize();
+		}
+	};
+
+	$('.ace-thumbnails [data-rel="colorbox"]').colorbox(colorbox_params);
+	$("#cboxLoadingGraphic").append("<i class='icon-spinner orange'></i>");//let's add a custom loading icon
+
+	/**$(window).on('resize.colorbox', function() {
+		try {
+			//this function has been changed in recent versions of colorbox, so it won't work
+			$.fn.colorbox.load();//to redraw the current frame
+		} catch(e){}
+	});*/
+})
+		</script>
+
+
+{% endblock %}
