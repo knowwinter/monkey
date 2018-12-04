@@ -142,7 +142,14 @@ UPLOAD_ROOT = os.path.join(os.path.join(BASE_DIR, 'static'), 'upload')
 MEDIA_ROOT = STATIC_URL + 'upload/'
 
 CACHES = {
-    "default": "django.core.cache.backends.locmem.LocMemCache",
+    # "default": "django.core.cache.backends.locmem.LocMemCache",
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": "redis://127.0.0.1:6379/1",
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+        },
+    },
     "session_redis": {
         "BACKEND": "django_redis.cache.RedisCache",
         "LOCATION": "redis://127.0.0.1:6379/3",
@@ -168,3 +175,6 @@ AUTH_USER_MODEL = "das.User"
 # SESSION_REDIS_UNIX_DOMAIN_SOCKET_PATH = '/var/run/redis/redis.sock'
 
 # TINYMCE_DEFAULT_CONFIG = { 'theme': 'advanced', 'width': 600, 'height': 400, }
+
+SITEMETA = None
+VIERSION = 0.8

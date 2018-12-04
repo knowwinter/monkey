@@ -31,7 +31,7 @@ urlpatterns = [
     url(r'^media/list/(\d*)', views.media_view, name='media_view'),
     url(r'^media/modify/(\d*)', views.media_modify, name='media_modify'),
     url(r'^media/del/(\d*)/$', views.media_del, name='media_del'),
-    url(r'^media/new/$', views.media_new_view, name='media_del'),
+    url(r'^media/new/$', views.media_new_view, name='media_new'),
     url(r'^media/delByOName/(\w.*)', views.media_del_by_o_name, name='media_del_by_o_name'),
 
 ]

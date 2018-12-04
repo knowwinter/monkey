@@ -11,6 +11,8 @@ from django.shortcuts import render, redirect
 from django.http import HttpResponse
 import json
 import os
+
+from das.common import cache_sitemeta
 from das.models import *
 from das.forms import *
 from django.conf import settings
@@ -18,7 +20,7 @@ import hashlib
 import time
 
 # from django.http import HttpResponse, HttpRequest
-
+settings.SITEMETA = cache_sitemeta()
 
 def index_view(req, pindex):
     context = {}
@@ -40,11 +42,11 @@ def index_view(req, pindex):
         pindex = int(pindex) - 1
         page = paginator.page(int(pindex))
     tags = Tag.objects.all()
-    sitemeta = get_sitemeta(req)
     context['tags'] = tags
     context['pages'] = page
     context['nodes'] = nodes
-    context['sitemeta'] = sitemeta
+    print(settings.SITEMETA.head_background_img)
+    context['sitemeta'] = settings.SITEMETA
     return render(req, 'index/index.html', context)
 
 def post_show(req, id):
@@ -67,8 +69,7 @@ def post_show(req, id):
     context['next_post'] = next_post
     context['nodes'] = nodes
     context['comments'] = comments
-    sitemeta = get_sitemeta(req)
-    context['sitemeta'] = sitemeta
+    context['sitemeta'] = settings.SITEMETA
     return render(req, 'index/post-show.html', context)
 
 
@@ -92,13 +93,13 @@ def post_preview(req, id):
     context['next_post'] = next_post
     context['nodes'] = nodes
     context['comments'] = comments
-    sitemeta = get_sitemeta(req)
-    context['sitemeta'] = sitemeta
+    context['sitemeta'] = settings.SITEMETA
     return render(req, 'index/post-show.html', context)
 
 def category_show(req, cate_id, pindex):
     context = {}
     category = None
+    context['sitemeta'] = settings.SITEMETA
     tags = Tag.objects.all()
     context['tags'] = tags
     if cate_id == '0':
@@ -129,12 +130,12 @@ def category_show(req, cate_id, pindex):
     context['nodes'] = nodes
     context['pages'] = page
     context['cate'] = category
-    sitemeta = get_sitemeta(req)
-    context['sitemeta'] = sitemeta
+
     return render(req, 'index/category-show.html', context)
 
 def tag_show(req, tag_id, pindex):
     context = {}
+    context['sitemeta'] = settings.SITEMETA
     tag = Tag.objects.get(pk=tag_id)
     tags = Tag.objects.all()
     context['tags'] = tags
@@ -161,14 +162,9 @@ def tag_show(req, tag_id, pindex):
     context['nodes'] = nodes
     context['pages'] = page
     context['tag'] = tag
-    sitemeta = get_sitemeta(req)
-    context['sitemeta'] = sitemeta
+
     return render(req, 'index/tag-show.html', context)
 
-def get_sitemeta(req):
-    sitemeta = Sitemeta.objects.all()[0]
-    return sitemeta
 
 def get_favicon(req):
-    sitemeta = get_sitemeta(req)
-    return redirect(sitemeta.favicon)
+    return redirect(settings.SITEMETA.favicon)

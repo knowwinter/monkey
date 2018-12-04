@@ -15,17 +15,19 @@ from django.db.models import Q
 from django.http import HttpResponse
 from django.shortcuts import render, redirect
 
+from das.common import cache_sitemeta
 from das.models import *
 from forms import *
 from common import *
 
 
 # from django.http import HttpResponse, HttpRequest
-
+settings.SITEMETA = cache_sitemeta()
 
 def register_view(req):
     context = {}
     context['box'] = 'signup'
+    context['sitemeta'] = settings.SITEMETA
     if req.method == 'POST':
         form = UserForm(req.POST)
         if form.is_valid():
@@ -55,6 +57,7 @@ def register_view(req):
 def login_view(req):
     context = {}
     context['box'] = 'login'
+    context['sitemeta'] = settings.SITEMETA
     if req.session.get('user'):
         # print req.session.get('user')
         # context = {'isLogin': True, 'pswd': True, 'user': req.session.get('user')}
@@ -91,12 +94,16 @@ def logout_view(req):
 
 @login_required(login_url='/login')
 def index_view(req):
-    return render(req, 'das/index.html')
+    context = {}
+    context['sitemeta'] = settings.SITEMETA
+    context['version'] = settings.VIERSION
+    return render(req, 'das/index.html', context)
 
 
 @login_required(login_url='/login')
 def category_view(req, pindex):
     context = {}
+    context['sitemeta'] = settings.SITEMETA
     if req.method == 'POST':
         form = CateForm(req.POST)
         if form.is_valid():
@@ -139,6 +146,7 @@ def category_view(req, pindex):
 @login_required(login_url='/login')
 def category_del(req, pindex, cate_id):
     context = {}
+    context['sitemeta'] = settings.SITEMETA
     cate = Category.objects.get(pk=cate_id)
     if not cate:
         context['msg'] = '目录不存在'
@@ -153,6 +161,7 @@ def category_del(req, pindex, cate_id):
 @login_required(login_url='/login')
 def category_modify(req, cate_id):
     context = {}
+    context['sitemeta'] = settings.SITEMETA
     cate = Category.objects.get(pk=cate_id)
     if not cate:
         context['msg'] = '目录不存在'
@@ -194,6 +203,7 @@ def category_modify(req, cate_id):
 @login_required(login_url='/login')
 def tag_view(req, pindex):
     context = {}
+    context['sitemeta'] = settings.SITEMETA
     if req.method == 'POST':
         form = TagForm(req.POST)
         if form.is_valid():
@@ -235,6 +245,7 @@ def json_get_tags(req):
 @login_required(login_url='/login')
 def tag_del(req, pindex, tag_id):
     context = {}
+    context['sitemeta'] = settings.SITEMETA
     tag = Tag.objects.get(pk=tag_id)
     if not tag:
         context['msg'] = '标签不存在'
@@ -249,6 +260,7 @@ def tag_del(req, pindex, tag_id):
 @login_required(login_url='/login')
 def tag_modify(req, tag_id):
     context = {}
+    context['sitemeta'] = settings.SITEMETA
     tag = Tag.objects.get(pk=tag_id)
     if not tag:
         context['msg'] = '标签不存在'
@@ -279,6 +291,7 @@ def tag_modify(req, tag_id):
 @login_required(login_url='/login')
 def post_new_view(req):
     context = {}
+    context['sitemeta'] = settings.SITEMETA
     if req.method == "POST":
         form = PostForm(req.POST)
         if form.is_valid():
@@ -369,6 +382,7 @@ def post_new_view(req):
 @login_required(login_url='/login')
 def post_modify(req, article_id):
     context = {}
+    context['sitemeta'] = settings.SITEMETA
     post = Article.objects.get(pk=article_id)
     if not post:
         context['msg'] = '文章不存在'
@@ -451,6 +465,7 @@ def post_modify(req, article_id):
 @login_required(login_url='/login')
 def post_del(req, pindex, article_id):
     context = {}
+    context['sitemeta'] = settings.SITEMETA
     post = Article.objects.get(pk=article_id)
     if not post:
         context['msg'] = '文章不存在'
@@ -464,6 +479,7 @@ def post_del(req, pindex, article_id):
 @login_required(login_url='/login')
 def post_revoke(req, pindex, article_id):
     context = {}
+    context['sitemeta'] = settings.SITEMETA
     post = Article.objects.get(pk=article_id)
     if not post:
         context['msg'] = '文章不存在'
@@ -478,6 +494,7 @@ def post_revoke(req, pindex, article_id):
 @login_required(login_url='/login')
 def post_view(req, pindex, article_status):
     context = {}
+    context['sitemeta'] = settings.SITEMETA
     if article_status == "":
         article_status = '0'
     if req.method == 'POST':
@@ -505,6 +522,7 @@ def post_view(req, pindex, article_status):
 @login_required(login_url='/login')
 def page_view(req, pindex):
     context = {}
+    context['sitemeta'] = settings.SITEMETA
     articles = Article.objects.get(article_type='page')
     paginator = Paginator(articles, 10)
     if pindex == '':
@@ -522,6 +540,7 @@ def page_view(req, pindex):
 @login_required(login_url='/login')
 def page_new_view(req):
     context = {}
+    context['sitemeta'] = settings.SITEMETA
     if req.method == "POST":
         form = PostForm(req.POST)
         if form.is_valid():
@@ -565,6 +584,7 @@ def page_new_view(req):
 @login_required(login_url='/login')
 def page_modify(req, article_id):
     context = {}
+    context['sitemeta'] = settings.SITEMETA
     post = Article.objects.get(pk=article_id, article_type='page')
     if not post:
         context['msg'] = '页面不存在'
@@ -598,6 +618,7 @@ def page_modify(req, article_id):
 @login_required(login_url='/login')
 def page_del(req, pindex, article_id):
     context = {}
+    context['sitemeta'] = settings.SITEMETA
     post = Article.objects.get(pk=article_id, article_type='page')
     if not post:
         context['msg'] = '页面不存在'
@@ -712,6 +733,7 @@ def handle_upload_file(file, filename, schema, host, uploadtype, user_id, descri
 
 def comment(req):
     context = {}
+    context['sitemeta'] = settings.SITEMETA
     if req.method == "POST":
         # print req.POST
         form = CommentForm(req.POST)
@@ -790,6 +812,7 @@ def comment(req):
 @login_required(login_url="/login")
 def comment_show(req, pindex, comment_status):
     context = {}
+    context['sitemeta'] = settings.SITEMETA
     if comment_status == "":
         comment_status = '0'
     if req.method == "POST":
@@ -818,6 +841,7 @@ def comment_show(req, pindex, comment_status):
 @login_required(login_url="/login")
 def comment_audit(req, comment_id, oper):
     context = {}
+    context['sitemeta'] = settings.SITEMETA
     comment = Comment.objects.get(pk=comment_id)
     if comment:
         if oper == "reject":
@@ -845,6 +869,7 @@ def comment_audit(req, comment_id, oper):
 @login_required(login_url="/login")
 def comment_del(req, comment_id):
     context = {}
+    context['sitemeta'] = settings.SITEMETA
     comment = Comment.objects.get(pk=comment_id)
     if comment:
 
@@ -865,6 +890,7 @@ def comment_del(req, comment_id):
 @login_required(login_url="/login")
 def like_article(req, article_id, user_id):
     context = {}
+    context['sitemeta'] = settings.SITEMETA
     article = Article.objects.get(pk=article_id)
     user = User.objects.get(pk=user_id)
     try:
@@ -885,6 +911,7 @@ def like_article(req, article_id, user_id):
 @login_required(login_url="/login")
 def like_comment(req, comment_id, user_id):
     context = {}
+    context['sitemeta'] = settings.SITEMETA
     comment = Comment.objects.get(pk=comment_id)
     user = User.objects.get(pk=user_id)
     try:
@@ -905,6 +932,7 @@ def like_comment(req, comment_id, user_id):
 @login_required(login_url="/login")
 def set_site(req):
     context = {}
+    context['sitemeta'] = settings.SITEMETA
     site_meta = None
     try:
         site_meta = Sitemeta.objects.all()[0]
@@ -972,6 +1000,8 @@ def set_site(req):
                 site_meta.is_twitter = is_twitter
                 site_meta.twitter_id = twitter_id
             site_meta.save()
+            context['sitemeta'] = cache_sitemeta(change=True)
+            settings.SITEMETA = site_meta
             context['site_meta'] = site_meta
             return render(req, 'das/site_edit.html', context)
         else:
@@ -983,6 +1013,7 @@ def set_site(req):
 @login_required(login_url="/login")
 def upload_page(req, pindex):
     context = {}
+    context['sitemeta'] = settings.SITEMETA
     medias = Media.objects.all().order_by("-upload_date")
     paginator = Paginator(medias, 10)
     active = 'active'
@@ -1003,6 +1034,7 @@ def upload_page(req, pindex):
 @login_required(login_url="/login")
 def media_view(req, pindex):
     context = {}
+    context['sitemeta'] = settings.SITEMETA
     medias = Media.objects.all().order_by("-upload_date")
     paginator = Paginator(medias, 10)
     if pindex == '':
@@ -1021,6 +1053,7 @@ def media_view(req, pindex):
 @login_required(login_url="/login")
 def media_modify(req, id):
     context = {}
+    context['sitemeta'] = settings.SITEMETA
     media = Media.objects.get(pk=id)
     if not media:
         context['msg'] = "媒体不存在"
@@ -1050,6 +1083,7 @@ def media_modify(req, id):
 @login_required(login_url="/login")
 def media_del(req, id):
     context = {}
+    context['sitemeta'] = settings.SITEMETA
     try:
         media = Media.objects.get(pk=id)
     except:
@@ -1070,6 +1104,7 @@ def media_del(req, id):
 @login_required(login_url="/login")
 def media_del_by_o_name(req, o_name):
     context = {}
+    context['sitemeta'] = settings.SITEMETA
     try:
         media = Media.objects.filter(o_file_name=o_name).order_by("-upload_date")[0]
     except:
@@ -1090,4 +1125,6 @@ def media_del_by_o_name(req, o_name):
 
 @login_required(login_url="/login")
 def media_new_view(req):
-    return render(req, 'das/media_add.html')
+    context = {}
+    context['sitemeta'] = settings.SITEMETA
+    return render(req, 'das/media_add.html', context)
