@@ -17,6 +17,13 @@
     </style>
 {% endblock %}
 
+{% block breadcrumb %}
+    <li>
+        <a href="#">文章</a>
+    </li>
+    <li class="active">所有文章</li>
+{% endblock %}
+
 {% block page %}
     {% load mptt_tags %}
     <div class="row">
@@ -98,37 +105,39 @@
                                                 <span>{{ page.title }}</span></a></div>
                                         {% else %}
                                             <div class="col-sm-12"><a
-                                                    href="{% url 'post_modify' page.pk %}"><span>{{ page.title }} - 草稿</span></a>
+                                                    href="{% url 'post_modify' page.pk %}"
+                                                    target="_blank"><span>{{ page.title }} - 草稿</span></a>
                                             </div>
                                         {% endif %}
                                         <div class="tools hidden">
                                             <div class="action-buttons bigger-125">
 
                                                 <a href="{% url 'post_modify' page.pk %}" id="{{ page.pk }}"
-                                                   class="post_modify">
+                                                   class="post_modify" target="_blank">
                                                     <i class="icon-edit"></i>
                                                 </a>
 
                                                 {% if page.article_status == '1' %}
-                                                    <a href="{% url 'post_revoke' pages.number page.pk %}"
+                                                    <a href="{% url 'post_revoke' pages.number page.pk article_status %}"
                                                        id="{{ page.pk }}" class="post_revoke">
                                                         <i class="icon-reply"></i>
                                                     </a>
                                                 {% endif %}
 
-                                                <a href="{% url 'post_del' pages.number page.pk %}" id="{{ page.pk }}"
+                                                <a href="{% url 'post_del' pages.number page.pk article_status %}"
+                                                   id="{{ page.pk }}"
                                                    class="post_del">
                                                     <i class="icon-trash red"></i>
                                                 </a>
 
                                                 {% if page.article_status == '1' %}
                                                     <a href="{% url "show" page.pk %}" id="{{ page.pk }}"
-                                                       class="post_show">
+                                                       class="post_show" target="_blank">
                                                         <i class="icon-eye-open"></i>
                                                     </a>
                                                 {% elif page.article_status == '2' %}
                                                     <a href="{% url "preview" page.pk %}" id="{{ page.pk }}"
-                                                       class="post_show">
+                                                       class="post_show" target="_blank">
                                                         <i class="icon-search"></i>
                                                     </a>
                                                 {% endif %}

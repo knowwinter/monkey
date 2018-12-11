@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-from django.contrib.auth.models import AbstractUser
+from django.contrib.auth.models import *
 from django.db import models
 from mptt.models import MPTTModel
 from uuslug import slugify
@@ -188,3 +188,16 @@ class Mediaship(models.Model):
     media = models.ForeignKey(Media)
     article = models.ForeignKey(Article)
     ship_date = models.DateTimeField(auto_now_add=True)
+
+
+class AccessControl(models.Model):
+    """
+    自定义权限控制
+    """
+
+    class Meta:
+        permissions = (
+            ('access_dashboard', u'普通管理员'),
+            ('access_all', u'超级管理员'),
+            ('access_member', u'普通会员'),
+        )

@@ -1,5 +1,15 @@
 ﻿{% extends "das/base.html" %}
 
+{% block breadcrumb %}
+    <li>
+        <a href="#">文章</a>
+    </li>
+    <li>
+        <a href="{% url 'tag' 1 %}">标签</a>
+    </li>
+    <li class="active">修改标签</li>
+{% endblock %}
+
 {% block page %}
     {% load mptt_tags %}
     <div class="row">

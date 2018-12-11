@@ -39,6 +39,48 @@
 		<script src="/static/assets/js/html5shiv.js"></script>
 		<script src="/static/assets/js/respond.min.js"></script>
 		<![endif]-->
+
+    <script type="text/javascript">
+        function checksubmit(form) {
+            if ($('input#repassword').val() == '') {
+                if ($('p#repassword').length == 0) {
+                    $('span#repassword').append('<p class="red" id="repassword">重复密码不能为空</p>')
+                }
+            }
+            if ($('input#password').val() == '') {
+                if ($('p#password').length == 0) {
+                    $('span#password').append('<p class="red" id="password">密码不能为空</p>')
+                }
+
+            }
+            if ($('input#username').val() == '') {
+                if ($('p#username').length == 0) {
+                    $('span#username').append('<p class="red" id="username">用户名不能为空</p>')
+                }
+            }
+            if ($('input#email').val() == '') {
+                if ($('p#email').length == 0) {
+                    $('span#email').append('<p class="red" id="email">email不能为空</p>')
+                }
+            }
+
+            if ($('input#agreement').is(":checked") != true) {
+                if ($('p#agreement').length == 0) {
+                    $('span#agreement').append('<p class="red" id="agreement">用户协议未勾选</p>')
+                }
+            }
+
+            if ($('p.red').length == 0) {
+                return true
+            } else {
+                return false
+            }
+
+
+        }
+
+    </script>
+
 </head>
 
 <body class="login-layout">
@@ -209,20 +251,23 @@
                                 <div class="space-6"></div>
                                 <p> Enter your details to begin: </p>
 
-                                <form action="{% url 'register' %}" method="post">
+                                <form action="{% url 'register' %}" method="post" id="register"
+                                      onsubmit="return checksubmit(this.form)">
                                     {% csrf_token %}
                                     <fieldset>
                                         <label class="block clearfix">
-														<span class="block input-icon input-icon-right">
+														<span class="block input-icon input-icon-right" id="email">
 															<input type="email" class="form-control" name='email'
+                                                                   id="email"
                                                                    placeholder="Email"/>
 															<i class="icon-envelope"></i>
 														</span>
                                         </label>
 
                                         <label class="block clearfix">
-														<span class="block input-icon input-icon-right">
+														<span class="block input-icon input-icon-right" id="username">
 															<input type="text" class="form-control" name='username'
+                                                                   id="username"
                                                                    placeholder="Username"/>
 															<i class="icon-user"></i>
 														</span>
@@ -236,24 +281,25 @@
                                         </label>
 
                                         <label class="block clearfix">
-														<span class="block input-icon input-icon-right">
+														<span class="block input-icon input-icon-right" id="password">
 															<input type="password" class="form-control" name="password"
+                                                                   id="password"
                                                                    placeholder="Password"/>
 															<i class="icon-lock"></i>
 														</span>
                                         </label>
 
                                         <label class="block clearfix">
-														<span class="block input-icon input-icon-right">
-															<input type="password" class="form-control"
+														<span class="block input-icon input-icon-right" id="repassword">
+															<input type="password" class="form-control" id="repassword"
                                                                    name="repassword" placeholder="Repeat password"/>
 															<i class="icon-retweet"></i>
 														</span>
                                         </label>
 
                                         <label class="block">
-                                            <input type="checkbox" class="ace"/>
-                                            <span class="lbl">
+                                            <input type="checkbox" class="ace" id="agreement"/>
+                                            <span class="lbl" id="agreement">
 															I accept the
 															<a href="#">User Agreement</a>
 														</span>
@@ -267,7 +313,8 @@
                                                 Reset
                                             </button>
 
-                                            <button type="submit" class="width-65 pull-right btn btn-sm btn-success">
+                                            <button type="submit" class="width-65 pull-right btn btn-sm btn-success"
+                                                    id="submit">
                                                 Register
                                                 <i class="icon-arrow-right icon-on-right"></i>
                                             </button>
@@ -328,6 +375,100 @@
                     jQuery('.widget-box.visible').removeClass('visible');
                     jQuery('#' + id).addClass('visible');
                 }
+            </script>
+
+            <script type="text/javascript">
+
+                jQuery(function ($) {
+
+                    $('input#email').blur(function () {
+                        if ($(this).val() == '') {
+                            $('p#email').remove()
+                            $('span#email').append('<p class="red" id="email">email不能为空</p>')
+                        } else {
+                            var email = $(this).val()
+                            $('p#email').remove()
+                            var url = "{% url 'find_user' 123 %}"
+                            url = url.replace('123', email)
+                            $.ajax({
+                                type: "GET",
+                                url: url,
+                                datatype: 'json',
+                                success: function (result) {
+                                    if (result.result == 'true') {
+                                        $('span#email').append('<p class="red" id="email">email已被使用</p>')
+                                    } else {
+                                        $('p#email').remove()
+                                    }
+                                },
+                                error: function () {
+                                    alert('异常')
+                                }
+                            })
+
+                        }
+                    });
+
+                    $('input#username').blur(function () {
+                        if ($(this).val() == '') {
+                            $('p#username').remove()
+                            $('span#username').append('<p class="red" id="username">用户名不能为空</p>')
+                        } else {
+                            var username = $(this).val()
+                            $('p#username').remove()
+                            var url = "{% url 'find_user' 123 %}"
+                            url = url.replace('123', username)
+                            $.ajax({
+                                type: "GET",
+                                url: url,
+                                datatype: 'json',
+                                success: function (result) {
+                                    if (result.result == 'true') {
+                                        $('span#username').append('<p class="red" id="username">用户已存在</p>')
+                                    } else {
+                                        $('p#username').remove()
+                                    }
+                                },
+                                error: function () {
+                                    alert('异常')
+                                }
+                            })
+
+                        }
+                    });
+
+                    $('input#password').blur(function () {
+                        if ($(this).val() == '') {
+                            $('p#password').remove()
+                            $('span#password').append('<p class="red" id="password">密码不能为空</p>')
+                        } else {
+                            $('p#password').remove()
+                        }
+                    });
+
+                    $('input#repassword').blur(function () {
+                        if ($(this).val() == '') {
+                            $('p#repassword').remove()
+                            $('span#repassword').append('<p class="red" id="repassword">重复密码不能为空</p>')
+                        } else {
+                            $('p#repassword').remove()
+                            if ($(this).val() != $('input#password').val()) {
+                                $('span#repassword').append('<p class="red" id="repassword">密码不一致</p>')
+                            } else {
+                                $('p#repassword').remove()
+                            }
+                        }
+                    });
+
+
+                    $('input#agreement').click(function () {
+                        if ($(this).is(":checked")) {
+                            $('p#agreement').remove()
+                        }
+                    })
+
+                });
+
             </script>
 
 </body>

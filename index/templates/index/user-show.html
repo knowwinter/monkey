@@ -1,0 +1,66 @@
+﻿{% extends 'index/base.html' %}
+
+{% load silice_tags %}
+{% block page %}
+    <div class="col-md-8 ">
+        <div class="blog-post">
+            <h2>作者：{{ user.username }} <i class="icon-rss"></i></h2>
+        </div>
+        {% if pages %}
+            {% for p in pages %}
+                <div class="blog-post">
+                    <div class="col-md-8">><a href="{{ p.guid }}"> {{ p.title }}</a></div>
+                    <div class="col-md-4"><i class="icon-time"></i> {{ p.pub_date }} &nbsp;<i
+                            class="icon-eye-open"></i> {{ p.view_count }}</div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <div class="blog-post">
+                无
+            </div>
+        {% endif %}
+
+        <br/>
+        <nav>
+            <ul class="pagination">
+                {% if pages.has_previous %}
+                    <li>
+
+                        <a href="{% url 'user_show' user.pk pages.previous_page_number %}" aria-label="Previous">
+                            <span aria-hidden="true">&laquo;</span>
+                        </a>
+
+                    </li>
+                {% endif %}
+                {% if pages %}
+                    {% for index in pages.paginator.page_range %}
+                        {% if index == pages.number %}
+                            <li><a href="javascript:return false" style="cursor:default; color: black;">{{ index }}</a>
+                            </li>
+                        {% else %}
+
+                            <li><a href="{% url 'user_show' user.pk index %}">{{ index }}</a></li>
+
+                        {% endif %}
+                    {% endfor %}
+                {% else %}
+                    <li><a href="javascript:return false" style="cursor:default; color: black;">1</a>
+                    </li>
+                {% endif %}
+                {% if pages.has_next %}
+                    <li>
+
+                        <a href="{% url 'user_show' user.pk pages.next_page_number %}" aria-label="Next">
+                            <span aria-hidden="true">&raquo;</span>
+                        </a>
+
+                    </li>
+                {% endif %}
+            </ul>
+        </nav>
+    </div>
+    <div class="col-md-1"></div>
+
+
+
+{% endblock %}

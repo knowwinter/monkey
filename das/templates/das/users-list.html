@@ -1,0 +1,313 @@
+﻿{% extends "das/base.html" %}
+{% load staticfiles %}
+{% load static %}
+{% block header %}
+    <script type="text/javascript" src="{% static 'tinymce/tinymce.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'tinymce/plugins/jquery-form.js' %}"></script>
+    <script type="text/javascript">
+        $.ajaxSetup({headers: {"X-CSRFToken": '{{ csrf_token }}'}});
+    </script>
+    <style type="text/css">
+
+        a.user {
+            text-decoration: none
+        }
+
+
+    </style>
+{% endblock %}
+
+{% block breadcrumb %}
+    <li>
+        <a href="#">用户管理</a>
+    </li>
+    <li class="active">用户列表</li>
+{% endblock %}
+
+{% block page %}
+    {% load mptt_tags %}
+    <div class="row">
+        <div class="col-xs-12">
+            <!-- PAGE CONTENT BEGINS -->
+
+            <div class="row">
+                <div class="col-xs-1">
+                    <a href="{% url 'user_new' %}" class="user">
+                        <button class="btn btn-primary btn-sm"> 添加新用户</button>
+                    </a>
+                </div>
+                <div class="col-xs-11">
+                    <form class="form-horizontal" role="form" id="user_status_form"
+                          action="{% url 'user_list' '1' user_status %}"
+                          method="post">
+                        {% csrf_token %}
+                        <div class="col-sm-3">
+                            <select class="col-xs-12 col-sm-6" name="user_status" id="user_status">
+
+                                <option value="2"
+                                        {% if user_status == '2' %}
+                                        selected="selected"
+                                        {% endif %}
+                                >ALL
+                                </option>
+                                <option value="1"
+                                        {% if user_status == '1' %}
+                                        selected="selected"
+                                        {% endif %}
+                                >已激活
+                                </option>
+                                <option value="0"
+                                        {% if user_status == '0' %}
+                                        selected="selected"
+                                        {% endif %}
+                                >未激活
+                                </option>
+                            </select>
+                            <button class="btn btn-sm btn-group-sm btn-white" type="submit">筛选</button>
+                        </div>
+                    </form>
+                </div>
+                <div class="col-xs-12"></div>
+
+                <div class="col-xs-12">
+                    <div class="table-responsive">
+                        <table id="sample-table-1" class="table table-striped table-bordered table-hover">
+                            <thead>
+                            <tr>
+                                <th class="center">
+                                    <label>
+                                        <input type="checkbox" class="ace"/>
+                                        <span class="lbl"></span>
+                                    </label>
+                                </th>
+                                <th class="col-md-2">用户名</th>
+                                <th>昵称</th>
+                                <th>邮箱</th>
+                                <th>手机</th>
+                                <th>角色</th>
+                                <th><i class="icon-comment"></i></th>
+                                <th><i class="icon-bookmark"></i></th>
+                                <th>创建日期</th>
+                                <th>状态</th>
+                                <th class="hidden-480">id</th>
+
+
+                            </tr>
+                            </thead>
+
+                            <tbody id="postbody">
+                            {% for page in pages %}
+
+                                <tr class="posttr">
+                                    <td class="center">
+                                        <label>
+                                            <input type="checkbox" class="ace"/>
+                                            <span class="lbl"></span>
+                                        </label>
+                                    </td>
+
+                                    <td class="posttd">
+
+                                        <div class="col-sm-12">
+                                            <div class="ace-thumbnails">
+                                                <img src="{{ page.avatar }}">
+                                            </div>
+                                            <a href="{% url 'user_modify' page.pk %}">
+                                                <span>{{ page.username }}</span></a></div>
+
+
+                                        <div class="tools hidden">
+                                            <div class="action-buttons bigger-125">
+
+                                                <a href="{% url 'user_modify' page.pk %}" id="{{ page.pk }}"
+                                                   class="post_modify" target="_blank">
+                                                    <i class="icon-edit"></i>
+                                                </a>
+
+                                                {% if page.is_active == 1 %}
+                                                    <a href="javascript:void(0);"
+                                                       id="{{ page.pk }}" class="user_disable">
+                                                        <i class="icon-pause pink"></i>
+                                                    </a>
+                                                {% endif %}
+                                                {% if page.is_active == 0 %}
+                                                    <a href="javascript:void(0);"
+                                                       id="{{ page.pk }}" class="user_enable">
+                                                        <i class="icon-user green"></i>
+                                                    </a>
+                                                {% endif %}
+
+                                                <a href="javascript:void(0);" id="{{ page.pk }}"
+                                                   class="user_del">
+                                                    <i class="icon-trash red"></i>
+                                                </a>
+                                                <a href="{% url "user_detail" page.pk %}" id="{{ page.pk }}"
+                                                   class="post_show" target="_blank">
+                                                    <i class="icon-eye-open"></i>
+                                                </a>
+
+                                            </div>
+
+                                        </div>
+
+                                    </td>
+                                    <td>
+                                        {{ page.nickname }}
+                                    </td>
+                                    <td class="hidden-480">
+                                        <a href="mailto:{{ page.email }}"> {{ page.email }}</a>
+
+
+                                    </td>
+                                    <td class="hidden-480">
+                                        {{ page.telephone }}
+
+                                    </td>
+                                    <td class="hidden-480">{{ page.groups }}</td>
+                                    <td class="hidden-480"> {{ page.commenter.count }}</td>
+                                    <td class="hidden-480"><a href="{% url 'user_show' page.pk 1 %}"
+                                                              target="_blank"> {{ page.author.count }}</a></td>
+                                    <td class="hidden-480">
+                                        {{ page.date_joined }}
+                                    </td>
+                                    <td class="hidden-480 status" id="{{ page.pk }}">
+                                        {% if page.is_active %}
+                                            启用
+                                        {% else %}
+                                            禁用
+                                        {% endif %}
+                                    </td>
+
+                                    <td class="hidden-480">
+                                        {{ page.id }}
+                                    </td>
+
+
+                                </tr>
+                            {% endfor %}
+
+
+                            </tbody>
+                        </table>
+                        {% for index in pages.paginator.page_range %}
+                            {% if index == pages.number %}
+                                {{ index }}
+                            {% else %}
+                                <a href="{% url 'user_list' index user_status %}">{{ index }}</a>
+                            {% endif %}
+                        {% endfor %}
+                    </div><!-- /.table-responsive -->
+                </div><!-- /span -->
+            </div><!-- /row -->
+        </div><!-- /.col -->
+
+    </div><!-- /.row -->
+    <script type="text/javascript" src="{% static 'tinymce/plugins/jquery-form.js' %}"></script>
+    <script type="text/javascript">
+        $.ajaxSetup({headers: {"X-CSRFToken": '{{ csrf_token }}'}});
+        $(document).ready(function () {
+
+
+            {#$("tbody#commenttbody .commenttd").on({#}
+            {#    mouseenter:function(){#}
+            {#        $(this).children('.tools').removeClass("hidden");#}
+            {#    },#}
+            {#    mouseleave:function(){#}
+            {#        $(this).children('.tools').addClass("hidden");#}
+            {#{})#}
+
+            $('tbody#postbody').on('mouseenter', '.posttd', function () {
+                $(this).children('.tools').removeClass('hidden');
+            });
+
+            $('tbody#postbody').on('mouseleave', '.posttd', function () {
+                $(this).children('.tools').addClass('hidden');
+            });
+
+
+            $("div.tools").on("click", "a.user_enable", function () {
+                var user_id = $(this).attr("id")
+                var obj = $(this)
+                var status_td = obj.parent().parent().parent().siblings('td.status')
+                var url = "{% url 'user_enable_disable' 123 %}"
+                url = url.replace('123', user_id)
+                $.ajax({
+                    type: "GET",
+                    url: url,
+                    datatype: 'json',
+                    success: function (result) {
+                        if (result.result == 'success') {
+                            alert(result.msg)
+                            obj.removeClass("user_enable")
+                            obj.addClass("user_disable")
+                            obj.children('i').removeClass("icon-user green")
+                            obj.children('i').addClass("icon-pause pink")
+                            status_td.text('启用')
+                        } else {
+                            alert("处理失败")
+                        }
+                    },
+                    error: function () {
+                        alert('异常')
+                    }
+                })
+            })
+
+            $("div.tools").on("click", "a.user_disable", function () {
+                var user_id = $(this).attr("id")
+                var obj = $(this)
+                var status_td = obj.parent().parent().parent().siblings('td.status')
+                var url = "{% url 'user_enable_disable' 123 %}"
+                url = url.replace('123', user_id)
+                $.ajax({
+                    type: "GET",
+                    url: url,
+                    datatype: 'json',
+                    success: function (result) {
+                        if (result.result == 'success') {
+                            alert(result.msg)
+                            obj.removeClass("user_disable")
+                            obj.addClass("user_enable")
+
+                            obj.children('i').removeClass("icon-pause pink")
+                            obj.children('i').addClass("icon-user green")
+                            status_td.text('禁用')
+                        } else {
+                            alert("处理失败")
+                        }
+                    },
+                    error: function () {
+                        alert('异常')
+                    }
+                })
+            })
+
+            $("div.tools").on("click", "a.user_del", function () {
+                var user_id = $(this).attr("id")
+                var obj = $(this)
+                var tr = obj.parents('tr')
+                var url = "{% url 'user_del' 123 %}"
+                url = url.replace('123', user_id)
+
+                $.ajax({
+                    type: "GET",
+                    url: url,
+                    datatype: 'json',
+                    success: function (result) {
+                        if (result.result == 'success') {
+                            alert(result.msg)
+                            tr.remove()
+                        } else {
+                            alert("处理失败")
+                        }
+                    },
+                    error: function () {
+                        alert('异常')
+                    }
+                })
+            })
+
+
+        });
+    </script>
+{% endblock %}

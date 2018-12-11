@@ -34,6 +34,7 @@ urlpatterns = [
     url(r'^preview/(\d*)', views.post_preview, name='preview'),
     url(r'^category/(\d*)/(\d*)', views.category_show, name='category_show'),
     url(r'^tag/(\d*)/(\d*)', views.tag_show, name='tag_show'),
+    url(r'^author/(\d*)/(\d*)', views.user_show, name='user_show'),
     url(r'^favicon.ico$', views.get_favicon, name='get_favicon'),
 
 ]

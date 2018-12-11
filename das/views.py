@@ -19,6 +19,7 @@ from das.common import cache_sitemeta
 from das.models import *
 from forms import *
 from common import *
+from django.contrib.auth.models import Group
 
 
 # from django.http import HttpResponse, HttpRequest
@@ -97,12 +98,14 @@ def index_view(req):
     context = {}
     context['sitemeta'] = settings.SITEMETA
     context['version'] = settings.VIERSION
+    context['active'] = 'das_index'
     return render(req, 'das/index.html', context)
 
 
 @login_required(login_url='/login')
 def category_view(req, pindex):
     context = {}
+    context['active'] = 'category'
     context['sitemeta'] = settings.SITEMETA
     if req.method == 'POST':
         form = CateForm(req.POST)
@@ -147,6 +150,7 @@ def category_view(req, pindex):
 def category_del(req, pindex, cate_id):
     context = {}
     context['sitemeta'] = settings.SITEMETA
+    context['active'] = 'category'
     cate = Category.objects.get(pk=cate_id)
     if not cate:
         context['msg'] = '目录不存在'
@@ -162,6 +166,7 @@ def category_del(req, pindex, cate_id):
 def category_modify(req, cate_id):
     context = {}
     context['sitemeta'] = settings.SITEMETA
+    context['active'] = 'category'
     cate = Category.objects.get(pk=cate_id)
     if not cate:
         context['msg'] = '目录不存在'
@@ -204,6 +209,7 @@ def category_modify(req, cate_id):
 def tag_view(req, pindex):
     context = {}
     context['sitemeta'] = settings.SITEMETA
+    context['active'] = 'tag'
     if req.method == 'POST':
         form = TagForm(req.POST)
         if form.is_valid():
@@ -246,6 +252,7 @@ def json_get_tags(req):
 def tag_del(req, pindex, tag_id):
     context = {}
     context['sitemeta'] = settings.SITEMETA
+    context['active'] = 'tag'
     tag = Tag.objects.get(pk=tag_id)
     if not tag:
         context['msg'] = '标签不存在'
@@ -261,6 +268,7 @@ def tag_del(req, pindex, tag_id):
 def tag_modify(req, tag_id):
     context = {}
     context['sitemeta'] = settings.SITEMETA
+    context['active'] = 'tag'
     tag = Tag.objects.get(pk=tag_id)
     if not tag:
         context['msg'] = '标签不存在'
@@ -292,6 +300,7 @@ def tag_modify(req, tag_id):
 def post_new_view(req):
     context = {}
     context['sitemeta'] = settings.SITEMETA
+    context['active'] = 'post_new'
     if req.method == "POST":
         form = PostForm(req.POST)
         if form.is_valid():
@@ -383,6 +392,7 @@ def post_new_view(req):
 def post_modify(req, article_id):
     context = {}
     context['sitemeta'] = settings.SITEMETA
+    context['active'] = 'post_all'
     post = Article.objects.get(pk=article_id)
     if not post:
         context['msg'] = '文章不存在'
@@ -463,23 +473,25 @@ def post_modify(req, article_id):
 
 
 @login_required(login_url='/login')
-def post_del(req, pindex, article_id):
+def post_del(req, pindex, article_id, article_status):
     context = {}
     context['sitemeta'] = settings.SITEMETA
+    context['active'] = 'post_all'
     post = Article.objects.get(pk=article_id)
     if not post:
         context['msg'] = '文章不存在'
         return render(req, 'das/msg.html', context)
     post.delete()
     context['msg'] = '删除成功'
-
-    return redirect('/das/post/list/' + pindex, context)
+    context['article_status'] = article_status
+    return redirect('/das/post/list/' + pindex + '/' + article_status, context)
 
 
 @login_required(login_url='/login')
-def post_revoke(req, pindex, article_id):
+def post_revoke(req, pindex, article_id, article_status):
     context = {}
     context['sitemeta'] = settings.SITEMETA
+    context['active'] = 'post_all'
     post = Article.objects.get(pk=article_id)
     if not post:
         context['msg'] = '文章不存在'
@@ -487,14 +499,15 @@ def post_revoke(req, pindex, article_id):
     post.article_status = "2"
     post.save()
     context['msg'] = '文章撤回成功'
-
-    return redirect('/das/post/list/' + pindex, context)
+    context['article_status'] = article_status
+    return redirect('/das/post/list/' + pindex + '/' + article_status, context)
 
 
 @login_required(login_url='/login')
 def post_view(req, pindex, article_status):
     context = {}
     context['sitemeta'] = settings.SITEMETA
+    context['active'] = 'post_all'
     if article_status == "":
         article_status = '0'
     if req.method == 'POST':
@@ -523,6 +536,7 @@ def post_view(req, pindex, article_status):
 def page_view(req, pindex):
     context = {}
     context['sitemeta'] = settings.SITEMETA
+    context['active'] = 'page_all'
     articles = Article.objects.get(article_type='page')
     paginator = Paginator(articles, 10)
     if pindex == '':
@@ -541,6 +555,7 @@ def page_view(req, pindex):
 def page_new_view(req):
     context = {}
     context['sitemeta'] = settings.SITEMETA
+    context['active'] = 'page_new'
     if req.method == "POST":
         form = PostForm(req.POST)
         if form.is_valid():
@@ -585,6 +600,7 @@ def page_new_view(req):
 def page_modify(req, article_id):
     context = {}
     context['sitemeta'] = settings.SITEMETA
+    context['active'] = 'page_new'
     post = Article.objects.get(pk=article_id, article_type='page')
     if not post:
         context['msg'] = '页面不存在'
@@ -619,6 +635,7 @@ def page_modify(req, article_id):
 def page_del(req, pindex, article_id):
     context = {}
     context['sitemeta'] = settings.SITEMETA
+    context['active'] = 'page_all'
     post = Article.objects.get(pk=article_id, article_type='page')
     if not post:
         context['msg'] = '页面不存在'
@@ -813,6 +830,7 @@ def comment(req):
 def comment_show(req, pindex, comment_status):
     context = {}
     context['sitemeta'] = settings.SITEMETA
+    context['active'] = 'comment_show'
     if comment_status == "":
         comment_status = '0'
     if req.method == "POST":
@@ -842,6 +860,7 @@ def comment_show(req, pindex, comment_status):
 def comment_audit(req, comment_id, oper):
     context = {}
     context['sitemeta'] = settings.SITEMETA
+    context['active'] = 'comment_show'
     comment = Comment.objects.get(pk=comment_id)
     if comment:
         if oper == "reject":
@@ -870,6 +889,7 @@ def comment_audit(req, comment_id, oper):
 def comment_del(req, comment_id):
     context = {}
     context['sitemeta'] = settings.SITEMETA
+    context['active'] = 'comment_show'
     comment = Comment.objects.get(pk=comment_id)
     if comment:
 
@@ -933,6 +953,7 @@ def like_comment(req, comment_id, user_id):
 def set_site(req):
     context = {}
     context['sitemeta'] = settings.SITEMETA
+    context['active'] = 'set_site'
     site_meta = None
     try:
         site_meta = Sitemeta.objects.all()[0]
@@ -1035,6 +1056,7 @@ def upload_page(req, pindex):
 def media_view(req, pindex):
     context = {}
     context['sitemeta'] = settings.SITEMETA
+    context['active'] = 'media_all'
     medias = Media.objects.all().order_by("-upload_date")
     paginator = Paginator(medias, 10)
     if pindex == '':
@@ -1054,6 +1076,7 @@ def media_view(req, pindex):
 def media_modify(req, id):
     context = {}
     context['sitemeta'] = settings.SITEMETA
+    context['active'] = 'media_all'
     media = Media.objects.get(pk=id)
     if not media:
         context['msg'] = "媒体不存在"
@@ -1084,6 +1107,7 @@ def media_modify(req, id):
 def media_del(req, id):
     context = {}
     context['sitemeta'] = settings.SITEMETA
+    context['active'] = 'media_all'
     try:
         media = Media.objects.get(pk=id)
     except:
@@ -1127,4 +1151,271 @@ def media_del_by_o_name(req, o_name):
 def media_new_view(req):
     context = {}
     context['sitemeta'] = settings.SITEMETA
+    context['active'] = 'media_new'
     return render(req, 'das/media_add.html', context)
+
+
+def group_view(req):
+    context = {}
+    context['sitemeta'] = settings.SITEMETA
+    context['active'] = 'group_mgr'
+    groups = None
+    try:
+        groups = Group.objects.all()
+    except:
+        groups = None
+    finally:
+        context['groups'] = groups
+        return render(req, 'das/groups-list.html', context)
+
+
+def group_add_view(req):
+    context = {}
+    context['sitemeta'] = settings.SITEMETA
+    context['active'] = 'group_mgr'
+    if req.method == 'POST':
+        form = GroupForm(req.POST)
+        if form.is_valid():
+            name = form.cleaned_data['name']
+            perm = form.cleaned_data['perm']
+            members = form.cleaned_data['members']
+            try:
+                group = Group.objects.get(name=name)
+                context['msg'] = "用户组已经存在"
+                return render(req, 'das/msg.html', context)
+            except:
+                group = Group.objects.create(name=name)
+                group.save()
+                permission = Permission.objects.get(codename=perm)
+                group.permissions.add(permission)
+                if members != '':
+                    members = members.split(',')
+                    for username in members:
+                        user = User.objects.get(username=username)
+                        group.user_set.add(user)
+                context['msg'] = '用户组创建成功'
+                return render(req, 'das/groups-list', context)
+        else:
+            context['msg'] = "表单错误"
+            return render(req, 'das/msg.html', context)
+    user = User.objects.all()
+    context['user'] = user
+    return render(req, 'das/group-add.html', context)
+
+
+def group_modify_view(req, group_id):
+    context = {}
+    context['sitemeta'] = settings.SITEMETA
+    context['active'] = 'group_mgr'
+    group = None
+    try:
+        group = Group.objects.get(pk=group_id)
+    except:
+        context['msg'] = '用户组不存在'
+        return render(req, 'das/msg.html', context)
+    if req.method == 'POST':
+        form = GroupForm(req.POST)
+        if form.is_valid():
+            name = form.cleaned_data['name']
+            perm = form.cleaned_data['perm']
+            members = form.cleaned_data['members']
+            group.name = name
+            group.user_set.clear()
+            group.permissions.clear()
+            group.save()
+            permission = Permission.objects.get(codename=perm)
+            group.permissions.add(permission)
+            if members != '':
+                members = members.split(',')
+                for username in members:
+                    user = User.objects.get(username=username)
+                    group.user_set.add(user)
+            context['msg'] = '用户组修改成功'
+            return render(req, 'das/groups-list', context)
+        else:
+            context['msg'] = "表单错误"
+            return render(req, 'das/msg.html', context)
+    user = User.objects.all()
+    context['group'] = group
+    context['user'] = user
+    return render(req, 'das/group-modify.html', context)
+
+
+def group_del_view(req, group_id):
+    context = {}
+    context['sitemeta'] = settings.SITEMETA
+    context['active'] = 'group_mgr'
+    group = None
+    try:
+        group = Group.objects.get(pk=group_id)
+        group.user_set.clear()
+        group.permissions.clear()
+        group.delete()
+        context['msg'] = '用户组删除成功'
+    except:
+        context['msg'] = '用户组不存在'
+        return render(req, 'das/msg.html', context)
+    return render(req, 'das/groups-list.html', context)
+
+
+def user_view(req, pindex, status):
+    context = {}
+    context['sitemeta'] = settings.SITEMETA
+    context['active'] = 'user_mgr'
+
+    if status == "":
+        status = '2'
+    if req.method == 'POST':
+        form = UserStatusForm(req.POST)
+        if form.is_valid():
+            status = form.cleaned_data['user_status']
+    if status == '2':
+        users = User.objects.all().order_by('-date_joined')
+    else:
+        status = int(status)
+        users = User.objects.filter(is_active=status).order_by('-date_joined')
+
+    paginator = Paginator(users, 2)
+    if pindex == '':
+        pindex = '1'
+    try:
+        page = paginator.page(int(pindex))
+    except:
+        pindex = int(pindex) - 1
+        page = paginator.page(int(pindex))
+    context['pages'] = page
+    context['users'] = users
+    context['user_status'] = str(status)
+    return render(req, 'das/users-list.html', context)
+
+
+def user_add_view(req):
+    context = {}
+    context['sitemeta'] = settings.SITEMETA
+    context['active'] = 'user_mgr'
+    if req.method == 'POST':
+        form = UserForm(req.POST)
+        if form.is_valid():
+            username = form.cleaned_data['username']
+            password = form.cleaned_data['password']
+            email = form.cleaned_data['email']
+            telephone = form.cleaned_data['telephone']
+            is_superuser = form.cleaned_data['is_superuser']
+            is_active = form.cleaned_data['is_active']
+            first_name = form.cleaned_data['first_name']
+            last_name = form.cleaned_data['last_name']
+            nickname = form.cleaned_data['nickname']
+            avatar = form.cleaned_data['avatar']
+            group_id = form.cleaned_data['group_id']
+            user = auth.authenticate(username=username, password=password, email=email)
+            if user:
+                context['user'] = user
+                context['msg'] = "用户已经存在"
+                return render(req, 'das/msg.html', context)
+            user = User.objects.create(username=username, password=password, email=email, telephone=telephone,
+                                       is_active=is_active, is_superuser=is_superuser, first_name=first_name,
+                                       last_name=last_name, nickname=nickname, avatar=avatar)
+            user.save()
+            group = Group.objects.get(pk=group_id)
+            user.groups.add(group)
+            context['msg'] = '用户添加成功'
+            return redirect('/das/user/list/1/0', context)
+        else:
+            context['msg'] = '表单错误'
+            return render(req, 'das/msg.html', context)
+    groups = Group.objects.all()
+    context['groups'] = groups
+    return render(req, 'das/user-add.html', context)
+
+
+def user_del_view(req, user_id):
+    context = {}
+    context['active'] = 'user_mgr'
+    user = None
+    try:
+        user = User.objects.get(pk=user_id)
+        user.groups.clear()
+        user.delete()
+        context['msg'] = '用户删除成功'
+        context['result'] = 'success'
+    except:
+        context['msg'] = '用户不存在'
+        context['result'] = 'failure'
+    finally:
+        return HttpResponse(json.dumps(context), content_type="application/json")
+
+
+def user_modify_view(req, user_id):
+    context = {}
+    context['sitemeta'] = settings.SITEMETA
+    context['active'] = 'user_mgr'
+    try:
+        user = User.objects.get(pk=user_id)
+    except:
+        context['msg'] = '用户不存在'
+        return render(req, 'das/msg', context)
+    if req.method == 'POST':
+        form = UserForm(req.POST)
+        if form.is_valid():
+            password = form.cleaned_data['password']
+            email = form.cleaned_data['email']
+            telephone = form.cleaned_data['telephone']
+            is_superuser = form.cleaned_data['is_superuser']
+            is_active = form.cleaned_data['is_active']
+            first_name = form.cleaned_data['first_name']
+            last_name = form.cleaned_data['last_name']
+            nickname = form.cleaned_data['nickname']
+            avatar = form.cleaned_data['avatar']
+            group_id = form.cleaned_data['group_id']
+            user.password = password
+            user.email = email
+            user.telephone = telephone
+            user.is_superuser = is_superuser
+            user.is_active = is_active
+            user.first_name = first_name
+            user.last_name = last_name
+            user.nickname = nickname
+            user.avatar = avatar
+            user.save()
+            group = Group.objects.get(pk=group_id)
+            user.groups.clear()
+            user.groups.add(group)
+            context['msg'] = '用户修改成功'
+            return redirect('/das/user/list/1', context)
+        else:
+            context['msg'] = '表单错误'
+            return render(req, 'das/msg.html', context)
+    groups = Group.objects.all()
+    context['user'] = user
+    context['groups'] = groups
+    return render(req, 'das/user-modify.html', context)
+
+
+def user_enable_disable(req, user_id):
+    user = User.objects.get(pk=user_id)
+    if user.is_active == 1:
+        user.is_active = 0
+        msg = '用户禁用成功'
+    else:
+        user.is_active = 1
+        msg = '用户启用成功'
+    user.save()
+    ret = {'result': 'success', 'user_status': user.is_active, 'msg': msg}
+    return HttpResponse(json.dumps(ret), content_type="application/json")
+
+
+def user_detail(req, user_id):
+    pass
+
+
+def find_user(req, username_or_email):
+    q = Q()
+    q.connector = 'OR'
+    q.children.append(('username', username_or_email))
+    q.children.append(('email', username_or_email))
+    user = User.objects.filter(q)
+    if user:
+        ret = {'result': 'true'}
+    else:
+        ret = {'result': 'false'}
+    return HttpResponse(json.dumps(ret), content_type="application/json")

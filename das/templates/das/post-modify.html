@@ -76,6 +76,16 @@
     </script>
 
 {% endblock %}
+
+{% block breadcrumb %}
+    <li>
+        <a href="#">文章</a>
+    </li>
+    <li>
+        <a href="{% url 'post_list' 1 0 %}">所有文章</a>
+    </li>
+    <li class="active">修改标签</li>
+{% endblock %}
 {% block page %}
     {% load mptt_tags %}
 

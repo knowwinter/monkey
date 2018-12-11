@@ -166,5 +166,38 @@ def tag_show(req, tag_id, pindex):
     return render(req, 'index/tag-show.html', context)
 
 
+def user_show(req, user_id, pindex):
+    context = {}
+    context['sitemeta'] = settings.SITEMETA
+    user = User.objects.get(pk=user_id)
+    tags = Tag.objects.all()
+    context['tags'] = tags
+    try:
+        posts = Article.objects.filter(pub_author=user).order_by('-pub_date')
+    except:
+        posts = None
+        nodes = Category.objects.get_queryset()
+        context['nodes'] = nodes
+        context['user'] = user
+        context['pages'] = posts
+        return render(req, 'index/user-show.html', context)
+    paginator = Paginator(posts, 2)
+    if pindex == '':
+        pindex = '1'
+    try:
+        page = paginator.page(int(pindex))
+    except:
+        pindex = int(pindex) - 1
+        page = paginator.page(int(pindex))
+
+    nodes = Category.objects.get_queryset()
+
+    context['nodes'] = nodes
+    context['pages'] = page
+    context['user'] = user
+
+    return render(req, 'index/user-show.html', context)
+
+
 def get_favicon(req):
     return redirect(settings.SITEMETA.favicon)

@@ -1,7 +1,22 @@
 ﻿{% extends "das/base.html" %}
 
+{% block breadcrumb %}
+    <li>
+        <a href="#">文章</a>
+    </li>
+    <li class="active">分类目录</li>
+{% endblock %}
 {% block page %}
     {% load mptt_tags %}
+    <div class="page-header">
+        <h1>
+            分类目录
+            <small>
+                <i class="icon-double-angle-right"></i>
+                添加/管理分类目录
+            </small>
+        </h1>
+    </div><!-- /.page-header -->
     <div class="row">
         <div class="col-xs-6">
             <!-- PAGE CONTENT BEGINS -->

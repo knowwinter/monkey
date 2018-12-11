@@ -81,6 +81,13 @@
 </script>
 
 {% endblock %}
+
+{% block breadcrumb %}
+    <li>
+        <a href="#">文章</a>
+    </li>
+    <li class="active">写文章</li>
+{% endblock %}
 {% block page %}
     {% load mptt_tags %}
 
