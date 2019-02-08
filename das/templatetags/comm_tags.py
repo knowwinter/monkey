@@ -19,3 +19,11 @@ def get_mediaship_date(id_1, id_2):
     ship = Mediaship.objects.get(article=post, media=media)
     mediaship_date = ship.ship_date
     return mediaship_date
+
+
+@register.filter
+def get_perm(perm):
+    if perm:
+        return perm[0]['name']
+    else:
+        return None

@@ -44,6 +44,8 @@ def register_view(req):
                 return render(req, 'das/msg.html', context)
             user = User.objects.create_user(username, email, password, telephone=telephone)
             user.save()
+            perm = Permission.objects.get(codename='access_member')
+            user.user_permissions.add(perm)
             context['msg'] = '注册成功'
             context['view'] = 'login'
             context['jump'] = '登录'
@@ -1152,110 +1154,110 @@ def media_new_view(req):
     context = {}
     context['sitemeta'] = settings.SITEMETA
     context['active'] = 'media_new'
-    return render(req, 'das/media_add.html', context)
+    return render(req, 'das/media-add.html', context)
 
 
-def group_view(req):
-    context = {}
-    context['sitemeta'] = settings.SITEMETA
-    context['active'] = 'group_mgr'
-    groups = None
-    try:
-        groups = Group.objects.all()
-    except:
-        groups = None
-    finally:
-        context['groups'] = groups
-        return render(req, 'das/groups-list.html', context)
-
-
-def group_add_view(req):
-    context = {}
-    context['sitemeta'] = settings.SITEMETA
-    context['active'] = 'group_mgr'
-    if req.method == 'POST':
-        form = GroupForm(req.POST)
-        if form.is_valid():
-            name = form.cleaned_data['name']
-            perm = form.cleaned_data['perm']
-            members = form.cleaned_data['members']
-            try:
-                group = Group.objects.get(name=name)
-                context['msg'] = "用户组已经存在"
-                return render(req, 'das/msg.html', context)
-            except:
-                group = Group.objects.create(name=name)
-                group.save()
-                permission = Permission.objects.get(codename=perm)
-                group.permissions.add(permission)
-                if members != '':
-                    members = members.split(',')
-                    for username in members:
-                        user = User.objects.get(username=username)
-                        group.user_set.add(user)
-                context['msg'] = '用户组创建成功'
-                return render(req, 'das/groups-list', context)
-        else:
-            context['msg'] = "表单错误"
-            return render(req, 'das/msg.html', context)
-    user = User.objects.all()
-    context['user'] = user
-    return render(req, 'das/group-add.html', context)
-
-
-def group_modify_view(req, group_id):
-    context = {}
-    context['sitemeta'] = settings.SITEMETA
-    context['active'] = 'group_mgr'
-    group = None
-    try:
-        group = Group.objects.get(pk=group_id)
-    except:
-        context['msg'] = '用户组不存在'
-        return render(req, 'das/msg.html', context)
-    if req.method == 'POST':
-        form = GroupForm(req.POST)
-        if form.is_valid():
-            name = form.cleaned_data['name']
-            perm = form.cleaned_data['perm']
-            members = form.cleaned_data['members']
-            group.name = name
-            group.user_set.clear()
-            group.permissions.clear()
-            group.save()
-            permission = Permission.objects.get(codename=perm)
-            group.permissions.add(permission)
-            if members != '':
-                members = members.split(',')
-                for username in members:
-                    user = User.objects.get(username=username)
-                    group.user_set.add(user)
-            context['msg'] = '用户组修改成功'
-            return render(req, 'das/groups-list', context)
-        else:
-            context['msg'] = "表单错误"
-            return render(req, 'das/msg.html', context)
-    user = User.objects.all()
-    context['group'] = group
-    context['user'] = user
-    return render(req, 'das/group-modify.html', context)
-
-
-def group_del_view(req, group_id):
-    context = {}
-    context['sitemeta'] = settings.SITEMETA
-    context['active'] = 'group_mgr'
-    group = None
-    try:
-        group = Group.objects.get(pk=group_id)
-        group.user_set.clear()
-        group.permissions.clear()
-        group.delete()
-        context['msg'] = '用户组删除成功'
-    except:
-        context['msg'] = '用户组不存在'
-        return render(req, 'das/msg.html', context)
-    return render(req, 'das/groups-list.html', context)
+# def group_view(req):
+#     context = {}
+#     context['sitemeta'] = settings.SITEMETA
+#     context['active'] = 'group_mgr'
+#     groups = None
+#     try:
+#         groups = Group.objects.all()
+#     except:
+#         groups = None
+#     finally:
+#         context['groups'] = groups
+#         return render(req, 'das/groups-list.html', context)
+#
+#
+# def group_add_view(req):
+#     context = {}
+#     context['sitemeta'] = settings.SITEMETA
+#     context['active'] = 'group_mgr'
+#     if req.method == 'POST':
+#         form = GroupForm(req.POST)
+#         if form.is_valid():
+#             name = form.cleaned_data['name']
+#             perm = form.cleaned_data['perm']
+#             members = form.cleaned_data['members']
+#             try:
+#                 group = Group.objects.get(name=name)
+#                 context['msg'] = "用户组已经存在"
+#                 return render(req, 'das/msg.html', context)
+#             except:
+#                 group = Group.objects.create(name=name)
+#                 group.save()
+#                 permission = Permission.objects.get(codename=perm)
+#                 group.permissions.add(permission)
+#                 if members != '':
+#                     members = members.split(',')
+#                     for username in members:
+#                         user = User.objects.get(username=username)
+#                         group.user_set.add(user)
+#                 context['msg'] = '用户组创建成功'
+#                 return render(req, 'das/groups-list', context)
+#         else:
+#             context['msg'] = "表单错误"
+#             return render(req, 'das/msg.html', context)
+#     user = User.objects.all()
+#     context['user'] = user
+#     return render(req, 'das/group-add.html', context)
+#
+#
+# def group_modify_view(req, group_id):
+#     context = {}
+#     context['sitemeta'] = settings.SITEMETA
+#     context['active'] = 'group_mgr'
+#     group = None
+#     try:
+#         group = Group.objects.get(pk=group_id)
+#     except:
+#         context['msg'] = '用户组不存在'
+#         return render(req, 'das/msg.html', context)
+#     if req.method == 'POST':
+#         form = GroupForm(req.POST)
+#         if form.is_valid():
+#             name = form.cleaned_data['name']
+#             perm = form.cleaned_data['perm']
+#             members = form.cleaned_data['members']
+#             group.name = name
+#             group.user_set.clear()
+#             group.permissions.clear()
+#             group.save()
+#             permission = Permission.objects.get(codename=perm)
+#             group.permissions.add(permission)
+#             if members != '':
+#                 members = members.split(',')
+#                 for username in members:
+#                     user = User.objects.get(username=username)
+#                     group.user_set.add(user)
+#             context['msg'] = '用户组修改成功'
+#             return render(req, 'das/groups-list', context)
+#         else:
+#             context['msg'] = "表单错误"
+#             return render(req, 'das/msg.html', context)
+#     user = User.objects.all()
+#     context['group'] = group
+#     context['user'] = user
+#     return render(req, 'das/group-modify.html', context)
+#
+#
+# def group_del_view(req, group_id):
+#     context = {}
+#     context['sitemeta'] = settings.SITEMETA
+#     context['active'] = 'group_mgr'
+#     group = None
+#     try:
+#         group = Group.objects.get(pk=group_id)
+#         group.user_set.clear()
+#         group.permissions.clear()
+#         group.delete()
+#         context['msg'] = '用户组删除成功'
+#     except:
+#         context['msg'] = '用户组不存在'
+#         return render(req, 'das/msg.html', context)
+#     return render(req, 'das/groups-list.html', context)
 
 
 def user_view(req, pindex, status):
@@ -1300,26 +1302,28 @@ def user_add_view(req):
             password = form.cleaned_data['password']
             email = form.cleaned_data['email']
             telephone = form.cleaned_data['telephone']
-            is_superuser = form.cleaned_data['is_superuser']
+            role = form.cleaned_data['role']
             is_active = form.cleaned_data['is_active']
+            if not is_active:
+                is_active = 0
             first_name = form.cleaned_data['first_name']
             last_name = form.cleaned_data['last_name']
             nickname = form.cleaned_data['nickname']
             avatar = form.cleaned_data['avatar']
-            group_id = form.cleaned_data['group_id']
+
             user = auth.authenticate(username=username, password=password, email=email)
             if user:
                 context['user'] = user
                 context['msg'] = "用户已经存在"
                 return render(req, 'das/msg.html', context)
             user = User.objects.create(username=username, password=password, email=email, telephone=telephone,
-                                       is_active=is_active, is_superuser=is_superuser, first_name=first_name,
+                                       is_active=is_active, first_name=first_name,
                                        last_name=last_name, nickname=nickname, avatar=avatar)
             user.save()
-            group = Group.objects.get(pk=group_id)
-            user.groups.add(group)
+            perm = Permission.objects.get(codename=role)
+            user.user_permissions.add(perm)
             context['msg'] = '用户添加成功'
-            return redirect('/das/user/list/1/0', context)
+            return redirect('/das/user/list/1/2', context)
         else:
             context['msg'] = '表单错误'
             return render(req, 'das/msg.html', context)
@@ -1360,34 +1364,36 @@ def user_modify_view(req, user_id):
             password = form.cleaned_data['password']
             email = form.cleaned_data['email']
             telephone = form.cleaned_data['telephone']
-            is_superuser = form.cleaned_data['is_superuser']
             is_active = form.cleaned_data['is_active']
             first_name = form.cleaned_data['first_name']
             last_name = form.cleaned_data['last_name']
             nickname = form.cleaned_data['nickname']
             avatar = form.cleaned_data['avatar']
-            group_id = form.cleaned_data['group_id']
-            user.password = password
+            role = form.cleaned_data['role']
+            if password:
+                user.set_password(password)
             user.email = email
             user.telephone = telephone
-            user.is_superuser = is_superuser
-            user.is_active = is_active
+            if is_active:
+                user.is_active = is_active
+            else:
+                user.is_active = 0
             user.first_name = first_name
             user.last_name = last_name
             user.nickname = nickname
             user.avatar = avatar
             user.save()
-            group = Group.objects.get(pk=group_id)
-            user.groups.clear()
-            user.groups.add(group)
+            user.user_permissions.clear()
+            perm = Permission.objects.get(codename=role)
+            user.user_permissions.add(perm)
             context['msg'] = '用户修改成功'
-            return redirect('/das/user/list/1', context)
+            return redirect('/das/user/list/1/2', context)
         else:
             context['msg'] = '表单错误'
             return render(req, 'das/msg.html', context)
-    groups = Group.objects.all()
+
     context['user'] = user
-    context['groups'] = groups
+
     return render(req, 'das/user-modify.html', context)
 
 
@@ -1404,17 +1410,63 @@ def user_enable_disable(req, user_id):
     return HttpResponse(json.dumps(ret), content_type="application/json")
 
 
-def user_detail(req, user_id):
-    pass
+def user_profile(req):
+    context = {}
+    context['sitemeta'] = settings.SITEMETA
+    context['active'] = 'user_profile'
+    user = req.session.get('user')
+    if req.method == 'POST':
+        form = UserForm(req.POST)
+        if form.is_valid():
+            password = form.cleaned_data['password']
+            email = form.cleaned_data['email']
+            telephone = form.cleaned_data['telephone']
+            first_name = form.cleaned_data['first_name']
+            last_name = form.cleaned_data['last_name']
+            nickname = form.cleaned_data['nickname']
+            avatar = form.cleaned_data['avatar']
+            if password:
+                user.set_password(password)
+            user.email = email
+            user.telephone = telephone
+            user.first_name = first_name
+            user.last_name = last_name
+            user.nickname = nickname
+            user.avatar = avatar
+            user.save()
+            req.session['user'] = user
+            context['msg'] = '用户修改成功'
+            return redirect('/das/', context)
+        else:
+            context['msg'] = '表单错误'
+            return render(req, 'das/msg.html', context)
+
+    context['user'] = user
+
+    return render(req, 'das/user-profile.html', context)
 
 
-def find_user(req, username_or_email):
+def find_user(req, username_or_email_or_telephone):
     q = Q()
     q.connector = 'OR'
-    q.children.append(('username', username_or_email))
-    q.children.append(('email', username_or_email))
+    q.children.append(('username', username_or_email_or_telephone))
+    q.children.append(('email', username_or_email_or_telephone))
+    q.children.append(('telephone', username_or_email_or_telephone))
     user = User.objects.filter(q)
     if user:
+        ret = {'result': 'true'}
+    else:
+        ret = {'result': 'false'}
+    return HttpResponse(json.dumps(ret), content_type="application/json")
+
+
+def find_other_user(req, username, email_or_telephone):
+    q = Q()
+    q.connector = 'OR'
+    q.children.append(('email', email_or_telephone))
+    q.children.append(('telephone', email_or_telephone))
+    user = User.objects.filter(q)
+    if user and user[0].username != username:
         ret = {'result': 'true'}
     else:
         ret = {'result': 'false'}

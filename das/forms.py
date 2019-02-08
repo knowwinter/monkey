@@ -4,15 +4,15 @@ from django import forms
 
 class UserForm(forms.Form):
     username = forms.CharField(required=True, max_length=30, error_messages={'required': "用户名不能为空"})
-    password = forms.CharField(required=True, max_length=30, error_messages={'required': '密码不能为空'})
+    password = forms.CharField(required=False, max_length=30, error_messages={'required': '密码不能为空'})
     email = forms.EmailField(required=True, error_messages={'required': '邮箱不能为空'})
     telephone = forms.CharField(max_length=11, required=False)
     first_name = forms.CharField(max_length=30, required=False)
     last_name = forms.CharField(max_length=30, required=False)
     is_active = forms.IntegerField(max_value=2, min_value=0, required=False)
-    is_superuser = forms.IntegerField(max_value=1, min_value=0, required=False)
     nickname = forms.CharField(max_length=32, required=False)
     avatar = forms.CharField(max_length=100, required=False)
+    role = forms.CharField(required=False)
 
 
 

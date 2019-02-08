@@ -308,7 +308,7 @@
 								</li>
 
 								<li>
-									<a href="#">
+                                    <a href="{% url 'profile' %}">
 										<i class="icon-user"></i>
 										个人资料
 									</a>
@@ -492,14 +492,14 @@
                             </a>
                         </li>
 
-                        {% if active == 'user_mgr' or active == 'group_mgr' %}
+                        {% if active == 'user_mgr' or active == 'user_profile' %}
                             <li class="active">
                                 {% else %}
                             <li>
                         {% endif %}
                         <a href="#" class="dropdown-toggle">
                             <i class="icon-group"></i>
-                            <span class="menu-text"> 用户管理 </span>
+                            <span class="menu-text"> 用户 </span>
 
                             <b class="arrow icon-angle-down"></b>
                         </a>
@@ -512,18 +512,18 @@
                             {% endif %}
                             <a href="{% url 'user_list' 1 2 %}">
                                 <i class="icon-double-angle-right"></i>
-                                用户列表
+                                所有用户
                             </a>
                             </li>
 
-                            {% if active == 'group_mgr' %}
+                            {% if active == 'user_profile' %}
                                 <li class="active">
                                     {% else %}
                                 <li>
                             {% endif %}
-                            <a href="{% url 'group_list' %}">
+                            <a href="{% url 'profile' %}">
                                 <i class="icon-double-angle-right"></i>
-                                用户组列表
+                                我的个人资料
                             </a>
                             </li>
                         </ul>

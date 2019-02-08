@@ -1,0 +1,381 @@
+﻿{% extends "das/base.html" %}
+{% block header %}
+    <script type="text/javascript">
+        function checksubmit(form) {
+            if ($('input#repassword').val() == '') {
+                if ($('p#repassword').length == 0) {
+                    $('div#repassword').append('<p class="red" id="repassword">重复密码不能为空</p>')
+                }
+            }
+            if ($('input#password').val() == '') {
+                if ($('p#password').length == 0) {
+                    $('div#password').append('<p class="red" id="password">密码不能为空</p>')
+                }
+
+            }
+            if ($('input#username').val() == '') {
+                if ($('p#username').length == 0) {
+                    $('div#username').append('<p class="red" id="username">用户名不能为空</p>')
+                }
+            }
+            if ($('input#telephone').val() == '') {
+                if ($('p#telephone').length == 0) {
+                    $('div#telephone').append('<p class="red" id="username">电话号码不能为空</p>')
+                }
+            }
+            if ($('input#email').val() == '') {
+                if ($('p#email').length == 0) {
+                    $('div#email').append('<p class="red" id="email">email不能为空</p>')
+                }
+            }
+
+            if ($('p.red').length == 0) {
+                return true
+            } else {
+                return false
+            }
+
+
+        }
+
+    </script>
+{% endblock %}
+
+{% block breadcrumb %}
+    <li>
+        <a href="#">用户</a>
+    </li>
+    <li class="active">添加用户</li>
+{% endblock %}
+{% block page %}
+    {% load mptt_tags %}
+    <div class="row">
+        <div class="col-md-12">
+            <!-- PAGE CONTENT BEGINS -->
+
+            <form class="form-horizontal" role="form" action="{% url 'user_new' %}" method="post"
+                  onsubmit="return checksubmit(this.form)">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label class="col-sm-3 control-label no-padding-right" for="username"> 用户名： </label>
+
+                    <div class="col-sm-9" id="username">
+                        <input type="text" id="username" name="username" placeholder="用户名" class="col-xs-10 col-sm-5"/>
+                    </div>
+                </div>
+
+
+                <div class="space-4"></div>
+
+                <div class="form-group">
+                    <label class="col-sm-3 control-label no-padding-right" for="firstname"> 名字： </label>
+
+                    <div class="col-sm-9">
+                        <input type="text" id="firstname" name="first_name" placeholder="First Name"
+                               class="col-xs-10 col-sm-5"/>
+                    </div>
+                </div>
+
+
+                <div class="space-4"></div>
+
+                <div class="form-group">
+                    <label class="col-sm-3 control-label no-padding-right" for="lastname"> 姓氏： </label>
+
+                    <div class="col-sm-9">
+                        <input type="text" id="lastname" name="last_name" placeholder="Last Name"
+                               class="col-xs-10 col-sm-5"/>
+                    </div>
+                </div>
+
+
+                <div class="space-4"></div>
+
+                <div class="form-group">
+                    <label class="col-sm-3 control-label no-padding-right" for="nickname"> 昵称： </label>
+
+                    <div class="col-sm-9">
+                        <input type="text" id="nickname" name="nickname" placeholder="昵称" class="col-xs-10 col-sm-5"/>
+                    </div>
+                </div>
+
+
+                <div class="space-4"></div>
+
+                <div class="form-group">
+                    <label class="col-sm-3 control-label no-padding-right" for="email"> 邮箱： </label>
+
+                    <div class="col-sm-9" id="email">
+                        <input type="text" id="email" name="email" placeholder="邮箱" class="col-xs-10 col-sm-5"/>
+                    </div>
+                </div>
+
+
+                <div class="space-4"></div>
+
+                <div class="form-group">
+                    <label class="col-sm-3 control-label no-padding-right" for="telephone"> 联系电话： </label>
+
+                    <div class="col-sm-9" id="telephone">
+                        <input type="text" id="telephone" name="telephone" placeholder="联系电话"
+                               class="col-xs-10 col-sm-5"/>
+                    </div>
+                </div>
+
+
+                <div class="space-4"></div>
+
+                <div class="form-group">
+                    <label class="col-sm-3 control-label no-padding-right" for="password"> 密码： </label>
+
+                    <div class="col-sm-9" id="password">
+                        <input type="password" id="password" name="password" placeholder="******"
+                               class="col-xs-10 col-sm-5"/>
+                    </div>
+                </div>
+
+
+                <div class="space-4"></div>
+
+                <div class="form-group">
+                    <label class="col-sm-3 control-label no-padding-right" for="repassword"> 确认密码： </label>
+
+                    <div class="col-sm-9" id="repassword">
+                        <input type="password" id="repassword" name="repassword" placeholder="******"
+                               class="col-xs-10 col-sm-5"/>
+                    </div>
+                </div>
+
+
+                <div class="space-4"></div>
+
+                <div class="form-group">
+                    <label class="col-sm-3 control-label no-padding-right" for="avatar"> 头像： </label>
+
+                    <div class="col-sm-6">
+                        <input type="text" id="avatar" name="avatar" placeholder="头像" class="col-xs-8 col-sm-8"/>
+                    </div>
+                    <div class="col-sm-3">
+                        <button class="btn btn-info uploadBtn" type="button" id="avatar">上传</button>
+                    </div>
+                    <div id="addCaseDiv" style="display:none;overflow:hidden;">
+                        <iframe></iframe>
+                    </div>
+                    <div class="col-sm-12 align-center">
+                        <img src="" id="avatar" class="img-thumbnail img-circle" width="150" height="100"/>
+                    </div>
+
+                </div>
+
+                <div class="space-4"></div>
+                <div class="form-group">
+                    <label class="col-sm-3 control-label no-padding-right" for="is_active"> 激活用户： </label>
+
+                    <div class="col-sm-9">
+                        <input type="checkbox" id="is_active" name="is_active" placeholder="激活用户"
+                               checked
+                               value="1"
+                        />
+                    </div>
+                </div>
+                <div class="space-4"></div>
+
+                <div class="form-group">
+                    <label class="col-sm-3 control-label no-padding-right" for="role"> 角色： </label>
+
+                    <div class="col-sm-9">
+
+                        <input type="radio" id="access_member" name="role" placeholder="会员"
+                               checked
+                               value="access_member"
+                        />
+
+                        <label class=" control-label no-padding-left" for="access_member"> 会员 </label>
+
+
+                        <input type="radio" id="access_dashboard" name="role" placeholder="管理员"
+                               value="access_dashboard"
+                        />
+
+                        <label class=" control-label no-padding-right" for="access_dashboard"> 管理员 </label>
+
+                        <input type="radio" id="access_all" name="role" placeholder="超级管理员"
+                               value="access_all"
+                        />
+
+                        <label class=" control-label no-padding-right" for="access_all"> 超级管理员 </label>
+                    </div>
+                </div>
+                <div class="space-4"></div>
+
+
+                <div class="space-4"></div>
+
+                <div class="clearfix form-actions col-md-10">
+                    <div class="col-md-offset-3 col-md-9">
+                        <button class="btn btn-sm btn-info" type="submit">
+                            <i class="icon-ok bigger-110"></i>
+                            创建
+                        </button>
+
+                        &nbsp; &nbsp; &nbsp;
+                        <button class="btn btn-sm" type="reset">
+                            <i class="icon-undo bigger-110"></i>
+                            重置
+                        </button>
+                    </div>
+                </div>
+
+
+            </form>
+        </div><!-- /.col -->
+
+    </div><!-- /.row -->
+    <script type="text/javascript">
+        jQuery(function ($) {
+            $(".uploadBtn").click(function () {
+
+
+                window.dialog = $("#addCaseDiv").dialog({
+                    title: "",
+                    width: '50%',
+                    height: 600,
+                    modal: true
+
+                });
+
+                //$("iframe",dialog).attr("scrolling","no");
+                $("iframe", dialog).attr("frameborder", "0");
+                $("iframe", dialog).attr("height", "100%");
+                $("iframe", dialog).attr("width", "100%");
+                $("iframe", dialog).attr("src", "{% url 'upload_page' ''%}");
+                $("iframe").attr("id", this.id);
+                $("iframe").attr("name", this.id)
+
+
+            })
+
+        });
+
+        function closeDialog(selector, media_url) {
+            jQuery(function ($) {
+                $(selector).attr('src', media_url)
+            })
+            dialog.dialog("close")
+        }
+
+
+        jQuery(function ($) {
+
+            $('input#email').blur(function () {
+                if ($(this).val() == '') {
+                    $('p#email').remove()
+                    $('div#email').append('<p class="red" id="email">email不能为空</p>')
+                } else {
+                    var email = $(this).val()
+                    $('p#email').remove()
+                    var url = "{% url 'find_user' 123 %}"
+                    url = url.replace('123', email)
+                    $.ajax({
+                        type: "GET",
+                        url: url,
+                        datatype: 'json',
+                        success: function (result) {
+                            if (result.result == 'true') {
+                                $('div#email').append('<p class="red" id="email">email已被使用</p>')
+                            } else {
+                                $('p#email').remove()
+                            }
+                        },
+                        error: function () {
+                            alert('异常')
+                        }
+                    })
+
+                }
+            });
+
+            $('input#username').blur(function () {
+                if ($(this).val() == '') {
+                    $('p#username').remove()
+                    $('div#username').append('<p class="red" id="username">用户名不能为空</p>')
+                } else {
+                    var username = $(this).val()
+                    $('p#username').remove()
+                    var url = "{% url 'find_user' 123 %}"
+                    url = url.replace('123', username)
+                    $.ajax({
+                        type: "GET",
+                        url: url,
+                        datatype: 'json',
+                        success: function (result) {
+                            if (result.result == 'true') {
+                                $('div#username').append('<p class="red" id="username">用户已存在</p>')
+                            } else {
+                                $('p#username').remove()
+                            }
+                        },
+                        error: function () {
+                            alert('异常')
+                        }
+                    })
+
+                }
+            });
+
+            $('input#telephone').blur(function () {
+                if ($(this).val() == '') {
+                    $('p#telephone').remove()
+                    $('div#telephone').append('<p class="red" id="telephone">电话号码不能为空</p>')
+                } else {
+                    var telephone = $(this).val()
+                    $('p#telephone').remove()
+                    var url = "{% url 'find_user' 123 %}"
+                    url = url.replace('123', telephone)
+                    $.ajax({
+                        type: "GET",
+                        url: url,
+                        datatype: 'json',
+                        success: function (result) {
+                            if (result.result == 'true') {
+                                $('div#telephone').append('<p class="red" id="telephone">手机号码已被使用</p>')
+                            } else {
+                                $('p#telephone').remove()
+                            }
+                        },
+                        error: function () {
+                            alert('异常')
+                        }
+                    })
+
+                }
+            });
+
+            $('input#password').blur(function () {
+                if ($(this).val() == '') {
+                    $('p#password').remove()
+                    $('div#password').append('<p class="red" id="password">密码不能为空</p>')
+                } else {
+                    $('p#password').remove()
+                }
+            });
+
+            $('input#repassword').blur(function () {
+                if ($(this).val() == '') {
+                    $('p#repassword').remove()
+                    $('div#repassword').append('<p class="red" id="repassword">重复密码不能为空</p>')
+                } else {
+                    $('p#repassword').remove()
+                    if ($(this).val() != $('input#password').val()) {
+                        $('div#repassword').append('<p class="red" id="repassword">密码不一致</p>')
+                    } else {
+                        $('p#repassword').remove()
+                    }
+                }
+            });
+
+        });
+
+
+    </script>
+{% endblock %}

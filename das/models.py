@@ -10,7 +10,8 @@ from uuslug import slugify
 # Create your models here.
 class User(AbstractUser):
     nickname = models.CharField(verbose_name='昵称', max_length=32)
-    telephone = models.CharField(max_length=11, null=True, unique=True)
+    telephone = models.CharField(max_length=11, null=False, unique=True)
+    email = models.EmailField(unique=True, null=False)
     avatar = models.FileField(upload_to='static/assets/avatars/', default="/static/assets/avatars/avatar.png")
     like_comment = models.ManyToManyField(
         'Comment',

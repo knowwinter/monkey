@@ -19,9 +19,9 @@
 
 {% block breadcrumb %}
     <li>
-        <a href="#">用户管理</a>
+        <a href="#">用户</a>
     </li>
-    <li class="active">用户列表</li>
+    <li class="active">所有用户</li>
 {% endblock %}
 
 {% block page %}
@@ -110,7 +110,7 @@
 
                                         <div class="col-sm-12">
                                             <div class="ace-thumbnails">
-                                                <img src="{{ page.avatar }}">
+                                                <img src="{{ page.avatar }}" width="50" height="50">
                                             </div>
                                             <a href="{% url 'user_modify' page.pk %}">
                                                 <span>{{ page.username }}</span></a></div>
@@ -141,10 +141,7 @@
                                                    class="user_del">
                                                     <i class="icon-trash red"></i>
                                                 </a>
-                                                <a href="{% url "user_detail" page.pk %}" id="{{ page.pk }}"
-                                                   class="post_show" target="_blank">
-                                                    <i class="icon-eye-open"></i>
-                                                </a>
+
 
                                             </div>
 
@@ -163,7 +160,8 @@
                                         {{ page.telephone }}
 
                                     </td>
-                                    <td class="hidden-480">{{ page.groups }}</td>
+                                    {% load comm_tags %}
+                                    <td class="hidden-480">{{ page.user_permissions.values|get_perm }}</td>
                                     <td class="hidden-480"> {{ page.commenter.count }}</td>
                                     <td class="hidden-480"><a href="{% url 'user_show' page.pk 1 %}"
                                                               target="_blank"> {{ page.author.count }}</a></td>

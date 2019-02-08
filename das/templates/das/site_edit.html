@@ -1,6 +1,9 @@
 ﻿{% extends "das/base.html" %}
 {% block header %}
 {% endblock %}
+{% block breadcrumb %}
+    <li class="active">站点设置</li>
+{% endblock %}
 {% block page %}
     {% load mptt_tags %}
     <div class="row">
@@ -120,7 +123,8 @@
                          <button class="btn btn-info uploadBtn" type="button" id="author_img">上传</button>
                      </div>
                      <div class="col-sm-12 align-center">
-                         <img src="{{ site_meta.author_img }}" id="author_img" class="img-thumbnail img-circle"/>
+                         <img src="{{ site_meta.author_img }}" id="author_img" class="img-thumbnail img-circle"
+                              width="150" height="100"/>
                      </div>
 
                 </div>

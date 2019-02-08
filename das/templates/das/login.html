@@ -58,6 +58,11 @@
                     $('span#username').append('<p class="red" id="username">用户名不能为空</p>')
                 }
             }
+            if ($('input#telephone').val() == '') {
+                if ($('p#telephone').length == 0) {
+                    $('span#telephone').append('<p class="red" id="username">电话号码不能为空</p>')
+                }
+            }
             if ($('input#email').val() == '') {
                 if ($('p#email').length == 0) {
                     $('span#email').append('<p class="red" id="email">email不能为空</p>')
@@ -273,8 +278,9 @@
 														</span>
                                         </label>
                                         <label class="block clearfix">
-														<span class="block input-icon input-icon-right">
+														<span class="block input-icon input-icon-right" id="telephone">
 															<input type="text" class="form-control" name='telephone'
+                                                                   id="telephone"
                                                                    placeholder="Telephone"/>
 															<i class="icon-phone"></i>
 														</span>
@@ -427,6 +433,34 @@
                                         $('span#username').append('<p class="red" id="username">用户已存在</p>')
                                     } else {
                                         $('p#username').remove()
+                                    }
+                                },
+                                error: function () {
+                                    alert('异常')
+                                }
+                            })
+
+                        }
+                    });
+
+                    $('input#telephone').blur(function () {
+                        if ($(this).val() == '') {
+                            $('p#telephone').remove()
+                            $('span#telephone').append('<p class="red" id="telephone">电话号码不能为空</p>')
+                        } else {
+                            var telephone = $(this).val()
+                            $('p#telephone').remove()
+                            var url = "{% url 'find_user' 123 %}"
+                            url = url.replace('123', telephone)
+                            $.ajax({
+                                type: "GET",
+                                url: url,
+                                datatype: 'json',
+                                success: function (result) {
+                                    if (result.result == 'true') {
+                                        $('span#telephone').append('<p class="red" id="telephone">手机号码已被使用</p>')
+                                    } else {
+                                        $('p#telephone').remove()
                                     }
                                 },
                                 error: function () {

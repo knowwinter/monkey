@@ -2,6 +2,12 @@
 {% load static %}
 {% load staticfiles %}
 
+{% block breadcrumb %}
+    <li>
+        <a href="#">多媒体</a>
+    </li>
+    <li class="active">编辑媒体</li>
+{% endblock %}
 
 {% block page %}
     {% load mptt_tags %}

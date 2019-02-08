@@ -39,10 +39,11 @@ urlpatterns = [
     url(r'^user/modify/(\d+)', views.user_modify_view, name='user_modify'),
     url(r'^user/enable_disable/(\d+)', views.user_enable_disable, name='user_enable_disable'),
     url(r'^user/new/$', views.user_add_view, name='user_new'),
-    url(r'^user/detail/(\d+)', views.user_detail, name='user_detail'),
-    url(r'^group/list/$', views.group_view, name='group_list'),
-    url(r'^group/del/(\d+)', views.group_del_view, name='group_del'),
-    url(r'^group/modify/(\d+)', views.group_modify_view, name='group_modfy'),
-    url(r'^group/new/$', views.group_add_view, name='group_new'),
+    url(r'^user/profile/$', views.user_profile, name='profile'),
+    # url(r'^group/list/$', views.group_view, name='group_list'),
+    # url(r'^group/del/(\d+)', views.group_del_view, name='group_del'),
+    # url(r'^group/modify/(\d+)', views.group_modify_view, name='group_modfy'),
+    # url(r'^group/new/$', views.group_add_view, name='group_new'),
+    url(r'^user/findother/(\w.*)/(\w.*)', views.find_other_user, name='find_other_user'),
 
 ]

@@ -8,7 +8,9 @@
         $.ajaxSetup({headers: {"X-CSRFToken": '{{ csrf_token }}'}});
     </script>
 {% endblock %}
-
+{% block breadcrumb %}
+    <li class="active">评论</li>
+{% endblock %}
 {% block page %}
     {% load mptt_tags %}
     <div class="row">
