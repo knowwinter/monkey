@@ -20,6 +20,8 @@ from das.models import *
 from forms import *
 from common import *
 from django.contrib.auth.models import Group
+from django.contrib.auth.decorators import permission_required
+from django.contrib.auth.decorators import user_passes_test
 
 
 # from django.http import HttpResponse, HttpRequest
@@ -89,11 +91,9 @@ def login_view(req):
             render(req, 'das/msg.html', context)
     return render(req, 'das/login.html', context)
 
-
 def logout_view(req):
     auth.logout(req)
     return redirect('/')
-
 
 @login_required(login_url='/login')
 def index_view(req):
@@ -104,6 +104,7 @@ def index_view(req):
     return render(req, 'das/index.html', context)
 
 
+@permission_required('das.access_dashboard')
 @login_required(login_url='/login')
 def category_view(req, pindex):
     context = {}
@@ -148,6 +149,7 @@ def category_view(req, pindex):
     return render(req, 'das/category.html', context)
 
 
+@permission_required('das.access_dashboard', login_url='/login')
 @login_required(login_url='/login')
 def category_del(req, pindex, cate_id):
     context = {}
@@ -164,6 +166,7 @@ def category_del(req, pindex, cate_id):
     return redirect('/das/category/' + pindex, context)
 
 
+@permission_required('das.access_dashboard', login_url='/login')
 @login_required(login_url='/login')
 def category_modify(req, cate_id):
     context = {}
@@ -207,6 +210,7 @@ def category_modify(req, cate_id):
     return render(req, 'das/cate-modify.html', context)
 
 
+@permission_required('das.access_dashboard', login_url='/login')
 @login_required(login_url='/login')
 def tag_view(req, pindex):
     context = {}
@@ -250,6 +254,7 @@ def json_get_tags(req):
     return HttpResponse(json.dumps(tag_list), content_type="application/json")
 
 
+@permission_required('das.access_dashboard', login_url='/login')
 @login_required(login_url='/login')
 def tag_del(req, pindex, tag_id):
     context = {}
@@ -266,6 +271,7 @@ def tag_del(req, pindex, tag_id):
     return redirect('/das/tag/' + pindex, context)
 
 
+@permission_required('das.access_dashboard', login_url='/login')
 @login_required(login_url='/login')
 def tag_modify(req, tag_id):
     context = {}
@@ -395,7 +401,11 @@ def post_modify(req, article_id):
     context = {}
     context['sitemeta'] = settings.SITEMETA
     context['active'] = 'post_all'
-    post = Article.objects.get(pk=article_id)
+    user = req.session.get('user')
+    if user.is_superuser or user.has_perm('das.access_dashboard'):
+        post = Article.objects.get(pk=article_id)
+    else:
+        post = Article.objects.get(pk=article_id, pub_author=user)
     if not post:
         context['msg'] = '文章不存在'
         return render(req, 'das/msg.html', context)
@@ -479,7 +489,11 @@ def post_del(req, pindex, article_id, article_status):
     context = {}
     context['sitemeta'] = settings.SITEMETA
     context['active'] = 'post_all'
-    post = Article.objects.get(pk=article_id)
+    user = req.session.get('user')
+    if user.is_superuser or user.has_perm('das.access_dashboard'):
+        post = Article.objects.get(pk=article_id)
+    else:
+        post = Article.objects.get(pk=article_id, pub_author=user)
     if not post:
         context['msg'] = '文章不存在'
         return render(req, 'das/msg.html', context)
@@ -494,7 +508,11 @@ def post_revoke(req, pindex, article_id, article_status):
     context = {}
     context['sitemeta'] = settings.SITEMETA
     context['active'] = 'post_all'
-    post = Article.objects.get(pk=article_id)
+    user = req.session.get('user')
+    if user.is_superuser or user.has_perm('das.access_dashboard'):
+        post = Article.objects.get(pk=article_id)
+    else:
+        post = Article.objects.get(pk=article_id, pub_author=user)
     if not post:
         context['msg'] = '文章不存在'
         return render(req, 'das/msg.html', context)
@@ -516,10 +534,17 @@ def post_view(req, pindex, article_status):
         form = ArticleStatusForm(req.POST)
         if form.is_valid():
             article_status = form.cleaned_data['article_status']
-    if article_status == '0':
-        articles = Article.objects.all().order_by("-pub_date")
+    user = req.session.get('user')
+    if user.is_superuser or user.has_perm('das.access_dashboard'):
+        if article_status == '0':
+            articles = Article.objects.all().order_by("-pub_date")
+        else:
+            articles = Article.objects.filter(article_status=article_status).order_by("-pub_date")
     else:
-        articles = Article.objects.filter(article_status=article_status).order_by("-pub_date")
+        if article_status == '0':
+            articles = Article.objects.filter(pub_author=user).order_by("-pub_date")
+        else:
+            articles = Article.objects.filter(pub_author=user, article_status=article_status).order_by("-pub_date")
     paginator = Paginator(articles, 10)
     if pindex == '':
         pindex = '1'
@@ -534,6 +559,7 @@ def post_view(req, pindex, article_status):
     return render(req, 'das/posts-list.html', context)
 
 
+@permission_required('das.access_dashboard', login_url='/login')
 @login_required(login_url='/login')
 def page_view(req, pindex):
     context = {}
@@ -553,6 +579,7 @@ def page_view(req, pindex):
     return render(req, 'das/page.html', context)
 
 
+@permission_required('das.access_dashboard', login_url='/login')
 @login_required(login_url='/login')
 def page_new_view(req):
     context = {}
@@ -598,6 +625,7 @@ def page_new_view(req):
     return render(req, 'das/page-new.html', context)
 
 
+@permission_required('das.access_dashboard', login_url='/login')
 @login_required(login_url='/login')
 def page_modify(req, article_id):
     context = {}
@@ -633,6 +661,7 @@ def page_modify(req, article_id):
     return render(req, 'das/page-modify.html', context)
 
 
+@permission_required('das.access_dashboard', login_url='/login')
 @login_required(login_url='/login')
 def page_del(req, pindex, article_id):
     context = {}
@@ -840,10 +869,17 @@ def comment_show(req, pindex, comment_status):
         if form.is_valid():
             comment_status = form.cleaned_data['comment_status']
 
-    if comment_status == '0':
-        comments = Comment.objects.all().order_by('-comment_date')
+    user = req.session.get('user')
+    if user.is_superuser or user.has_perm('das.access_dashboard'):
+        if comment_status == '0':
+            comments = Comment.objects.all().order_by('-comment_date')
+        else:
+            comments = Comment.objects.filter(comment_status=comment_status).order_by('-comment_date')
     else:
-        comments = Comment.objects.filter(comment_status=comment_status).order_by('-comment_date')
+        if comment_status == '0':
+            comments = Comment.objects.filter(user=user).order_by('-comment_date')
+        else:
+            comments = Comment.objects.filter(user=user, comment_status=comment_status).order_by('-comment_date')
     paginator = Paginator(comments, 10)
     if pindex == '':
         pindex = '1'
@@ -858,10 +894,11 @@ def comment_show(req, pindex, comment_status):
     return render(req, 'das/comment-show.html', context)
 
 
+@permission_required('das.access_dashboard', login_url='/login')
 @login_required(login_url="/login")
 def comment_audit(req, comment_id, oper):
     context = {}
-    context['sitemeta'] = settings.SITEMETA
+    # context['sitemeta'] = settings.SITEMETA
     context['active'] = 'comment_show'
     comment = Comment.objects.get(pk=comment_id)
     if comment:
@@ -890,9 +927,13 @@ def comment_audit(req, comment_id, oper):
 @login_required(login_url="/login")
 def comment_del(req, comment_id):
     context = {}
-    context['sitemeta'] = settings.SITEMETA
+    # context['sitemeta'] = settings.SITEMETA
     context['active'] = 'comment_show'
-    comment = Comment.objects.get(pk=comment_id)
+    user = req.session.get('user')
+    if user.is_superuser or user.has_perm('das.access_dashboard'):
+        comment = Comment.objects.get(pk=comment_id)
+    else:
+        comment = Comment.objects.get(user=user, pk=comment_id)
     if comment:
 
         article = comment.article
@@ -912,7 +953,7 @@ def comment_del(req, comment_id):
 @login_required(login_url="/login")
 def like_article(req, article_id, user_id):
     context = {}
-    context['sitemeta'] = settings.SITEMETA
+    # context['sitemeta'] = settings.SITEMETA
     article = Article.objects.get(pk=article_id)
     user = User.objects.get(pk=user_id)
     try:
@@ -933,7 +974,7 @@ def like_article(req, article_id, user_id):
 @login_required(login_url="/login")
 def like_comment(req, comment_id, user_id):
     context = {}
-    context['sitemeta'] = settings.SITEMETA
+    # context['sitemeta'] = settings.SITEMETA
     comment = Comment.objects.get(pk=comment_id)
     user = User.objects.get(pk=user_id)
     try:
@@ -951,6 +992,7 @@ def like_comment(req, comment_id, user_id):
         return HttpResponse(json.dumps(context), content_type="application/json")
 
 
+@permission_required('das.access_all', login_url='/login')
 @login_required(login_url="/login")
 def set_site(req):
     context = {}
@@ -1037,7 +1079,11 @@ def set_site(req):
 def upload_page(req, pindex):
     context = {}
     context['sitemeta'] = settings.SITEMETA
-    medias = Media.objects.all().order_by("-upload_date")
+    user = req.session.get('user')
+    if user.is_superuser or user.has_perm('das.access_dashboard'):
+        medias = Media.objects.all().order_by("-upload_date")
+    else:
+        medias = Media.objects.filter(file_author=user).order_by("-upload_date")
     paginator = Paginator(medias, 10)
     active = 'active'
     if pindex == '':
@@ -1059,7 +1105,11 @@ def media_view(req, pindex):
     context = {}
     context['sitemeta'] = settings.SITEMETA
     context['active'] = 'media_all'
-    medias = Media.objects.all().order_by("-upload_date")
+    user = req.session.get('user')
+    if user.is_superuser or user.has_perm('das.access_dashboard'):
+        medias = Media.objects.all().order_by("-upload_date")
+    else:
+        medias = Media.objects.filter(file_author=user).order_by("-upload_date")
     paginator = Paginator(medias, 10)
     if pindex == '':
         pindex = '1'
@@ -1079,7 +1129,11 @@ def media_modify(req, id):
     context = {}
     context['sitemeta'] = settings.SITEMETA
     context['active'] = 'media_all'
-    media = Media.objects.get(pk=id)
+    user = req.session.get('user')
+    if user.is_superuser or user.has_perm('das.access_dashboard'):
+        media = Media.objects.get(pk=id)
+    else:
+        media = Media.objects.get(pk=id, file_author=user)
     if not media:
         context['msg'] = "媒体不存在"
         return render(req, 'das/msg.html', context)
@@ -1108,14 +1162,24 @@ def media_modify(req, id):
 @login_required(login_url="/login")
 def media_del(req, id):
     context = {}
-    context['sitemeta'] = settings.SITEMETA
+    # context['sitemeta'] = settings.SITEMETA
     context['active'] = 'media_all'
-    try:
-        media = Media.objects.get(pk=id)
-    except:
-        context['msg'] = "媒体不存在"
-        context['result'] = 'failure'
-        return HttpResponse(json.dumps(context), content_type="application/json")
+    user = req.session.get('user')
+    if user.is_superuser or user.has_perm('das.access_dashboard'):
+        try:
+            media = Media.objects.get(pk=id)
+        except:
+            context['msg'] = "媒体不存在"
+            context['result'] = 'failure'
+            return HttpResponse(json.dumps(context), content_type="application/json")
+    else:
+        try:
+            media = Media.objects.get(pk=id, file_author=user)
+        except:
+            context['msg'] = "媒体不存在"
+            context['result'] = 'failure'
+            return HttpResponse(json.dumps(context), content_type="application/json")
+
     try:
         os.remove(media.file_local_path)
         media.delete()
@@ -1130,13 +1194,22 @@ def media_del(req, id):
 @login_required(login_url="/login")
 def media_del_by_o_name(req, o_name):
     context = {}
-    context['sitemeta'] = settings.SITEMETA
-    try:
-        media = Media.objects.filter(o_file_name=o_name).order_by("-upload_date")[0]
-    except:
-        context['msg'] = "媒体不存在"
-        context['result'] = 'failure'
-        return HttpResponse(json.dumps(context), content_type="application/json")
+    # context['sitemeta'] = settings.SITEMETA
+    user = req.session.get('user')
+    if user.is_superuser or user.has_perm('das.access_dashboard'):
+        try:
+            media = Media.objects.filter(o_file_name=o_name).order_by("-upload_date")[0]
+        except:
+            context['msg'] = "媒体不存在"
+            context['result'] = 'failure'
+            return HttpResponse(json.dumps(context), content_type="application/json")
+    else:
+        try:
+            media = Media.objects.filter(o_file_name=o_name, file_author=user).order_by("-upload_date")[0]
+        except:
+            context['msg'] = "媒体不存在"
+            context['result'] = 'failure'
+            return HttpResponse(json.dumps(context), content_type="application/json")
     try:
         os.remove(media.file_local_path)
         media.delete()
@@ -1259,7 +1332,8 @@ def media_new_view(req):
 #         return render(req, 'das/msg.html', context)
 #     return render(req, 'das/groups-list.html', context)
 
-
+@permission_required('das.access_dashboard', login_url='/login')
+@login_required(login_url='/login')
 def user_view(req, pindex, status):
     context = {}
     context['sitemeta'] = settings.SITEMETA
@@ -1291,6 +1365,8 @@ def user_view(req, pindex, status):
     return render(req, 'das/users-list.html', context)
 
 
+@permission_required('das.access_dashboard', login_url='/login')
+@login_required(login_url='/login')
 def user_add_view(req):
     context = {}
     context['sitemeta'] = settings.SITEMETA
@@ -1316,7 +1392,12 @@ def user_add_view(req):
                 context['user'] = user
                 context['msg'] = "用户已经存在"
                 return render(req, 'das/msg.html', context)
-            user = User.objects.create(username=username, password=password, email=email, telephone=telephone,
+            if role == 'access_all':
+                user = User.objects.create(username=username, password=password, email=email, telephone=telephone,
+                                           is_active=is_active, first_name=first_name, is_superuser=1,
+                                           last_name=last_name, nickname=nickname, avatar=avatar)
+            else:
+                user = User.objects.create(username=username, password=password, email=email, telephone=telephone,
                                        is_active=is_active, first_name=first_name,
                                        last_name=last_name, nickname=nickname, avatar=avatar)
             user.save()
@@ -1327,18 +1408,30 @@ def user_add_view(req):
         else:
             context['msg'] = '表单错误'
             return render(req, 'das/msg.html', context)
-    groups = Group.objects.all()
-    context['groups'] = groups
     return render(req, 'das/user-add.html', context)
 
 
+@permission_required('das.access_dashboard', login_url='/login')
+@login_required(login_url='/login')
 def user_del_view(req, user_id):
     context = {}
     context['active'] = 'user_mgr'
     user = None
+    oper_user = req.session.get('user')
     try:
         user = User.objects.get(pk=user_id)
-        user.groups.clear()
+        if oper_user == user:
+            context['msg'] = '用户不能删除自己'
+            context['result'] = 'failure'
+            return HttpResponse(json.dumps(context), content_type="application/json")
+        if user.is_superuser and oper_user.is_superuser != 1:
+            context['msg'] = '当前用户非超级管理员，不能删除超级管理员账户'
+            context['result'] = 'failure'
+            return HttpResponse(json.dumps(context), content_type="application/json")
+        if oper_user.is_superuser != 1 and user.has_perm('das.access_dashboard'):
+            context['msg'] = '非超级管理员不能删除普通管理员账户'
+            context['result'] = 'failure'
+            return HttpResponse(json.dumps(context), content_type="application/json")
         user.delete()
         context['msg'] = '用户删除成功'
         context['result'] = 'success'
@@ -1349,6 +1442,8 @@ def user_del_view(req, user_id):
         return HttpResponse(json.dumps(context), content_type="application/json")
 
 
+@permission_required('das.access_dashboard', login_url='/login')
+@login_required(login_url='/login')
 def user_modify_view(req, user_id):
     context = {}
     context['sitemeta'] = settings.SITEMETA
@@ -1358,6 +1453,15 @@ def user_modify_view(req, user_id):
     except:
         context['msg'] = '用户不存在'
         return render(req, 'das/msg', context)
+    oper_user = req.session.get('user')
+    if user.is_superuser and oper_user.is_superuser != 1:
+        context['msg'] = '当前用户非超级管理员，不能编辑超级管理员账户'
+        context['result'] = 'failure'
+        return render(req, 'das/msg.html', context)
+    if oper_user.is_superuser != 1 and user.has_perm('das.access_dashboard'):
+        context['msg'] = '非超级管理员不能编辑普通管理员账户'
+        context['result'] = 'failure'
+        return render(req, 'das/msg.html', context)
     if req.method == 'POST':
         form = UserForm(req.POST)
         if form.is_valid():
@@ -1382,6 +1486,10 @@ def user_modify_view(req, user_id):
             user.last_name = last_name
             user.nickname = nickname
             user.avatar = avatar
+            if role == 'access_all':
+                user.is_superuser = 1
+            else:
+                user.is_superuser = 0
             user.save()
             user.user_permissions.clear()
             perm = Permission.objects.get(codename=role)
@@ -1397,8 +1505,17 @@ def user_modify_view(req, user_id):
     return render(req, 'das/user-modify.html', context)
 
 
+@permission_required('das.access_dashboard', login_url='/login')
+@login_required(login_url='/login')
 def user_enable_disable(req, user_id):
     user = User.objects.get(pk=user_id)
+    oper_user = req.session.get('user')
+    if user.is_superuser and oper_user.is_superuser != 1:
+        ret = {'result': 'failure', 'msg': '当前用户非超级管理员，不能操作超级管理员账户'}
+        return HttpResponse(json.dumps(ret), content_type="application/json")
+    if oper_user.is_superuser != 1 and user.has_perm('das.access_dashboard'):
+        ret = {'result': 'failure', 'msg': '非超级管理员不能操作普通管理员账户'}
+        return HttpResponse(json.dumps(ret), content_type="application/json")
     if user.is_active == 1:
         user.is_active = 0
         msg = '用户禁用成功'
@@ -1410,6 +1527,7 @@ def user_enable_disable(req, user_id):
     return HttpResponse(json.dumps(ret), content_type="application/json")
 
 
+@login_required(login_url='/login')
 def user_profile(req):
     context = {}
     context['sitemeta'] = settings.SITEMETA
@@ -1460,6 +1578,8 @@ def find_user(req, username_or_email_or_telephone):
     return HttpResponse(json.dumps(ret), content_type="application/json")
 
 
+@permission_required('das.access_dashboard', login_url='/login')
+@login_required(login_url='/login')
 def find_other_user(req, username, email_or_telephone):
     q = Q()
     q.connector = 'OR'

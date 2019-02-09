@@ -42,7 +42,8 @@
     <div class="col-md-8 ">
         <div class="blog-post">
             <h1>{{ post.title }}.</h1>
-            <h4><i class="icon-user"></i> <a href="#">{{ post.pub_author }}</a> <i
+            <h4><i class="icon-user"></i> <a
+                    href="{% url 'user_show' post.pub_author.pk '1' %}">{{ post.pub_author }}</a> <i
                     class="icon-calendar"></i> {{ post.pub_date }}
                 <i class="icon-folder-open"></i>
                 {% if post.category %}

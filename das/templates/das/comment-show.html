@@ -84,7 +84,8 @@
 
                                     <td>
                                         {% if page.user %}
-                                            <div class="col-sm-4"><img src="{{ page.user.avatar }}"></div>
+                                            <div class="col-sm-4"><img src="{{ page.user.avatar }}" width="50"
+                                                                       height="50"></div>
                                             <div class="col-sm-8"><a href="#">{{ page.user.username }}</a></div>
                                             <div class="col-sm-8"><a href="#">{{ page.user.email }}</a></div>
                                             <div class="col-sm-12"><span>{{ page.comment_author_ip }}</span></div>
@@ -102,21 +103,23 @@
                                         {{ page.comment }}
                                         <div class="tools hidden">
                                             <div class="action-buttons bigger-125">
-                                                {% if page.comment_status == '2' %}
-                                                    <a href="javascript:void(0);" id="{{ page.pk }}"
-                                                       class="comment_accept">
-                                                        <i class="icon-check green"></i>
-                                                    </a>
-                                                {% elif page.comment_status == '1' %}
-                                                    <a href="javascript:void(0);" id="{{ page.pk }}"
-                                                       class="comment_reject">
-                                                        <i class="icon-remove red"></i>
+                                                {% if request.user.is_superuser or 'das.access_dashboard' in request.user.get_all_permissions %}
+                                                    {% if page.comment_status == '2' %}
+                                                        <a href="javascript:void(0);" id="{{ page.pk }}"
+                                                           class="comment_accept">
+                                                            <i class="icon-check green"></i>
+                                                        </a>
+                                                    {% elif page.comment_status == '1' %}
+                                                        <a href="javascript:void(0);" id="{{ page.pk }}"
+                                                           class="comment_reject">
+                                                            <i class="icon-remove red"></i>
+                                                        </a>
+                                                    {% endif %}
+
+                                                    <a href="javascript:void(0);" id="{{ page.pk }}" class="comment">
+                                                        <i class="icon-comments blue"></i>
                                                     </a>
                                                 {% endif %}
-                                                <a href="javascript:void(0);" id="{{ page.pk }}" class="comment">
-                                                    <i class="icon-comments blue"></i>
-                                                </a>
-
                                                 <a href="javascript:void(0);" id="{{ page.pk }}" class="comment_del">
                                                     <i class="icon-trash red"></i>
                                                 </a>

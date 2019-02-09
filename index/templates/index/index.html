@@ -6,7 +6,8 @@
             {% for p in pages %}
                 <div class="blog-post">
                     <h2>{{ p.title }}.</h2>
-                    <h4>Posted by <a href="#">{{ p.pub_author }}</a> on {{ p.pub_date }} Views: {{ p.view_count }} Comments: {{ p.comment_count }}</h4>
+                    <h4>Posted by <a href="{% url 'user_show' p.pub_author.pk '1' %}">{{ p.pub_author }}</a>
+                        on {{ p.pub_date }} Views: {{ p.view_count }} Comments: {{ p.comment_count }}</h4>
                     <h5>分类目录：
                         {% if p.category %}
                             <a href="{% url 'category_show' p.category.pk '1' %}"> {{ p.category.name }}</a>

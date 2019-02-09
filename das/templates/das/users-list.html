@@ -242,7 +242,7 @@
                             obj.children('i').addClass("icon-pause pink")
                             status_td.text('启用')
                         } else {
-                            alert("处理失败")
+                            alert(result.msg)
                         }
                     },
                     error: function () {
@@ -271,7 +271,7 @@
                             obj.children('i').addClass("icon-user green")
                             status_td.text('禁用')
                         } else {
-                            alert("处理失败")
+                            alert(result.msg)
                         }
                     },
                     error: function () {

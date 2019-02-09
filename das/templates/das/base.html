@@ -68,7 +68,7 @@
 
 			<div class="navbar-container" id="navbar-container">
 				<div class="navbar-header pull-left">
-					<a href="#" class="navbar-brand">
+                    <a href="{% url 'das_index' %}" class="navbar-brand">
 						<small>
 							<i class="icon-leaf"></i>
                             Monkey后台管理
@@ -421,6 +421,7 @@
                                         写文章
 									</a>
 								</li>
+                                {% if request.user.is_superuser or 'das.access_dashboard' in request.user.get_all_permissions %}
                                 {% if active == 'category' %}
                                     <li class="active">
                                         {% else %}
@@ -442,6 +443,7 @@
                                         标签
 									</a>
 								</li>
+                                {% endif %}
 							</ul>
 						</li>
 
@@ -505,6 +507,7 @@
                         </a>
 
                         <ul class="submenu">
+                            {% if request.user.is_superuser or 'das.access_dashboard' in request.user.get_all_permissions %}
                             {% if active == 'user_mgr' %}
                                 <li class="active">
                                     {% else %}
@@ -515,6 +518,7 @@
                                 所有用户
                             </a>
                             </li>
+                            {% endif %}
 
                             {% if active == 'user_profile' %}
                                 <li class="active">
@@ -528,7 +532,7 @@
                             </li>
                         </ul>
                         </li>
-
+                        {% if request.user.is_superuser %}
                         {% if active == 'set_site' %}
                             <li class="active">
                                 {% else %}
@@ -539,6 +543,7 @@
                                 <span class="menu-text">站点设置 </span>
                             </a>
                         </li>
+                        {% endif %}
 
 
 					</ul><!-- /.nav-list -->

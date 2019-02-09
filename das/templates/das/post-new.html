@@ -178,11 +178,15 @@
                     <input type="hidden" name="pub_author" value="{{ request.session.user.id }}">
                     <input type="hidden" name="article_type" value="post">
                     {#                    <input type="hidden" name="article_status" value="1">#}
-                    <div class="form-group">
-                        <label class="col-sm-1 control-label no-padding-right" for="article_status">保存草稿：</label>
-                        <input type="radio" id="article_status" name="article_status" value="2"> 是
-                        <input type="radio" id="article_status" name="article_status" value="1" checked> 否
-                    </div>
+                    {% if request.user.is_superuser or 'das.access_dashboard' in request.user.get_all_permissions %}
+                        <div class="form-group">
+                            <label class="col-sm-1 control-label no-padding-right" for="article_status">保存草稿：</label>
+                            <input type="radio" id="article_status" name="article_status" value="2"> 是
+                            <input type="radio" id="article_status" name="article_status" value="1" checked> 否
+                        </div>
+                    {% else %}
+                        <input type="hidden" id="article_status" name="article_status" value="2">
+                    {% endif %}
 
                     {#                        <div class="wysiwyg-editor" id="editor1"></div>#}
                 <div class="clearfix form-actions col-md-10 form-group">
