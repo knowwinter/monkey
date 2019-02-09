@@ -42,59 +42,12 @@
     <div class="col-md-8 ">
         <div class="blog-post">
             <h1>{{ post.title }}.</h1>
-            <h4><i class="icon-user"></i> <a
-                    href="{% url 'user_show' post.pub_author.pk '1' %}">{{ post.pub_author }}</a> <i
-                    class="icon-calendar"></i> {{ post.pub_date }}
-                <i class="icon-folder-open"></i>
-                {% if post.category %}
-                    <a href="{% url 'category_show' post.category.pk '1' %}"> {{ post.category.name }}</a>
-                {% else %}
-                    <a href="{% url 'category_show' 0 '1' %}">未分类</a>
-                {% endif %}
-                <i class="icon-eye-open"></i> {{ post.view_count }}
-            {% if post.comment_count == 0 %}
-                <i class="icon-comment-alt"></i> <span id="comment_count">{{ post.comment_count }}</span>
-            {% else %}
-                <i class="icon-comment"></i> <span id="comment_count">{{ post.comment_count }}</span>
-            {% endif %}
-                {#            {% print request.session.user %}#}
-                {% load likearticleship_tags %}
-                {% if request.session.user.pk not in post.likearticleship_set.all|pk_list %}
-                    <a href="javascript:void (0);" id="{{ post.pk }}" class="likearticle"> <i
-                            class="icon-heart-empty"></i></a> <span id="like_count">{{ post.like_count }}</span>
-            {% else %}
-                    <a href="javascript:void (0);" id="{{ post.pk }}" class="likearticle"> <i
-                            class="icon-heart red"></i> </a>
-                <span id="like_count">{{ post.like_count }}</span>
-            {% endif %}
-            </h4>
 
             <p style=word-wrap:break-word;>
                 {{ post.content|safe }}
             </p>
-        {% load btn_tags %}
-            <h3><i class="icon-tags"></i> ：{% for tag in post.tag_set.all %}
-                 <a href="{% url 'tag_show' tag.pk '1' %}">
-                <button class="{{ 'label'|randomlabel }} label-lg label">{{ tag }}</button>
-                 </a>
-            {% endfor %}
-            </h3>
-            <div class="col-md-6 text-left">
-                {% if pre_post %}
-                    <a href="{% url 'show' pre_post.pk %}">
-                        <span aria-hidden="true"><< {{ pre_post }}</span>
-                    </a>
-                {% endif %}
-            </div>
+            {% load btn_tags %}
 
-
-            <div class="col-md-6 text-right">
-                {% if next_post %}
-                    <a href="{% url 'show' next_post.pk %}">
-                        <span aria-hidden="true">{{ next_post }} >></span>
-                    </a>
-                {% endif %}
-            </div>
 
         </div>
         <div class="space"></div>
@@ -123,157 +76,163 @@
 
         <div class="col-md-12">
             <div class="widget-box transparent" id="recent-box">
-                {% if post.comment_status == '1'  %}
-                <div class="widget-header">
-                    <h4 class="lighter smaller">
-                        <i class="icon-rss orange"></i>
-                        最近
-                    </h4>
+                {% if post.comment_status == '1' %}
+                    <div class="widget-header">
+                        <h4 class="lighter smaller">
+                            <i class="icon-rss orange"></i>
+                            最近
+                        </h4>
 
-                    <div class="widget-toolbar no-border">
-                        <ul class="nav nav-tabs" id="recent-tab">
+                        <div class="widget-toolbar no-border">
+                            <ul class="nav nav-tabs" id="recent-tab">
 
 
-                            <li class="active">
-                                <a data-toggle="tab" href="#comment-tab">评论</a>
-                            </li>
-                        </ul>
+                                <li class="active">
+                                    <a data-toggle="tab" href="#comment-tab">留言</a>
+                                </li>
+                            </ul>
+                        </div>
                     </div>
-                </div>
 
-                <div class="widget-body">
-                    <div class="widget-main padding-4">
-                        <div class="tab-content padding-8 overflow-visible">
+                    <div class="widget-body">
+                        <div class="widget-main padding-4">
+                            <div class="tab-content padding-8 overflow-visible">
 
 
-                            <div id="comment-tab" class="tab-pane active">
+                                <div id="comment-tab" class="tab-pane active">
 
-                                <div class="comments" id="comments">
+                                    <div class="comments" id="comments">
 
-                                    {% for comment in comments %}
-                                        <div class="itemdiv commentdiv">
-                                            <div class="user">
-                                                {% if comment.user %}
-                                                    <img alt="{{ comment.comment_author }}'s Avatar"
-                                                         src="{{ comment.user.avatar }}"/>
-                                                {% else %}
-                                                    <img alt="{{ comment.comment_author }}'s Avatar"
-                                                         src="/static/assets/avatars/avatar.png"/>
-                                                {% endif %}
-                                            </div>
-
-                                            <div class="body">
-                                                <div class="name">
+                                        {% for comment in comments %}
+                                            <div class="itemdiv commentdiv">
+                                                <div class="user">
                                                     {% if comment.user %}
-                                                        <a href="{% url 'user_show' comment.user.pk 1 %}">{{ comment.user.username }}</a>
+                                                        <img alt="{{ comment.comment_author }}'s Avatar"
+                                                             src="{{ comment.user.avatar }}"/>
                                                     {% else %}
-                                                        <a href="#">{{ comment.comment_author }}</a>
+                                                        <img alt="{{ comment.comment_author }}'s Avatar"
+                                                             src="/static/assets/avatars/avatar.png"/>
                                                     {% endif %}
                                                 </div>
 
-                                                <div class="time">
-                                                    {% if request.session.user.pk not in comment.likecommentship_set.all|pk_list %}
-                                                     <a href="javascript:void(0);" id="{{ comment.pk }}" class="likecomment"> <i class="icon-thumbs-up-alt"></i></a>
-                                                    <span id="like_comment_count">{{ comment.likecommentship_set.all.count }}</span>
-                                                    {% else %}
-                                                        <a href="javascript:void(0);" id="{{ comment.pk }}" class="likecomment"> <i class="icon-thumbs-up red"></i></a>
-                                                        <span id="like_comment_count">{{ comment.likecommentship_set.all.count }}</span>
-                                                    {% endif %}
-                                                    <i class="icon-time"></i>
-                                                    <span class="blue">{{ comment.comment_date }}</span>
-                                                </div>
+                                                <div class="body">
+                                                    <div class="name">
+                                                        {% if comment.user %}
+                                                            <a href="{% url 'user_show' comment.user.pk 1 %}">{{ comment.user.username }}</a>
+                                                        {% else %}
+                                                            <a href="#">{{ comment.comment_author }}</a>
+                                                        {% endif %}
+                                                    </div>
+                                                    {% load likearticleship_tags %}
+                                                    <div class="time">
+                                                        {% if request.session.user.pk not in comment.likecommentship_set.all|pk_list %}
+                                                            <a href="javascript:void(0);" id="{{ comment.pk }}"
+                                                               class="likecomment"> <i
+                                                                    class="icon-thumbs-up-alt"></i></a>
+                                                            <span id="like_comment_count">{{ comment.likecommentship_set.all.count }}</span>
+                                                        {% else %}
+                                                            <a href="javascript:void(0);" id="{{ comment.pk }}"
+                                                               class="likecomment"> <i
+                                                                    class="icon-thumbs-up red"></i></a>
+                                                            <span id="like_comment_count">{{ comment.likecommentship_set.all.count }}</span>
+                                                        {% endif %}
+                                                        <i class="icon-time"></i>
+                                                        <span class="blue">{{ comment.comment_date }}</span>
+                                                    </div>
 
-                                                <div class="text">
-                                                    <div class="space"></div>
-                                                    {% if comment.parent %}
-                                                        <div class="commentquote">
-                                                            <div class="name col-md-6 no-padding-left">
-                                                                @{{ comment.parent.comment_author }}
-                                                            </div>
-                                                            <div class="time col-md-6 text-right">
-                                                                <i class="icon-time"></i>
-                                                                <span class="blue">{{ comment.parent.comment_date }}</span>
-                                                            </div>
-                                                            <div class="text">
-                                                                <i class="icon-quote-left"></i>{{ comment.parent.comment }}
-                                                            </div>
-                                                        </div>
+                                                    <div class="text">
                                                         <div class="space"></div>
-                                                    {% endif %}
-                                                    {#                                                <i class="icon-quote-left"></i>#}
-                                                    {{ comment.comment|safe }}
-                                                    <div class="space"></div>
+                                                        {% if comment.parent %}
+                                                            <div class="commentquote">
+                                                                <div class="name col-md-6 no-padding-left">
+                                                                    @{{ comment.parent.comment_author }}
+                                                                </div>
+                                                                <div class="time col-md-6 text-right">
+                                                                    <i class="icon-time"></i>
+                                                                    <span class="blue">{{ comment.parent.comment_date }}</span>
+                                                                </div>
+                                                                <div class="text">
+                                                                    <i class="icon-quote-left"></i>{{ comment.parent.comment }}
+                                                                </div>
+                                                            </div>
+                                                            <div class="space"></div>
+                                                        {% endif %}
+                                                        {#                                                <i class="icon-quote-left"></i>#}
+                                                        {{ comment.comment|safe }}
+                                                        <div class="space"></div>
+                                                    </div>
+
+
                                                 </div>
-
-
-                                            </div>
-                                            <div class="tools">
-                                                <div class="action-buttons bigger-125">
-                                                    <a href="javascript:void(0);" id="{{ comment.pk }}" class="comment">
-                                                        <i class="icon-comments blue"></i>
-                                                    </a>
-                                                    {% if request.session.user.username == comment.comment_author or request.session.user.is_superuser %}
+                                                <div class="tools">
+                                                    <div class="action-buttons bigger-125">
                                                         <a href="javascript:void(0);" id="{{ comment.pk }}"
-                                                           class="comment_del">
-                                                        <i class="icon-trash red"></i>
-                                                    </a>
-                                                    {% endif %}
+                                                           class="comment">
+                                                            <i class="icon-comments blue"></i>
+                                                        </a>
+                                                        {% if request.session.user.username == comment.comment_author or request.session.user.is_superuser %}
+                                                            <a href="javascript:void(0);" id="{{ comment.pk }}"
+                                                               class="comment_del">
+                                                                <i class="icon-trash red"></i>
+                                                            </a>
+                                                        {% endif %}
+                                                    </div>
+
                                                 </div>
 
+
                                             </div>
+                                        {% endfor %}
 
-
-                                        </div>
-                                    {% endfor %}
-
-                                </div>
-
-                                <div class="hr hr8" id="commenthr"></div>
-
-                                <div class="col-md-12" id="divcomment">
-                                    <div class="center">
-                                        <i class="icon-comments-alt icon-2x green"></i>
-
-                                        &nbsp;<label class="control-label no-padding-left"
-                                                     for="form-field-textarea">发表评论</label>
                                     </div>
 
-                                    <form class="form-horizontal" role="form" id="commentForm"
-                                          action="{% url 'comment' %}"
-                                          method="post">
-                                        {% csrf_token %}
-                                        {% if not request.session.user %}
-                                            <div class="form-group">
-                                                <label class="col-sm-1 control-label no-padding-right"
-                                                       for="form-field-1"> 姓名：</label>
+                                    <div class="hr hr8" id="commenthr"></div>
 
-                                                <div class="col-sm-11">
-                                                    <input type="text" id="form-field-1" name="comment_author"
-                                                           placeholder="comment_author"
-                                                           class="col-xs-10 col-sm-5 align-left"/>
-                                                </div>
-                                            </div>
-                                            <div class="form-group">
-                                                <label class="col-sm-1 control-label no-padding-right"
-                                                       for="form-field-2"> 邮箱：</label>
+                                    <div class="col-md-12" id="divcomment">
+                                        <div class="center">
+                                            <i class="icon-comments-alt icon-2x green"></i>
 
-                                                <div class="col-sm-11">
-                                                    <input type="text" id="form-field-2" name="comment_author_email"
-                                                           placeholder="comment_author_email"
-                                                           class="col-xs-10 col-sm-5 align-left"/>
+                                            &nbsp;<label class="control-label no-padding-left"
+                                                         for="form-field-textarea">留言</label>
+                                        </div>
+
+                                        <form class="form-horizontal" role="form" id="commentForm"
+                                              action="{% url 'comment' %}"
+                                              method="post">
+                                            {% csrf_token %}
+                                            {% if not request.session.user %}
+                                                <div class="form-group">
+                                                    <label class="col-sm-1 control-label no-padding-right"
+                                                           for="form-field-1"> 姓名：</label>
+
+                                                    <div class="col-sm-11">
+                                                        <input type="text" id="form-field-1" name="comment_author"
+                                                               placeholder="comment_author"
+                                                               class="col-xs-10 col-sm-5 align-left"/>
+                                                    </div>
                                                 </div>
-                                            </div>
-                                        {% else %}
-                                            <input type="hidden" name="user" value="{{ request.session.user.pk }}">
-                                            <input type="hidden" name="comment_author"
-                                                   value="{{ request.session.user.username }}">
-                                            <input type="hidden" name="comment_author_email"
-                                                   value="{{ request.session.user.email }}">
-                                        {% endif %}
-                                        <textarea id="form-field-textarea" name="comment" class="form-control" rows="5"
-                                                  value=""></textarea>
-                                        <input type="hidden" name="article" value="{{ post.pk }}">
-                                        <input type="hidden" name="comment_author_ip" value="
+                                                <div class="form-group">
+                                                    <label class="col-sm-1 control-label no-padding-right"
+                                                           for="form-field-2"> 邮箱：</label>
+
+                                                    <div class="col-sm-11">
+                                                        <input type="text" id="form-field-2" name="comment_author_email"
+                                                               placeholder="comment_author_email"
+                                                               class="col-xs-10 col-sm-5 align-left"/>
+                                                    </div>
+                                                </div>
+                                            {% else %}
+                                                <input type="hidden" name="user" value="{{ request.session.user.pk }}">
+                                                <input type="hidden" name="comment_author"
+                                                       value="{{ request.session.user.username }}">
+                                                <input type="hidden" name="comment_author_email"
+                                                       value="{{ request.session.user.email }}">
+                                            {% endif %}
+                                            <textarea id="form-field-textarea" name="comment" class="form-control"
+                                                      rows="5"
+                                                      value=""></textarea>
+                                            <input type="hidden" name="article" value="{{ post.pk }}">
+                                            <input type="hidden" name="comment_author_ip" value="
                                     {% if not request.META.HTTP_X_FORWARDED_FOR %}
                                         {{ request.META.REMOTE_ADDR }}
                                     {% else %}
@@ -281,42 +240,24 @@
                                     {% endif %}
                                     ">
 
+                                            <div class="space"></div>
+                                            <div class="form-group" id="submitcomment">
+                                                <button class="btn btn-sm btn-danger" type="button" id="subcomm">
+                                                    <i class="icon-ok bigger-110"></i>
+                                                    留言
+                                                </button>
+                                            </div>
+                                        </form>
+
                                         <div class="space"></div>
-                                        <div class="form-group" id="submitcomment">
-                                            <button class="btn btn-sm btn-danger" type="button" id="subcomm">
-                                                <i class="icon-ok bigger-110"></i>
-                                                发表评论
-                                            </button>
-                                        </div>
-                                    </form>
 
-                                    <div class="space"></div>
+                                    </div>
 
+                                    <div class="hr hr-double hr8"></div>
                                 </div>
-
-                                <div class="hr hr-double hr8"></div>
                             </div>
-                        </div>
-                    </div><!-- /widget-main -->
-                </div><!-- /widget-body -->
-                {% elif post.comment_status == '2' %}
-                     <div class="widget-header">
-                    <h4 class="lighter smaller">
-                        <i class="icon-rss orange"></i>
-                        最近
-                    </h4>
-
-                    <div class="widget-toolbar no-border">
-                        <ul class="nav nav-tabs" id="recent-tab">
-
-
-                            <li class="active">
-                                <a data-toggle="tab" href="#comment-tab">评论关闭</a>
-                            </li>
-                        </ul>
-                    </div>
-                         <div class="space"></div>
-                </div>
+                        </div><!-- /widget-main -->
+                    </div><!-- /widget-body -->
                 {% endif %}
             </div><!-- /widget-box -->
         </div><!-- /span -->
@@ -356,7 +297,7 @@
                     "                                        <i class=\"icon-comments-alt icon-2x green\"></i>\n" +
                     "\n" +
                     "                                        &nbsp;<label class=\"control-label no-padding-left\"\n" +
-                    "                                                     for=\"form-field-textarea\">发表评论</label>\n" +
+                    "                                                     for=\"form-field-textarea\">留言</label>\n" +
                     "                                    </div>\n" +
                     "\n" +
                     "                                    <form class=\"form-horizontal\" role=\"form\" id=\"commentForm\"\n" +
@@ -418,11 +359,11 @@
                     "                                        <div class=\"form-group\" id=\"submitdiv\">\n" +
                     "                                            <button class=\"btn btn-sm btn-danger\" type=\"button\" id=\"submit\">\n" +
                     "                                                <i class=\"icon-ok bigger-110\"></i>\n" +
-                    "                                                发表评论\n" +
+                    "                                                留言\n" +
                     "                                            </button>\n" +
                     "                                            <button class=\"btn btn-sm btn-danger\" type=\"button\" id=\"cancel\">\n" +
                     "                                                <i class=\"icon-ok bigger-110\"></i>\n" +
-                    "                                                取消评论\n" +
+                    "                                                取消\n" +
                     "                                            </button>\n" +
                     "                                        </div>\n" +
                     "                                    </form>\n" +
@@ -455,7 +396,7 @@
                     "                                        <i class=\"icon-comments-alt icon-2x green\"></i>\n" +
                     "\n" +
                     "                                        &nbsp;<label class=\"control-label no-padding-left\"\n" +
-                    "                                                     for=\"form-field-textarea\">发表评论</label>\n" +
+                    "                                                     for=\"form-field-textarea\">留言</label>\n" +
                     "                                    </div>\n" +
                     "\n" +
                     "                                    <form class=\"form-horizontal\" role=\"form\" id=\"commentForm\"\n" +
@@ -517,7 +458,7 @@
                     "                                        <div class=\"form-group\" id=\"submitcomment\">\n" +
                     "                                            <button class=\"btn btn-sm btn-danger\" type=\"button\" id=\"subcomm2\">\n" +
                     "                                                <i class=\"icon-ok bigger-110\"></i>\n" +
-                    "                                                发表评论\n" +
+                    "                                                留言\n" +
                     "                                            </button>\n" +
 
                     "                                        </div>\n" +
@@ -571,92 +512,92 @@
                         {#alert('success');#}
                         var datas = eval(data);
                         var html = ""
-                        if (datas.comment_status == '2'){
+                        if (datas.comment_status == '2') {
                             html = '<div class="itemdiv commentdiv">\n' +
-                            '                                            <div class="user">\n' +
-                            '                                                    <img alt="' + datas.comment_author + '\'s Avatar"\n'
-                            +
-                            '                                                         src="' + datas.avatar + '"/>\n'
-                            +
-                            '                                            </div>\n' +
-                            '\n' +
-                            '                                            <div class="body">\n' +
-                            '                                                <div class="name">\n' +
-                            '                                                    <a href="#">' + datas.comment_author + '</a>\n' +
-                            '                                                </div>\n' +
+                                '                                            <div class="user">\n' +
+                                '                                                    <img alt="' + datas.comment_author + '\'s Avatar"\n'
+                                +
+                                '                                                         src="' + datas.avatar + '"/>\n'
+                                +
+                                '                                            </div>\n' +
+                                '\n' +
+                                '                                            <div class="body">\n' +
+                                '                                                <div class="name">\n' +
+                                '                                                    <a href="#">' + datas.comment_author + '</a>\n' +
+                                '                                                </div>\n' +
 
-                            '\n' +
-                            '                                                <div class="time">\n' +
-                            '                                                    <i class="icon-time"></i>\n' +
+                                '\n' +
+                                '                                                <div class="time">\n' +
+                                '                                                    <i class="icon-time"></i>\n' +
                                 '<span class="red">待审核</span>' +
-                            '                                                    <span class="blue">' + datas.comment_date + '</span>\n' +
-                            '                                                </div>\n' +
-                            '\n' +
-                            '                                                <div class="text">\n' +
-                            '<div class="space"></div>\n' +
+                                '                                                    <span class="blue">' + datas.comment_date + '</span>\n' +
+                                '                                                </div>\n' +
+                                '\n' +
+                                '                                                <div class="text">\n' +
+                                '<div class="space"></div>\n' +
 
-                            '                                                    {#                                                <i class="icon-quote-left"></i>#}\n' +
-                            '                                                    ' + datas.comment + '\n' +
-                            '<div class="space"></div>\n' +
-                            '\n' +
-                            '                                                </div>\n' +
-                            '                                            </div>\n' +
-                            '\n' +
-                            '                                            <div class="tools">\n' +
-                            '                                                <div class="action-buttons bigger-125">\n' +
-                            '                                                     <a href="javascript:void(0);" id="' + datas.id + '" class="comment">\n' +
-                            '                                                        <i class="icon-comments blue"></i>\n' +
-                            '                                                    </a>\n' +
-                            '\n' +
-                                 '                                                     <a href="javascript:void(0);" id="' + datas.id + '" class="comment_del">\n' +
-                            '                                                        <i class="icon-trash red"></i>\n' +
-                            '                                                    </a>\n' +
-                            '                                                </div>\n' +
-                            '                                            </div>\n' +
-                            '                                        </div>'
+                                '                                                    {#                                                <i class="icon-quote-left"></i>#}\n' +
+                                '                                                    ' + datas.comment + '\n' +
+                                '<div class="space"></div>\n' +
+                                '\n' +
+                                '                                                </div>\n' +
+                                '                                            </div>\n' +
+                                '\n' +
+                                '                                            <div class="tools">\n' +
+                                '                                                <div class="action-buttons bigger-125">\n' +
+                                '                                                     <a href="javascript:void(0);" id="' + datas.id + '" class="comment">\n' +
+                                '                                                        <i class="icon-comments blue"></i>\n' +
+                                '                                                    </a>\n' +
+                                '\n' +
+                                '                                                     <a href="javascript:void(0);" id="' + datas.id + '" class="comment_del">\n' +
+                                '                                                        <i class="icon-trash red"></i>\n' +
+                                '                                                    </a>\n' +
+                                '                                                </div>\n' +
+                                '                                            </div>\n' +
+                                '                                        </div>'
                         } else {
                             html = '<div class="itemdiv commentdiv">\n' +
-                            '                                            <div class="user">\n' +
-                            '                                                    <img alt="' + datas.comment_author + '\'s Avatar"\n'
-                            +
-                            '                                                         src="' + datas.avatar + '"/>\n'
-                            +
-                            '                                            </div>\n' +
-                            '\n' +
-                            '                                            <div class="body">\n' +
-                            '                                                <div class="name">\n' +
-                            '                                                    <a href="#">' + datas.comment_author + '</a>\n' +
-                            '                                                </div>\n' +
-                            '\n' +
-                            '                                                <div class="time">\n' +
-                                 '   <a href="javascript:void(0);" id="'+ datas.id +'" class="likecomment"> <i class="icon-thumbs-up-alt"></i></a>'+
-                                                   ' <span id="like_comment_count">0</span>'+
-                            '                                                    <i class="icon-time"></i>\n' +
-                            '                                                    <span class="blue">' + datas.comment_date + '</span>\n' +
-                            '                                                </div>\n' +
-                            '\n' +
-                            '                                                <div class="text">\n' +
-                            '<div class="space"></div>\n' +
+                                '                                            <div class="user">\n' +
+                                '                                                    <img alt="' + datas.comment_author + '\'s Avatar"\n'
+                                +
+                                '                                                         src="' + datas.avatar + '"/>\n'
+                                +
+                                '                                            </div>\n' +
+                                '\n' +
+                                '                                            <div class="body">\n' +
+                                '                                                <div class="name">\n' +
+                                '                                                    <a href="#">' + datas.comment_author + '</a>\n' +
+                                '                                                </div>\n' +
+                                '\n' +
+                                '                                                <div class="time">\n' +
+                                '   <a href="javascript:void(0);" id="' + datas.id + '" class="likecomment"> <i class="icon-thumbs-up-alt"></i></a>' +
+                                ' <span id="like_comment_count">0</span>' +
+                                '                                                    <i class="icon-time"></i>\n' +
+                                '                                                    <span class="blue">' + datas.comment_date + '</span>\n' +
+                                '                                                </div>\n' +
+                                '\n' +
+                                '                                                <div class="text">\n' +
+                                '<div class="space"></div>\n' +
 
-                            '                                                    {#                                                <i class="icon-quote-left"></i>#}\n' +
-                            '                                                    ' + datas.comment + '\n' +
-                            '<div class="space"></div>\n' +
-                            '\n' +
-                            '                                                </div>\n' +
-                            '                                            </div>\n' +
-                            '\n' +
-                            '                                            <div class="tools">\n' +
-                            '                                                <div class="action-buttons bigger-125">\n' +
-                            '                                                     <a href="javascript:void(0);" id="' + datas.id + '" class="comment">\n' +
-                            '                                                        <i class="icon-comments blue"></i>\n' +
-                            '                                                    </a>\n' +
-                            '\n' +
+                                '                                                    {#                                                <i class="icon-quote-left"></i>#}\n' +
+                                '                                                    ' + datas.comment + '\n' +
+                                '<div class="space"></div>\n' +
+                                '\n' +
+                                '                                                </div>\n' +
+                                '                                            </div>\n' +
+                                '\n' +
+                                '                                            <div class="tools">\n' +
+                                '                                                <div class="action-buttons bigger-125">\n' +
+                                '                                                     <a href="javascript:void(0);" id="' + datas.id + '" class="comment">\n' +
+                                '                                                        <i class="icon-comments blue"></i>\n' +
+                                '                                                    </a>\n' +
+                                '\n' +
                                 '                                                     <a href="javascript:void(0);" id="' + datas.id + '" class="comment_del">\n' +
-                            '                                                        <i class="icon-trash red"></i>\n' +
-                            '                                                    </a>\n' +
-                            '                                                </div>\n' +
-                            '                                            </div>\n' +
-                            '                                        </div>'
+                                '                                                        <i class="icon-trash red"></i>\n' +
+                                '                                                    </a>\n' +
+                                '                                                </div>\n' +
+                                '                                            </div>\n' +
+                                '                                        </div>'
                             $("span#comment_count").text(datas.comment_count)
                         }
                         $("#comments").prepend(html)
@@ -738,9 +679,9 @@
                                 '                                                        <i class="icon-comments blue"></i>\n' +
                                 '                                                    </a>\n' +
                                 '\n' +
-                                 '                                                     <a href="javascript:void(0);" id="' + datas.id + '" class="comment_del">\n' +
-                            '                                                        <i class="icon-trash red"></i>\n' +
-                            '                                                    </a>\n' +
+                                '                                                     <a href="javascript:void(0);" id="' + datas.id + '" class="comment_del">\n' +
+                                '                                                        <i class="icon-trash red"></i>\n' +
+                                '                                                    </a>\n' +
                                 '                                                </div>\n' +
                                 '                                            </div>\n' +
                                 '                                        </div>'
@@ -759,8 +700,8 @@
                                 '                                                </div>\n' +
                                 '\n' +
                                 '                                                <div class="time">\n' +
-                                    '   <a href="javascript:void(0);" id="'+ datas.id +'" class="likecomment"> <i class="icon-thumbs-up-alt"></i></a>'+
-                                                   ' <span id="like_comment_count">0</span>'+
+                                '   <a href="javascript:void(0);" id="' + datas.id + '" class="likecomment"> <i class="icon-thumbs-up-alt"></i></a>' +
+                                ' <span id="like_comment_count">0</span>' +
                                 '                                                    <i class="icon-time"></i>\n' +
                                 '                                                    <span class="blue">' + datas.comment_date + '</span>\n' +
                                 '                                                </div>\n' +
@@ -782,8 +723,8 @@
                                 '                                                    </a>\n' +
                                 '\n' +
                                 '                                                     <a href="javascript:void(0);" id="' + datas.id + '" class="comment_del">\n' +
-                            '                                                        <i class="icon-trash red"></i>\n' +
-                            '                                                    </a>\n' +
+                                '                                                        <i class="icon-trash red"></i>\n' +
+                                '                                                    </a>\n' +
                                 '                                                </div>\n' +
                                 '                                            </div>\n' +
                                 '                                        </div>'
@@ -831,30 +772,30 @@
                         {#alert('success');#}
                         var datas = eval(data);
                         var html = "";
-                        if (datas.comment_status == '2'){
+                        if (datas.comment_status == '2') {
                             html = '<div class="itemdiv commentdiv">\n' +
-                            '                                            <div class="user">\n' +
-                            '                                                    <img alt="' + datas.comment_author + '\'s Avatar"\n'
-                            +
-                            '                                                         src="' + datas.avatar + '"/>\n'
-                            +
-                            '                                            </div>\n' +
-                            '\n' +
-                            '                                            <div class="body">\n' +
-                            '                                                <div class="name">\n' +
-                            '                                                    <a href="#">' + datas.comment_author + '</a>\n' +
-                            '                                                </div>\n' +
+                                '                                            <div class="user">\n' +
+                                '                                                    <img alt="' + datas.comment_author + '\'s Avatar"\n'
+                                +
+                                '                                                         src="' + datas.avatar + '"/>\n'
+                                +
+                                '                                            </div>\n' +
+                                '\n' +
+                                '                                            <div class="body">\n' +
+                                '                                                <div class="name">\n' +
+                                '                                                    <a href="#">' + datas.comment_author + '</a>\n' +
+                                '                                                </div>\n' +
 
 
-                            '\n' +
-                            '                                                <div class="time">\n' +
-                            '                                                    <i class="icon-time"></i>\n' +
+                                '\n' +
+                                '                                                <div class="time">\n' +
+                                '                                                    <i class="icon-time"></i>\n' +
                                 '<span class="red">待审核</span>' +
-                            '                                                    <span class="blue">' + datas.comment_date + '</span>\n' +
-                            '                                                </div>\n' +
-                            '\n' +
-                            '                                                <div class="text">\n' +
-                            '<div class="space"></div>\n' +
+                                '                                                    <span class="blue">' + datas.comment_date + '</span>\n' +
+                                '                                                </div>\n' +
+                                '\n' +
+                                '                                                <div class="text">\n' +
+                                '<div class="space"></div>\n' +
 
                                 '                                                         <div class="commentquote">\n'
                                 +
@@ -878,48 +819,48 @@
                                 '                                                         <div class="space"></div>\n'
                                 +
 
-                            '                                                    {#                                                <i class="icon-quote-left"></i>#}\n' +
-                            '                                                    ' + datas.comment + '\n' +
-                            '<div class="space"></div>\n' +
-                            '\n' +
-                            '                                                </div>\n' +
-                            '                                            </div>\n' +
-                            '\n' +
-                            '                                            <div class="tools">\n' +
-                            '                                                <div class="action-buttons bigger-125">\n' +
-                            '                                                     <a href="javascript:void(0);" id="' + datas.id + '" class="comment">\n' +
-                            '                                                        <i class="icon-comments blue"></i>\n' +
-                            '                                                    </a>\n' +
-                            '\n' +
+                                '                                                    {#                                                <i class="icon-quote-left"></i>#}\n' +
+                                '                                                    ' + datas.comment + '\n' +
+                                '<div class="space"></div>\n' +
+                                '\n' +
+                                '                                                </div>\n' +
+                                '                                            </div>\n' +
+                                '\n' +
+                                '                                            <div class="tools">\n' +
+                                '                                                <div class="action-buttons bigger-125">\n' +
+                                '                                                     <a href="javascript:void(0);" id="' + datas.id + '" class="comment">\n' +
+                                '                                                        <i class="icon-comments blue"></i>\n' +
+                                '                                                    </a>\n' +
+                                '\n' +
                                 '                                                     <a href="javascript:void(0);" id="' + datas.id + '" class="comment_del">\n' +
-                            '                                                        <i class="icon-trash red"></i>\n' +
-                            '                                                    </a>\n' +
-                            '                                                </div>\n' +
-                            '                                            </div>\n' +
-                            '                                        </div>'
+                                '                                                        <i class="icon-trash red"></i>\n' +
+                                '                                                    </a>\n' +
+                                '                                                </div>\n' +
+                                '                                            </div>\n' +
+                                '                                        </div>'
                         } else {
                             html = '<div class="itemdiv commentdiv">\n' +
-                            '                                            <div class="user">\n' +
-                            '                                                    <img alt="' + datas.comment_author + '\'s Avatar"\n'
-                            +
-                            '                                                         src="' + datas.avatar + '"/>\n'
-                            +
-                            '                                            </div>\n' +
-                            '\n' +
-                            '                                            <div class="body">\n' +
-                            '                                                <div class="name">\n' +
-                            '                                                    <a href="#">' + datas.comment_author + '</a>\n' +
-                            '                                                </div>\n' +
-                            '\n' +
-                            '                                                <div class="time">\n' +
-                                    '   <a href="javascript:void(0);" id="'+ datas.id +'" class="likecomment"> <i class="icon-thumbs-up-alt"></i></a>'+
-                                                   ' <span id="like_comment_count">0</span>'+
-                            '                                                    <i class="icon-time"></i>\n' +
-                            '                                                    <span class="blue">' + datas.comment_date + '</span>\n' +
-                            '                                                </div>\n' +
-                            '\n' +
-                            '                                                <div class="text">\n' +
-                            '<div class="space"></div>\n' +
+                                '                                            <div class="user">\n' +
+                                '                                                    <img alt="' + datas.comment_author + '\'s Avatar"\n'
+                                +
+                                '                                                         src="' + datas.avatar + '"/>\n'
+                                +
+                                '                                            </div>\n' +
+                                '\n' +
+                                '                                            <div class="body">\n' +
+                                '                                                <div class="name">\n' +
+                                '                                                    <a href="#">' + datas.comment_author + '</a>\n' +
+                                '                                                </div>\n' +
+                                '\n' +
+                                '                                                <div class="time">\n' +
+                                '   <a href="javascript:void(0);" id="' + datas.id + '" class="likecomment"> <i class="icon-thumbs-up-alt"></i></a>' +
+                                ' <span id="like_comment_count">0</span>' +
+                                '                                                    <i class="icon-time"></i>\n' +
+                                '                                                    <span class="blue">' + datas.comment_date + '</span>\n' +
+                                '                                                </div>\n' +
+                                '\n' +
+                                '                                                <div class="text">\n' +
+                                '<div class="space"></div>\n' +
 
                                 '                                                         <div class="commentquote">\n'
                                 +
@@ -943,25 +884,25 @@
                                 '                                                         <div class="space"></div>\n'
                                 +
 
-                            '                                                    {#                                                <i class="icon-quote-left"></i>#}\n' +
-                            '                                                    ' + datas.comment + '\n' +
-                            '<div class="space"></div>\n' +
-                            '\n' +
-                            '                                                </div>\n' +
-                            '                                            </div>\n' +
-                            '\n' +
-                            '                                            <div class="tools">\n' +
-                            '                                                <div class="action-buttons bigger-125">\n' +
-                            '                                                     <a href="javascript:void(0);" id="' + datas.id + '" class="comment">\n' +
-                            '                                                        <i class="icon-comments blue"></i>\n' +
-                            '                                                    </a>\n' +
-                            '\n' +
+                                '                                                    {#                                                <i class="icon-quote-left"></i>#}\n' +
+                                '                                                    ' + datas.comment + '\n' +
+                                '<div class="space"></div>\n' +
+                                '\n' +
+                                '                                                </div>\n' +
+                                '                                            </div>\n' +
+                                '\n' +
+                                '                                            <div class="tools">\n' +
+                                '                                                <div class="action-buttons bigger-125">\n' +
+                                '                                                     <a href="javascript:void(0);" id="' + datas.id + '" class="comment">\n' +
+                                '                                                        <i class="icon-comments blue"></i>\n' +
+                                '                                                    </a>\n' +
+                                '\n' +
                                 '                                                     <a href="javascript:void(0);" id="' + datas.id + '" class="comment_del">\n' +
-                            '                                                        <i class="icon-trash red"></i>\n' +
-                            '                                                    </a>\n' +
-                            '                                                </div>\n' +
-                            '                                            </div>\n' +
-                            '                                        </div>'
+                                '                                                        <i class="icon-trash red"></i>\n' +
+                                '                                                    </a>\n' +
+                                '                                                </div>\n' +
+                                '                                            </div>\n' +
+                                '                                        </div>'
                             $("span#comment_count").text(datas.comment_count)
                         }
                         $("#comments").prepend(html)
@@ -993,7 +934,7 @@
                     success: function (result) {
                         if (result.result == 'success') {
                             alert(result.msg);
-                             tinymce.remove();
+                            tinymce.remove();
                             $("textarea").remove();
                             $("form").remove();
                             $("#divcomment").remove();
@@ -1003,7 +944,7 @@
                                 "                                        <i class=\"icon-comments-alt icon-2x green\"></i>\n" +
                                 "\n" +
                                 "                                        &nbsp;<label class=\"control-label no-padding-left\"\n" +
-                                "                                                     for=\"form-field-textarea\">发表评论</label>\n" +
+                                "                                                     for=\"form-field-textarea\">留言</label>\n" +
                                 "                                    </div>\n" +
                                 "\n" +
                                 "                                    <form class=\"form-horizontal\" role=\"form\" id=\"commentForm\"\n" +
@@ -1014,12 +955,14 @@
                                     "                                            <div class=\"form-group\">\n"+
                                     "                                                <label class=\"col-sm-2 control-label no-padding-left\"\n"
                                     +
-                                    "                                                       for=\"form-field-1\"> 姓名：</label>\n"+
+                                    "                                                       for=\"form-field-1\"> 姓名：</label>\n"
+                                    +
                                     "\n"+
                                     "                                                <div class=\"col-sm-10\">\n"+
                                     "                                                    <input type=\"text\" id=\"form-field-1\" name=\"comment_author\"\n"
                                     +
-                                    "                                                           placeholder=\"comment_author\"\n"+
+                                    "                                                           placeholder=\"comment_author\"\n"
+                                    +
                                     "                                                           class=\"col-xs-10 col-sm-5 align-left\"/>\n"
                                     +
                                     "                                                </div>\n"+
@@ -1027,7 +970,8 @@
                                     "                                            <div class=\"form-group\">\n"+
                                     "                                                <label class=\"col-sm-2 control-label no-padding-left\"\n"
                                     +
-                                    "                                                       for=\"form-field-2\"> 邮箱：</label>\n"+
+                                    "                                                       for=\"form-field-2\"> 邮箱：</label>\n"
+                                    +
                                     "\n"+
                                     "                                                <div class=\"col-sm-10\">\n"+
                                     "                                                    <input type=\"text\" id=\"form-field-2\" name=\"comment_author_email\"\n"
@@ -1041,7 +985,8 @@
                                     "                                        {% else %}\n"+
                                     "                                            <input type=\"hidden\" name=\"user\" value=\"{{ request.session.user.pk }}\">\n"
                                     +
-                                    "                                            <input type=\"hidden\" name=\"comment_author\"\n"+
+                                    "                                            <input type=\"hidden\" name=\"comment_author\"\n"
+                                    +
                                     "                                                   value=\"{{ request.session.user.username }}\">\n"
                                     +
                                     "                                            <input type=\"hidden\" name=\"comment_author_email\"\n"
@@ -1065,7 +1010,7 @@
                                 "                                        <div class=\"form-group\" id=\"submitcomment\">\n" +
                                 "                                            <button class=\"btn btn-sm btn-danger\" type=\"button\" id=\"subcomm2\">\n" +
                                 "                                                <i class=\"icon-ok bigger-110\"></i>\n" +
-                                "                                                发表评论\n" +
+                                "                                                留言\n" +
                                 "                                            </button>\n" +
 
                                 "                                        </div>\n" +
@@ -1091,8 +1036,8 @@
 
                             $('span#comment_count').text(result.comment_count)
                         } else {
-                            if(!result.result)
-                                alert("非注册用户不能自行删除评论")
+                            if (!result.result)
+                                alert("非注册用户不能自行删除留言")
                             else {
                                 alert(result.msg)
                             }
@@ -1141,7 +1086,7 @@
                 })
             })
 
-         $("div#comment-tab").on("click", ".likecomment", function () {
+            $("div#comment-tab").on("click", ".likecomment", function () {
                 var islogin = null
                 {% if request.session.user.pk %}
                     islogin = {{ request.session.user.pk }}

@@ -33,11 +33,11 @@ class PostForm(forms.Form):
     content = forms.CharField(widget=forms.Textarea, required=False)
     # url_slug = forms.CharField(max_length=80)
     pub_author = forms.IntegerField(required=True)
-    article_status = forms.CharField(max_length=1, required=True)
+    article_status = forms.CharField(max_length=1, required=False)
     comment_status = forms.CharField(max_length=1, required=False)
     article_type = forms.CharField(max_length=30)
     # article_mime_type = forms.CharField(max_length=30)
-    category = forms.IntegerField(required=True)
+    category = forms.IntegerField(required=False)
     tags = forms.CharField(required=False)
     # parent = forms.IntegerField(required=False)
 

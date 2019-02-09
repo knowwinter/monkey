@@ -95,7 +95,8 @@ def logout_view(req):
     auth.logout(req)
     return redirect('/')
 
-@login_required(login_url='/login')
+
+@login_required(login_url='/login.html')
 def index_view(req):
     context = {}
     context['sitemeta'] = settings.SITEMETA
@@ -105,7 +106,7 @@ def index_view(req):
 
 
 @permission_required('das.access_dashboard')
-@login_required(login_url='/login')
+@login_required(login_url='/login.html')
 def category_view(req, pindex):
     context = {}
     context['active'] = 'category'
@@ -149,8 +150,8 @@ def category_view(req, pindex):
     return render(req, 'das/category.html', context)
 
 
-@permission_required('das.access_dashboard', login_url='/login')
-@login_required(login_url='/login')
+@permission_required('das.access_dashboard', login_url='/login.html')
+@login_required(login_url='/login.html')
 def category_del(req, pindex, cate_id):
     context = {}
     context['sitemeta'] = settings.SITEMETA
@@ -166,8 +167,8 @@ def category_del(req, pindex, cate_id):
     return redirect('/das/category/' + pindex, context)
 
 
-@permission_required('das.access_dashboard', login_url='/login')
-@login_required(login_url='/login')
+@permission_required('das.access_dashboard', login_url='/login.html')
+@login_required(login_url='/login.html')
 def category_modify(req, cate_id):
     context = {}
     context['sitemeta'] = settings.SITEMETA
@@ -210,8 +211,8 @@ def category_modify(req, cate_id):
     return render(req, 'das/cate-modify.html', context)
 
 
-@permission_required('das.access_dashboard', login_url='/login')
-@login_required(login_url='/login')
+@permission_required('das.access_dashboard', login_url='/login.html')
+@login_required(login_url='/login.html')
 def tag_view(req, pindex):
     context = {}
     context['sitemeta'] = settings.SITEMETA
@@ -244,7 +245,7 @@ def tag_view(req, pindex):
     return render(req, 'das/tag.html', context)
 
 
-@login_required(login_url='/login')
+@login_required(login_url='/login.html')
 def json_get_tags(req):
     tags = Tag.objects.all()
     tag_list = []
@@ -254,8 +255,8 @@ def json_get_tags(req):
     return HttpResponse(json.dumps(tag_list), content_type="application/json")
 
 
-@permission_required('das.access_dashboard', login_url='/login')
-@login_required(login_url='/login')
+@permission_required('das.access_dashboard', login_url='/login.html')
+@login_required(login_url='/login.html')
 def tag_del(req, pindex, tag_id):
     context = {}
     context['sitemeta'] = settings.SITEMETA
@@ -271,8 +272,8 @@ def tag_del(req, pindex, tag_id):
     return redirect('/das/tag/' + pindex, context)
 
 
-@permission_required('das.access_dashboard', login_url='/login')
-@login_required(login_url='/login')
+@permission_required('das.access_dashboard', login_url='/login.html')
+@login_required(login_url='/login.html')
 def tag_modify(req, tag_id):
     context = {}
     context['sitemeta'] = settings.SITEMETA
@@ -304,7 +305,7 @@ def tag_modify(req, tag_id):
     return render(req, 'das/tag-modify.html', context)
 
 
-@login_required(login_url='/login')
+@login_required(login_url='/login.html')
 def post_new_view(req):
     context = {}
     context['sitemeta'] = settings.SITEMETA
@@ -396,7 +397,7 @@ def post_new_view(req):
     return render(req, 'das/post-new.html', context)
 
 
-@login_required(login_url='/login')
+@login_required(login_url='/login.html')
 def post_modify(req, article_id):
     context = {}
     context['sitemeta'] = settings.SITEMETA
@@ -484,7 +485,7 @@ def post_modify(req, article_id):
     return render(req, 'das/post-modify.html', context)
 
 
-@login_required(login_url='/login')
+@login_required(login_url='/login.html')
 def post_del(req, pindex, article_id, article_status):
     context = {}
     context['sitemeta'] = settings.SITEMETA
@@ -503,7 +504,7 @@ def post_del(req, pindex, article_id, article_status):
     return redirect('/das/post/list/' + pindex + '/' + article_status, context)
 
 
-@login_required(login_url='/login')
+@login_required(login_url='/login.html')
 def post_revoke(req, pindex, article_id, article_status):
     context = {}
     context['sitemeta'] = settings.SITEMETA
@@ -523,7 +524,7 @@ def post_revoke(req, pindex, article_id, article_status):
     return redirect('/das/post/list/' + pindex + '/' + article_status, context)
 
 
-@login_required(login_url='/login')
+@login_required(login_url='/login.html')
 def post_view(req, pindex, article_status):
     context = {}
     context['sitemeta'] = settings.SITEMETA
@@ -537,14 +538,15 @@ def post_view(req, pindex, article_status):
     user = req.session.get('user')
     if user.is_superuser or user.has_perm('das.access_dashboard'):
         if article_status == '0':
-            articles = Article.objects.all().order_by("-pub_date")
+            articles = Article.objects.filter(article_type='post').order_by("-pub_date")
         else:
-            articles = Article.objects.filter(article_status=article_status).order_by("-pub_date")
+            articles = Article.objects.filter(article_status=article_status, article_type='post').order_by("-pub_date")
     else:
         if article_status == '0':
-            articles = Article.objects.filter(pub_author=user).order_by("-pub_date")
+            articles = Article.objects.filter(pub_author=user, article_type='post').order_by("-pub_date")
         else:
-            articles = Article.objects.filter(pub_author=user, article_status=article_status).order_by("-pub_date")
+            articles = Article.objects.filter(pub_author=user, article_status=article_status,
+                                              article_type='post').order_by("-pub_date")
     paginator = Paginator(articles, 10)
     if pindex == '':
         pindex = '1'
@@ -559,13 +561,13 @@ def post_view(req, pindex, article_status):
     return render(req, 'das/posts-list.html', context)
 
 
-@permission_required('das.access_dashboard', login_url='/login')
-@login_required(login_url='/login')
+@permission_required('das.access_all', login_url='/login.html')
+@login_required(login_url='/login.html')
 def page_view(req, pindex):
     context = {}
     context['sitemeta'] = settings.SITEMETA
     context['active'] = 'page_all'
-    articles = Article.objects.get(article_type='page')
+    articles = Article.objects.filter(article_type='page').order_by("-pub_date")
     paginator = Paginator(articles, 10)
     if pindex == '':
         pindex = '1'
@@ -576,11 +578,11 @@ def page_view(req, pindex):
         page = paginator.page(int(pindex))
     context['pages'] = page
     context['post'] = articles
-    return render(req, 'das/page.html', context)
+    return render(req, 'das/pages-list.html', context)
 
 
-@permission_required('das.access_dashboard', login_url='/login')
-@login_required(login_url='/login')
+@permission_required('das.access_all', login_url='/login.html')
+@login_required(login_url='/login.html')
 def page_new_view(req):
     context = {}
     context['sitemeta'] = settings.SITEMETA
@@ -588,49 +590,75 @@ def page_new_view(req):
     if req.method == "POST":
         form = PostForm(req.POST)
         if form.is_valid():
+            postIsExist = None
             title = form.cleaned_data['title']
+            try:
+                postIsExist = Article.objects.get(title=title)
+            except:
+                pass
+            if postIsExist:
+                context['msg'] = '页面标题重名，请更换标题'
+                return render(req, 'das/msg.html', context)
+
             content = form.cleaned_data['content']
             pub_author = User.objects.get(pk=form.cleaned_data['pub_author'])
-            article_status = form.cleaned_data['article_status']
-            comment_status = form.cleaned_data['comment_status']
-            article_type = form.cleaned_data['article_type']
-            article_mime_type = form.cleaned_data['article_mime_type']
+            article_status = 1
+            if form.cleaned_data['comment_status'] == '':
+                comment_status = '2'
+            else:
+                comment_status = form.cleaned_data['comment_status']
+            article_type = 'page'
+            # article_mime_type = form.cleaned_data['article_mime_type']
 
-            parent = None
+            # parent = None
 
-            category = None
-            # tags = form.cleaned_data['tags']
 
-            guid = '/page/' + title
             post = Article.objects.create(title=title, content=content, pub_author=pub_author,
                                           article_status=article_status, comment_status=comment_status,
-                                          article_type=article_type, article_mime_type=article_mime_type,
-                                          category=category, parent=parent, guid=guid)
+                                          article_type=article_type)
+            post.guid = '/page/' + str(post.pk)
             post.save()
+            # post = Article.objects.get(title=title)
+            # post.guid = '/p/' + post.pk
+            # post.save()
 
+            pattern = 'img src="(.*?)"'
+            imgtmp = parseContent(post.content, pattern)
+            if imgtmp:
+                for file_url in imgtmp:
+                    try:
+                        media = Media.objects.get(file_url=file_url)
+                        mediaship = Mediaship.objects.create(media=media, article=post)
+                        mediaship.save()
+                    except:
+                        pass
 
+            pattern_2 = 'a href="(.*?)"'
+            attachmenttmp = parseContent(post.content, pattern_2)
+            if attachmenttmp:
+                for file_url in attachmenttmp:
+                    try:
+                        media = Media.objects.get(file_url=file_url)
+                        mediaship = Mediaship.objects.create(media=media, article=post)
+                        mediaship.save()
+                    except:
+                        pass
 
-
-            if article_status == '2':
-                context['msg'] = '文章草稿保存成功'
-            else:
-                context['msg'] = "文章发表成功"
+            context['msg'] = "页面创建成功"
+            return redirect("/das/page/list/1", context)
         else:
             context['msg'] = "表单错误"
             return render(req, 'das/msg.html', context)
-    # nodes = Category.objects.get_queryset()
-    # context['nodes'] = nodes
-    # allTags = Tag.objects.all()
-    # context['tags'] = allTags
+
     return render(req, 'das/page-new.html', context)
 
 
-@permission_required('das.access_dashboard', login_url='/login')
-@login_required(login_url='/login')
+@permission_required('das.access_all', login_url='/login.html')
+@login_required(login_url='/login.html')
 def page_modify(req, article_id):
     context = {}
     context['sitemeta'] = settings.SITEMETA
-    context['active'] = 'page_new'
+    context['active'] = 'page_all'
     post = Article.objects.get(pk=article_id, article_type='page')
     if not post:
         context['msg'] = '页面不存在'
@@ -640,20 +668,44 @@ def page_modify(req, article_id):
         if form.is_valid():
             title = form.cleaned_data['title']
             content = form.cleaned_data['content']
-            article_status = form.cleaned_data['article_status']
+            article_status = 1
             comment_status = form.cleaned_data['comment_status']
 
             post.title = title
             post.content = content
             post.article_status = article_status
             post.comment_status = comment_status
-
+            post.media_set.clear()
             post.save()
-            if article_status == '2':
-                context['msg'] = '文章草稿保存成功'
-            else:
-                context['msg'] = "文章发表成功"
-            return redirect('/das/page/', context)
+
+            # post_tags = Tagship.objects.get(article=post)
+            # for post_tag in post_tags:
+            #     post_tag.delete()
+
+            pattern = 'img src="(.*?)"'
+            imgtmp = parseContent(post.content, pattern)
+            if imgtmp:
+                for file_url in imgtmp:
+                    try:
+                        media = Media.objects.get(file_url=file_url)
+                        mediaship = Mediaship.objects.create(media=media, article=post)
+                        mediaship.save()
+                    except:
+                        pass
+
+            pattern_2 = 'a href="(.*?)"'
+            attachmenttmp = parseContent(post.content, pattern_2)
+            if attachmenttmp:
+                for file_url in attachmenttmp:
+                    try:
+                        media = Media.objects.get(file_url=file_url)
+                        mediaship = Mediaship.objects.create(media=media, article=post)
+                        mediaship.save()
+                    except:
+                        pass
+
+            context['msg'] = "页面修改成功"
+            return redirect('/das/page/list/1', context)
         else:
             context['msg'] = "表单错误"
             return render(req, 'das/msg.html', context)
@@ -661,8 +713,8 @@ def page_modify(req, article_id):
     return render(req, 'das/page-modify.html', context)
 
 
-@permission_required('das.access_dashboard', login_url='/login')
-@login_required(login_url='/login')
+@permission_required('das.access_all', login_url='/login.html')
+@login_required(login_url='/login.html')
 def page_del(req, pindex, article_id):
     context = {}
     context['sitemeta'] = settings.SITEMETA
@@ -673,11 +725,10 @@ def page_del(req, pindex, article_id):
         return render(req, 'das/msg.html', context)
     post.delete()
     context['msg'] = '删除成功'
+    return redirect('/das/page/list/' + pindex, context)
 
-    return redirect('/das/page/' + pindex, context)
 
-
-# @login_required(login_url='/login')
+# @login_required(login_url='/login.html')
 # def media_view(req, pindex):
 #     context = {}
 #     articles = Article.objects.get(article_type='attachment')
@@ -695,7 +746,7 @@ def page_del(req, pindex, article_id):
 #     return render(req, 'das/attachment.html', context)
 #
 #
-# @login_required(login_url='/login')
+# @login_required(login_url='/login.html')
 # def media_new_page(req):
 #     context = {}
 #     if req.method == "POST":
@@ -734,7 +785,7 @@ def page_del(req, pindex, article_id):
 #     # context['tags'] = allTags
 #     return render(req, 'das/attachment-new.html', context)
 
-# @login_required(login_url='/login')
+# @login_required(login_url='/login.html')
 def upload(req, user_id):
     ret = {"error": True, "path": ""}
     if req.method == "POST":
@@ -746,7 +797,7 @@ def upload(req, user_id):
     return HttpResponse(json.dumps(ret), content_type="application/json")  # 此处简单返回一个成功的消息，在实际应用中可以返回到指定的页面中
 
 
-# @login_required(login_url='/login')
+# @login_required(login_url='/login.html')
 def handle_upload_file(file, filename, schema, host, uploadtype, user_id, description, alt):
     m = hashlib.md5()
     m.update(bytes(str(time.time()).encode('utf8')))
@@ -894,7 +945,7 @@ def comment_show(req, pindex, comment_status):
     return render(req, 'das/comment-show.html', context)
 
 
-@permission_required('das.access_dashboard', login_url='/login')
+@permission_required('das.access_dashboard', login_url='/login.html')
 @login_required(login_url="/login")
 def comment_audit(req, comment_id, oper):
     context = {}
@@ -992,7 +1043,7 @@ def like_comment(req, comment_id, user_id):
         return HttpResponse(json.dumps(context), content_type="application/json")
 
 
-@permission_required('das.access_all', login_url='/login')
+@permission_required('das.access_all', login_url='/login.html')
 @login_required(login_url="/login")
 def set_site(req):
     context = {}
@@ -1332,8 +1383,8 @@ def media_new_view(req):
 #         return render(req, 'das/msg.html', context)
 #     return render(req, 'das/groups-list.html', context)
 
-@permission_required('das.access_dashboard', login_url='/login')
-@login_required(login_url='/login')
+@permission_required('das.access_dashboard', login_url='/login.html')
+@login_required(login_url='/login.html')
 def user_view(req, pindex, status):
     context = {}
     context['sitemeta'] = settings.SITEMETA
@@ -1365,8 +1416,8 @@ def user_view(req, pindex, status):
     return render(req, 'das/users-list.html', context)
 
 
-@permission_required('das.access_dashboard', login_url='/login')
-@login_required(login_url='/login')
+@permission_required('das.access_dashboard', login_url='/login.html')
+@login_required(login_url='/login.html')
 def user_add_view(req):
     context = {}
     context['sitemeta'] = settings.SITEMETA
@@ -1411,8 +1462,8 @@ def user_add_view(req):
     return render(req, 'das/user-add.html', context)
 
 
-@permission_required('das.access_dashboard', login_url='/login')
-@login_required(login_url='/login')
+@permission_required('das.access_dashboard', login_url='/login.html')
+@login_required(login_url='/login.html')
 def user_del_view(req, user_id):
     context = {}
     context['active'] = 'user_mgr'
@@ -1442,8 +1493,8 @@ def user_del_view(req, user_id):
         return HttpResponse(json.dumps(context), content_type="application/json")
 
 
-@permission_required('das.access_dashboard', login_url='/login')
-@login_required(login_url='/login')
+@permission_required('das.access_dashboard', login_url='/login.html')
+@login_required(login_url='/login.html')
 def user_modify_view(req, user_id):
     context = {}
     context['sitemeta'] = settings.SITEMETA
@@ -1505,8 +1556,8 @@ def user_modify_view(req, user_id):
     return render(req, 'das/user-modify.html', context)
 
 
-@permission_required('das.access_dashboard', login_url='/login')
-@login_required(login_url='/login')
+@permission_required('das.access_dashboard', login_url='/login.html')
+@login_required(login_url='/login.html')
 def user_enable_disable(req, user_id):
     user = User.objects.get(pk=user_id)
     oper_user = req.session.get('user')
@@ -1527,7 +1578,7 @@ def user_enable_disable(req, user_id):
     return HttpResponse(json.dumps(ret), content_type="application/json")
 
 
-@login_required(login_url='/login')
+@login_required(login_url='/login.html')
 def user_profile(req):
     context = {}
     context['sitemeta'] = settings.SITEMETA
@@ -1578,8 +1629,8 @@ def find_user(req, username_or_email_or_telephone):
     return HttpResponse(json.dumps(ret), content_type="application/json")
 
 
-@permission_required('das.access_dashboard', login_url='/login')
-@login_required(login_url='/login')
+@permission_required('das.access_dashboard', login_url='/login.html')
+@login_required(login_url='/login.html')
 def find_other_user(req, username, email_or_telephone):
     q = Q()
     q.connector = 'OR'

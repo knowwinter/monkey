@@ -45,5 +45,9 @@ urlpatterns = [
     # url(r'^group/modify/(\d+)', views.group_modify_view, name='group_modfy'),
     # url(r'^group/new/$', views.group_add_view, name='group_new'),
     url(r'^user/findother/(\w.*)/(\w.*)', views.find_other_user, name='find_other_user'),
+    url(r'^page/new/$', views.page_new_view, name='page_new'),
+    url(r'^page/list/(\d*)', views.page_view, name='page_list'),
+    url(r'^page/modify/(\d*)', views.page_modify, name='page_modify'),
+    url(r'^page/(\d+)/del/(\d*)', views.page_del, name='page_del'),
 
 ]

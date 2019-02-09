@@ -27,7 +27,7 @@ def index_view(req, pindex):
     if req.session.get('user'):
         context = {"user": req.session['user']}
 
-    posts = Article.objects.filter(article_status="1").order_by('-pub_date')
+    posts = Article.objects.filter(article_status="1", article_type='post').order_by('-pub_date')
 
     # for post in articles:
     #     post.content = post.content[:20]
@@ -53,8 +53,8 @@ def post_show(req, id):
     context = {}
     tags = Tag.objects.all()
     context['tags'] = tags
-    posts = Article.objects.filter(article_status="1").order_by('pub_date')
-    post = posts.get(pk=id)
+    posts = Article.objects.filter(article_status="1", article_type='post').order_by('pub_date')
+    post = posts.get(pk=id, article_type='post')
     post.view_count = post.view_count + 1
     post.comment_count = post.comment_set.filter(comment_status=1).count()
     post.like_count = post.likearticleship_set.count()
@@ -77,8 +77,8 @@ def post_preview(req, id):
     context = {}
     tags = Tag.objects.all()
     context['tags'] = tags
-    posts = Article.objects.filter(article_status="1").order_by('pub_date')
-    post = Article.objects.get(pk=id, article_status="2")
+    posts = Article.objects.filter(article_status="1", article_type='post').order_by('pub_date')
+    post = Article.objects.get(pk=id, article_status="2", article_type='post')
 
     post.comment_count = post.comment_set.filter(comment_status=1).count()
     post.like_count = post.likearticleship_set.count()
@@ -103,11 +103,11 @@ def category_show(req, cate_id, pindex):
     tags = Tag.objects.all()
     context['tags'] = tags
     if cate_id == '0':
-        posts = Article.objects.filter(category=None)
+        posts = Article.objects.filter(category=None, article_type='post')
     else:
         category = Category.objects.get(pk=cate_id)
         try:
-            posts = Article.objects.filter(category=category).order_by('-pub_date')
+            posts = Article.objects.filter(category=category, article_type='post').order_by('-pub_date')
         except:
             posts = None
             nodes = Category.objects.get_queryset()
@@ -140,7 +140,7 @@ def tag_show(req, tag_id, pindex):
     tags = Tag.objects.all()
     context['tags'] = tags
     try:
-        posts = Article.objects.filter(tag=tag).order_by('-pub_date')
+        posts = Article.objects.filter(tag=tag, article_type='post').order_by('-pub_date')
     except:
         posts = None
         nodes = Category.objects.get_queryset()
@@ -173,7 +173,7 @@ def user_show(req, user_id, pindex):
     tags = Tag.objects.all()
     context['tags'] = tags
     try:
-        posts = Article.objects.filter(pub_author=user).order_by('-pub_date')
+        posts = Article.objects.filter(pub_author=user, article_type='post').order_by('-pub_date')
     except:
         posts = None
         nodes = Category.objects.get_queryset()
@@ -201,3 +201,26 @@ def user_show(req, user_id, pindex):
 
 def get_favicon(req):
     return redirect(settings.SITEMETA.favicon)
+
+
+def page_show(req, url_slug):
+    context = {}
+    tags = Tag.objects.all()
+    context['tags'] = tags
+    post = Article.objects.get(url_slug=url_slug, article_type='page')
+    post.view_count = post.view_count + 1
+    if post.comment_status == '1':
+        post.comment_count = post.comment_set.filter(comment_status=1).count()
+        post.save(update_fields=['view_count', "comment_count"])
+        comments = Comment.objects.filter(article=post).filter(comment_status="1").order_by("-comment_date")
+        context['comments'] = comments
+    else:
+        post.save(update_fields=['view_count'])
+    post.content = post.content.replace("[!--more--]", "")
+
+    nodes = Category.objects.get_queryset()
+    context['post'] = post
+    context['nodes'] = nodes
+
+    context['sitemeta'] = settings.SITEMETA
+    return render(req, 'index/page-show.html', context)

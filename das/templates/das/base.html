@@ -446,6 +446,44 @@
                                 {% endif %}
 							</ul>
 						</li>
+                        {% if request.user.is_superuser %}
+                            {% if active == 'page_all' or active == 'page_new' %}
+                                <li class="active">
+                                    {% else %}
+                                <li>
+                            {% endif %}
+                        <a href="#" class="dropdown-toggle">
+                            <i class="icon-paper-clip"></i>
+                            <span class="menu-text"> 页面 </span>
+
+                            <b class="arrow icon-angle-down"></b>
+                        </a>
+
+                        <ul class="submenu">
+                            {% if active == 'page_all' %}
+                                <li class="active">
+                                    {% else %}
+                                <li>
+                            {% endif %}
+                            <a href="{% url 'page_list' 1 %}">
+                                <i class="icon-double-angle-right"></i>
+                                所有页面
+                            </a>
+                            </li>
+
+                            {% if active == 'page_new' %}
+                                <li class="active">
+                                    {% else %}
+                                <li>
+                            {% endif %}
+                            <a href="{% url 'page_new' %}">
+                                <i class="icon-double-angle-right"></i>
+                                创建页面
+                            </a>
+                            </li>
+                        </ul>
+                        </li>
+                        {% endif %}
 
                         {% if active == 'media_all' or active == 'media_new' %}
                             <li class="active">

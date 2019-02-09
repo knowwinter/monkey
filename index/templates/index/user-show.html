@@ -9,7 +9,7 @@
         {% if pages %}
             {% for p in pages %}
                 <div class="blog-post">
-                    <div class="col-md-8">><a href="{{ p.guid }}"> {{ p.title }}</a></div>
+                    <div class="col-md-8">><a href="{% url 'show' p.pk %}"> {{ p.title }}</a></div>
                     <div class="col-md-4"><i class="icon-time"></i> {{ p.pub_date }} &nbsp;<i
                             class="icon-eye-open"></i> {{ p.view_count }}</div>
                 </div>
