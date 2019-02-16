@@ -22,7 +22,7 @@ from common import *
 from django.contrib.auth.models import Group
 from django.contrib.auth.decorators import permission_required
 from django.contrib.auth.decorators import user_passes_test
-
+from django.forms import formset_factory
 
 # from django.http import HttpResponse, HttpRequest
 settings.SITEMETA = cache_sitemeta()
@@ -105,7 +105,7 @@ def index_view(req):
     return render(req, 'das/index.html', context)
 
 
-@permission_required('das.access_dashboard')
+@permission_required('das.access_dashboard', login_url='/login.html')
 @login_required(login_url='/login.html')
 def category_view(req, pindex):
     context = {}
@@ -1642,3 +1642,216 @@ def find_other_user(req, username, email_or_telephone):
     else:
         ret = {'result': 'false'}
     return HttpResponse(json.dumps(ret), content_type="application/json")
+
+
+@permission_required('das.access_all', login_url='/login.html')
+@login_required(login_url='/login.html')
+def menu_view(req):
+    context = {}
+    context['sitemeta'] = settings.SITEMETA
+    context['active'] = 'menu'
+    menus = Menu.objects.filter(menu_type='menu')
+    if req.method == 'POST':
+        if req.POST.get('menu_id') == '0':
+            menu = None
+        else:
+            menu = Menu.objects.get(pk=req.POST.get('menu_id'))
+    else:
+        if menus:
+            menu = menus[0]
+        else:
+            menu = None
+    pages = Article.objects.filter(article_type='page')
+    nodes = Category.objects.get_queryset()
+    tags = Tag.objects.all()
+    context['current_menu'] = menu
+    context['current_menu_option'] = menu.menu.order_by('option_level')
+    context['menus'] = menus
+    context['pages'] = pages
+    context['nodes'] = nodes
+    context['tags'] = tags
+    return render(req, 'das/menu.html', context)
+
+
+@permission_required('das.access_all', login_url='/login.html')
+@login_required(login_url='/login.html')
+def menu_add(req):
+    if req.method == 'POST':
+        form = MenuForm(req.POST)
+        if form.is_valid():
+            menu_name = form.cleaned_data['menu_name']
+            menu_type = form.cleaned_data['menu_type']
+            menu = Menu.objects.create(menu_name=menu_name, menu_type=menu_type)
+            menu.save()
+            ret = {'result': 'success', 'menu_name': menu.menu_name, 'menu_id': menu.pk}
+            return HttpResponse(json.dumps(ret), content_type="application/json")
+        else:
+            ret = {'result': 'failure', 'msg': '表单不合法'}
+            return HttpResponse(json.dumps(ret), content_type="application/json")
+    else:
+        ret = {'result': 'failure', 'msg': '非法请求'}
+        return HttpResponse(json.dumps(ret), content_type="application/json")
+
+
+@permission_required('das.access_all', login_url='/login.html')
+@login_required(login_url='/login.html')
+def menu_del(req, id):
+    context = {}
+    try:
+        menu = Menu.objects.get(pk=id)
+        menu.delete()
+        return redirect('/das/menu')
+    except:
+        context['msg'] = '菜单删除失败'
+        return render(req, 'das/msg.html', context)
+
+
+@permission_required('das.access_all', login_url='/login.html')
+@login_required(login_url='/login.html')
+def menu_modify(req, id):
+    try:
+        menu = Menu.objects.get(pk=id)
+        if req.method == 'POST':
+            form = MenuForm(req.POST)
+            if form.is_valid():
+                menu_name = form.cleaned_data['menu_name']
+                menu_type = form.cleaned_data['menu_type']
+                menu.menu_name = menu_name
+                menu.menu_type = menu_type
+                menu.save()
+                ret = {'result': 'success', 'msg': '菜单修改成功', 'menu_id': menu.pk, 'menu_name': menu.menu_name}
+                return HttpResponse(json.dumps(ret), content_type="application/json")
+            else:
+                ret = {'result': 'failure', 'msg': '表单不合法'}
+                return HttpResponse(json.dumps(ret), content_type="application/json")
+        else:
+            ret = {'result': 'failure', 'msg': '非法请求'}
+            return HttpResponse(json.dumps(ret), content_type="application/json")
+    except:
+        ret = {'result': 'failure', 'msg': '菜单不存在'}
+        return HttpResponse(json.dumps(ret), content_type="application/json")
+
+
+@permission_required('das.access_all', login_url='/login.html')
+@login_required(login_url='/login.html')
+def tool_view(req):
+    context = {}
+    context['sitemeta'] = settings.SITEMETA
+    context['active'] = 'tool'
+    menus = Menu.objects.filter(menu_type='tool')
+    menu_option_templates = Menu_option_template.objects.all()
+    context['menu_option_templates'] = menu_option_templates
+    context['menus'] = menus
+    return render(req, 'das/tool.html', context)
+
+
+@permission_required('das.access_all', login_url='/login.html')
+@login_required(login_url='/login.html')
+def menu_option_add(req):
+    context = {}
+    context['sitemeta'] = settings.SITEMETA
+    context['active'] = 'menu'
+    menus = Menu.objects.filter(menu_type='menu')
+    if req.method == 'POST':
+        form = MenuOptionForm(req.POST)
+        if form.is_valid():
+            option_name = form.cleaned_data['option_name']
+            # option_title = form.cleaned_data['option_title']
+            option_titles = req.POST.getlist('option_title')
+            option_icon = form.cleaned_data['option_icon']
+            # option_value = form.cleaned_data['option_value']
+            option_values = req.POST.getlist('option_value')
+            option_level = form.cleaned_data['option_level']
+            menu_id = form.cleaned_data['menu_id']
+            user_menu_id = form.cleaned_data['user_menu_id']
+            user_menu = None
+            if user_menu_id:
+                user_menu = Menu.objects.get(pk=user_menu_id)
+            menu = Menu.objects.get(pk=menu_id)
+
+            for index, value in enumerate(option_values):
+                if option_name == '自定义URL':
+                    option_value = value
+                else:
+                    option_value = req.scheme + "://" + req.get_host() + value
+                option_title = option_titles[index]
+                if menu.menu.all():
+                    option_level = menu.menu.order_by('-option_level')[0].option_level + 1
+                else:
+                    option_level = 1
+                menu_option = Menu_option.objects.create(option_name=option_name, option_title=option_title,
+                                                         option_value=option_value, option_icon=option_icon,
+                                                         option_level=option_level, menu=menu, user_menu=user_menu)
+                menu_option.save()
+            pages = Article.objects.filter(article_type='page')
+            nodes = Category.objects.get_queryset()
+            tags = Tag.objects.all()
+            context['current_menu'] = menu
+            context['current_menu_option'] = menu.menu.order_by('option_level')
+            context['menus'] = menus
+            context['pages'] = pages
+            context['nodes'] = nodes
+            context['tags'] = tags
+            return render(req, 'das/menu.html', context)
+
+            # ret = {'result': 'success', 'menu_option_id': menu_option.pk}
+            # return HttpResponse(json.dumps(ret), content_type="application/json")
+        else:
+            # ret = {'result': 'failure', 'msg': '表单不合法'}
+            # return HttpResponse(json.dumps(ret), content_type="application/json")
+            context['msg'] = '表单错误'
+            return render(req, 'das/msg.html', context)
+    else:
+        # ret = {'result': 'failure', 'msg': '请求不合法'}
+        # return HttpResponse(json.dumps(ret), content_type="application/json")
+        context['msg'] = '请求非法'
+        return render(req, 'das/msg.html', context)
+
+
+@permission_required('das.access_all', login_url='/login.html')
+@login_required(login_url='/login.html')
+def menu_option_modify(req, id):
+    menu_option = Menu_option.objects.get(pk=id)
+    if req.method == 'POST':
+        form = MenuOptionForm(req.POST)
+        if form.is_valid():
+            option_name = form.cleaned_data['option_name']
+            option_title = form.cleaned_data['option_title']
+            option_icon = form.cleaned_data['option_icon']
+            option_value = form.cleaned_data['option_value']
+            option_level = form.cleaned_data['option_level']
+            menu_id = form.cleaned_data['menu_id']
+            user_menu_id = form.cleaned_data['user_menu_id']
+            user_menu = None
+            if user_menu_id:
+                user_menu = Menu.objects.get(pk=user_menu_id)
+            menu = Menu.objects.get(pk=menu_id)
+            menu_option.option_name = option_name
+            menu_option.option_title = option_title
+            menu_option.option_icon = option_icon
+            menu_option.option_value = option_value
+            menu_option.option_level = option_level
+            menu_option.menu = menu
+            menu_option.user_menu = user_menu
+            menu_option.save()
+            ret = {'result': 'success', 'menu_option_id': menu_option.pk}
+            return HttpResponse(json.dumps(ret), content_type="application/json")
+        else:
+            ret = {'result': 'failure', 'msg': '表单不合法'}
+            return HttpResponse(json.dumps(ret), content_type="application/json")
+    else:
+        ret = {'result': 'failure', 'msg': '请求不合法'}
+        return HttpResponse(json.dumps(ret), content_type="application/json")
+
+
+@permission_required('das.access_all', login_url='/login.html')
+@login_required(login_url='/login.html')
+def menu_option_del(req, id):
+    menu_option = Menu_option.objects.get(pk=id)
+    if menu_option:
+        menu_option.delete()
+        ret = {'result': 'success', 'msg': '删除成功'}
+        return HttpResponse(json.dumps(ret), content_type="application/json")
+    else:
+        ret = {'result': 'failure', 'msg': '删除失败'}
+        return HttpResponse(json.dumps(ret), content_type="application/json")

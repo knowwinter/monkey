@@ -79,19 +79,19 @@
 
 {% block breadcrumb %}
     <li>
-        <a href="#">文章</a>
+        <a href="#">页面</a>
     </li>
     <li>
-        <a href="{% url 'post_list' 1 0 %}">所有文章</a>
+        <a href="{% url 'page_list' 1 %}">所有页面</a>
     </li>
-    <li class="active">修改标签</li>
+    <li class="active">编辑页面</li>
 {% endblock %}
 {% block page %}
     {% load mptt_tags %}
 
     <div class="page-content">
         <div class="page-header">
-            <h1>发表文章 </h1>
+            <h1>编辑页面 </h1>
         </div><!-- /.page-header -->
 
         <div class="row">

@@ -28,6 +28,10 @@ def index_view(req, pindex):
         context = {"user": req.session['user']}
 
     posts = Article.objects.filter(article_status="1", article_type='post').order_by('-pub_date')
+    hot_posts = Article.objects.filter(article_type='post', article_status='1').order_by('-view_count')[:5]
+    last_posts = posts[:5]
+    tools = Menu.objects.get(menu_name='默认右侧边栏', menu_type='tool')
+    context['tools'] = tools.menu.all()
 
     # for post in articles:
     #     post.content = post.content[:20]
@@ -45,8 +49,10 @@ def index_view(req, pindex):
     context['tags'] = tags
     context['pages'] = page
     context['nodes'] = nodes
-    print(settings.SITEMETA.head_background_img)
+    # print(settings.SITEMETA.head_background_img)
     context['sitemeta'] = settings.SITEMETA
+    context['hot_posts'] = hot_posts
+    context['last_posts'] = last_posts
     return render(req, 'index/index.html', context)
 
 def post_show(req, id):

@@ -101,3 +101,18 @@ class GroupForm(forms.Form):
 
 class UserStatusForm(forms.Form):
     user_status = forms.CharField(required=True)
+
+
+class MenuForm(forms.Form):
+    menu_name = forms.CharField(max_length=100, required=True)
+    menu_type = forms.CharField(max_length=20, required=True)
+
+
+class MenuOptionForm(forms.Form):
+    option_name = forms.CharField(max_length=100, required=True)
+    option_title = forms.CharField(max_length=30, required=False)
+    option_value = forms.CharField(max_length=2000, required=False)
+    option_icon = forms.CharField(max_length=30, required=False)
+    menu_id = forms.IntegerField(required=True)
+    user_menu_id = forms.IntegerField(required=False)
+    option_level = forms.IntegerField(required=False)

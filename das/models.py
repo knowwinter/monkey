@@ -202,3 +202,23 @@ class AccessControl(models.Model):
             ('access_all', u'超级管理员'),
             ('access_member', u'普通会员'),
         )
+
+
+class Menu(models.Model):
+    menu_name = models.CharField(max_length=100, null=False, unique=True)
+    menu_type = models.CharField(max_length=20, null=False)
+
+
+class Menu_option_template(models.Model):
+    option_name = models.CharField(max_length=100, null=False)
+    option_value = models.CharField(max_length=2000, null=True)
+
+
+class Menu_option(models.Model):
+    option_name = models.CharField(max_length=100, null=False)
+    option_title = models.CharField(max_length=30, null=True)
+    option_value = models.CharField(max_length=2000, null=True)
+    option_icon = models.CharField(max_length=30, null=True)
+    menu = models.ForeignKey(Menu, related_name='menu')
+    user_menu = models.ForeignKey(Menu, related_name='user_menu', null=True, default=None)
+    option_level = models.IntegerField(default=1)

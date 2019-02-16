@@ -1,0 +1,15 @@
+<div class="widget-box  widget">
+    <div class="widget-header"><span class="icon"><i class="{{ option_icon }}"></i></span>| {{ option_title }}</div>
+    <div class="widget-body padding-4">
+        <div class="widget-main">
+
+
+            {% for hot_post in hot_posts %}
+                <li><a href="{% url 'show' hot_post.pk %}" target="_blank">{{ hot_post.title }}</a></li>
+            {% endfor %}
+
+
+        </div>
+    </div>
+
+</div>

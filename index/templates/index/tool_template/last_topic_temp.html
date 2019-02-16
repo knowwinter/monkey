@@ -1,0 +1,15 @@
+<div class="widget-box  widget">
+    <div class="widget-header"><span class="icon"><i class="{{ option_icon }}"></i></span>| {{ option_title }}</div>
+    <div class="widget-body padding-4">
+        <div class="widget-main">
+
+
+            {% for last_post in last_posts %}
+                <li><a href="{% url 'show' last_post.pk %}" target="_blank">{{ last_post.title }}</a></li>
+            {% endfor %}
+
+
+        </div>
+    </div>
+
+</div>

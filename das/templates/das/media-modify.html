@@ -6,12 +6,24 @@
     <li>
         <a href="#">多媒体</a>
     </li>
+    <li>
+        <a href="{% url 'media_view' 1 %}">媒体库</a>
+    </li>
     <li class="active">编辑媒体</li>
 {% endblock %}
 
 {% block page %}
     {% load mptt_tags %}
     {% load comm_tags %}
+    <div class="page-header">
+        <h1>
+            多媒体
+            <small>
+                <i class="icon-double-angle-right"></i>
+                修改
+            </small>
+        </h1>
+    </div><!-- /.page-header -->
         <div class="row  align-center">
             <div class="col-xs-12">
                 <!-- PAGE CONTENT BEGINS -->

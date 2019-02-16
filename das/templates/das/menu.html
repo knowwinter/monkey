@@ -1,0 +1,481 @@
+{% extends "das/base.html" %}
+{% load staticfiles %}
+{% load static %}
+{% block header %}
+    <script type="text/javascript" src="{% static 'tinymce/plugins/jquery-form.js' %}"></script>
+{% endblock %}
+
+{% block breadcrumb %}
+    <li>
+        <a href="#">设置</a>
+    </li>
+    <li class="active">菜单</li>
+{% endblock %}
+{% block page %}
+    {% load mptt_tags %}
+    <div class="page-header">
+        <h1>
+            设置
+            <small>
+                <i class="icon-double-angle-right"></i>
+                菜单
+            </small>
+        </h1>
+    </div><!-- /.page-header -->
+    <div class="page-header">
+
+
+        <div class="form-group">
+
+            <form class="form-horizontal" role="form" id="menu_form"
+                  action="{% url 'menu' %}"
+                  method="post">
+                {% csrf_token %}
+
+                <div class="col-sm-5">
+                    <span class="col-xs-3 align-center text-center">选择要编辑的菜单</span>
+                    <select class="col-xs-12 col-sm-4" name="menu_id" id="menu_id">
+                        {% if not menus %}
+                            <option value="0"
+                                    selected="selected"
+                            >无
+                            </option>
+                        {% endif %}
+                        {% for menu in menus %}
+                            <option value="{{ menu.pk }}"
+                                    {% if menu.pk == current_menu.pk %}
+                                    selected="selected"
+                                    {% endif %}
+                            >{{ menu.menu_name }}
+                            </option>
+                        {% endfor %}
+                    </select>
+
+                    &nbsp;&nbsp;&nbsp;&nbsp;<button class="btn btn-sm btn-group-sm btn-white" type="submit">选择</button>
+                    或<a data-toggle="tab" href="#new-menu" id="new-menu">创建新菜单</a>
+                </div>
+            </form>
+        </div>
+        <div class="space-8"></div>
+    </div><!-- /.page-header -->
+    <div class="row">
+        <div class="col-xs-12">
+            <!-- PAGE CONTENT BEGINS -->
+            <div class="col-sm-3">
+
+
+                <div id="accordion" class="accordion-style1 panel-group">
+
+
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <h4 class="panel-title">
+                                <a class="accordion-toggle collapsed" data-toggle="collapse" data-parent="#accordion"
+                                   href="#page">
+                                    &nbsp;页面
+                                    <i class="icon-angle-down bigger-110 pull-right" data-icon-hide="icon-angle-up"
+                                       data-icon-show="icon-angle-down"></i>
+
+                                </a>
+                            </h4>
+                        </div>
+
+                        <div class="panel-collapse collapse" id="page">
+                            <div class="panel-body">
+                                <form action="{% url 'menu_option_add' %}" method="post" id="page-form">
+                                    {% csrf_token %}
+                                    <input type="hidden" id="menu_id" name="menu_id" value="{{ current_menu.pk }}">
+                                    <input type="hidden" id="option_name" name="option_name" value="页面">
+                                    <div class="well">
+                                        {% for page in pages %}
+                                            <input type="checkbox" id="{{ page.pk }}" name="option_value"
+                                                   value="{% url 'page_show' page.url_slug %}"> {{ page.title }}<br>
+                                            <input type="hidden" id="{{ page.pk }}" name="option_title"
+                                                   value="{{ page.title }}">
+                                        {% endfor %}
+                                    </div>
+                                    <div class="well well-sm">
+                                        &nbsp;<button class="btn btn-sm btn-group-sm btn-white addall" type="button"
+                                                      id="page-all">全选
+                                    </button>
+                                        <button class="btn btn-sm btn-group-sm btn-white pull-right addto" type="submit"
+                                                id="page">添加至菜单
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <h4 class="panel-title">
+                                <a class="accordion-toggle collapsed" data-toggle="collapse" data-parent="#accordion"
+                                   href="#category">
+                                    &nbsp;分类目录
+                                    <i class="icon-angle-down bigger-110 pull-right" data-icon-hide="icon-angle-up"
+                                       data-icon-show="icon-angle-down"></i>
+
+                                </a>
+                            </h4>
+                        </div>
+
+                        <div class="panel-collapse collapse" id="category">
+                            <div class="panel-body">
+                                <form action="{% url 'menu_option_add' %}" method="post" id="category-form">
+                                    {% csrf_token %}
+                                    <input type="hidden" id="menu_id" name="menu_id" value="{{ current_menu.pk }}">
+                                    <input type="hidden" id="option_name" name="option_name" value="分类目录">
+                                    <div class="well">
+
+                                        {% for node in nodes %}
+                                            <input type="checkbox" id="{{ node.pk }}" name="option_value"
+                                                   value="{% url 'category_show' node.pk 1 %}"> {{ node.name }}<br>
+                                            <input type="hidden" id="option_title" name="option_title"
+                                                   value="{{ node.name }}">
+                                        {% endfor %}
+                                    </div>
+                                    <div class="well well-sm">
+                                        &nbsp;<button class="btn btn-sm btn-group-sm btn-white addall" type="button"
+                                                      id="category-all">全选
+                                    </button>
+                                        <button class="btn btn-sm btn-group-sm btn-white pull-right addto" type="submit"
+                                                id="category">添加至菜单
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <h4 class="panel-title">
+                                <a class="accordion-toggle collapsed" data-toggle="collapse" data-parent="#accordion"
+                                   href="#tag">
+                                    &nbsp;标签
+                                    <i class="icon-angle-down bigger-110 pull-right" data-icon-hide="icon-angle-up"
+                                       data-icon-show="icon-angle-down"></i>
+
+                                </a>
+                            </h4>
+                        </div>
+
+                        <div class="panel-collapse collapse" id="tag">
+                            <div class="panel-body">
+                                <form action="{% url 'menu_option_add' %}" method="post" id="tag-form">
+                                    <input type="hidden" id="menu_id" name="menu_id" value="{{ current_menu.pk }}">
+                                    {% csrf_token %}
+                                    <input type="hidden" id="option_name" name="option_name" value="标签">
+                                    <div class="well">
+                                        {% for tag in tags %}
+                                            <input type="checkbox" id="{{ tag.pk }}" name="option_value"
+                                                   value="{% url 'tag_show' tag.pk 1 %}"> {{ tag.name }}<br>
+                                            <input type="hidden" id="option_title" name="option_title"
+                                                   value="{{ tag.name }}">
+                                        {% endfor %}
+                                    </div>
+                                    <div class="well well-sm">
+                                        &nbsp;<button class="btn btn-sm btn-group-sm btn-white addall" type="button"
+                                                      id="tag-all">全选
+                                    </button>
+                                        <button class="btn btn-sm btn-group-sm btn-white pull-right addto" type="submit"
+                                                id="tag">添加至菜单
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <h4 class="panel-title">
+                                <a class="accordion-toggle collapsed" data-toggle="collapse" data-parent="#accordion"
+                                   href="#url">
+                                    &nbsp;链接
+                                    <i class="icon-angle-down bigger-110 pull-right" data-icon-hide="icon-angle-up"
+                                       data-icon-show="icon-angle-down"></i>
+
+                                </a>
+                            </h4>
+                        </div>
+
+                        <div class="panel-collapse collapse" id="url">
+                            <div class="panel-body">
+                                <form action="{% url 'menu_option_add' %}" method="post" id="url-form">
+                                    {% csrf_token %}
+                                    <input type="hidden" id="menu_id" name="menu_id" value="{{ current_menu.pk }}">
+                                    <input type="hidden" id="option_name" name="option_name" value="自定义URL">
+                                    <div class="well">
+
+                                        <label class="control-label"> URL：</label>
+
+
+                                        <input type="text" id="option_value" name="option_value" value="http://"
+                                               class="pull-right"
+                                        />
+
+                                        <div class="space-4"></div>
+                                        <label class="control-label"> 链接文字：</label>
+                                        <input type="text" id="option_title" name="option_title" placeholder="菜单项目"
+                                               class="pull-right"
+                                        />
+
+
+                                    </div>
+                                    <div class="well well-sm align-right">
+                                        {#                                    <button class="btn btn-sm btn-group-sm btn-white" type="button">全选</button>#}
+                                        <button class="btn btn-sm btn-group-sm btn-white addto" type="submit" id="url">
+                                            添加至菜单
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div><!-- /span -->
+
+
+            <div class="col-sm-9">
+                <div class="tab-content">
+                    <div class="widget-box tab-pane active" id="menu_modify">
+                        <div class="widget-header">
+
+
+                            <form action="{% url 'menu_modify' current_menu.pk %}" method="post" class="form-horizontal"
+                                  id="modify_menu_form">
+                                {% csrf_token %}
+                                <h5 class="smaller col-xs-1">菜单名称</h5>
+                                <input type="text" id="menu_name" name="menu_name" value="{{ current_menu.menu_name }}">
+                                <input type="hidden" id="menu_type" name="menu_type" value="menu">
+
+                                <button class="btn btn-sm btn-group-sm btn-white" type="button" id="save_menu">保存菜单
+                                </button>
+
+                            </form>
+
+                        </div>
+
+                        <div class="widget-body">
+                            <div class="widget-main">
+                                <h4>菜单结构</h4>
+                                <p>
+                                    拖放各个项目到您喜欢的顺序，点击右侧的箭头可进行更详细的设置。
+                                </p>
+                                <div class="dd" id="nestable">
+                                    <ol class="dd-list">
+                                        {% for menu_option in current_menu_option %}
+                                            <form action="{% url 'menu_option_modify' menu_option.pk %}" method="post"
+                                                  id="{{ menu_option.pk }}">
+                                                {% csrf_token %}
+                                                <input type="hidden" id="menu_id" name="menu_id"
+                                                       value="{{ menu_option.menu.pk }}">
+                                                <input type="hidden" id="option_name" name="option_name"
+                                                       value="{{ menu_option.option_name }}">
+                                                <input type="hidden" id="option_level" name="option_level"
+                                                       value="{{ menu_option.option_level }}">
+                                                <li class="dd-item panel" data-id="{{ menu_option.option_level }}">
+                                                    <div class="dd-handle">
+                                                        <a class="accordion-toggle collapsed" data-toggle="collapse"
+                                                           data-parent="#accordion"
+                                                           href="#data-id-{{ menu_option.pk }}">
+                                                            &nbsp;{{ menu_option.option_name }}
+                                                            | {{ menu_option.option_title }}
+                                                            <i class="icon-angle-down bigger-110 pull-right"
+                                                               data-icon-hide="icon-angle-up"
+                                                               data-icon-show="icon-angle-down"></i>
+
+                                                        </a>
+
+                                                    </div>
+
+                                                    <div class="panel-collapse collapse"
+                                                         id="data-id-{{ menu_option.pk }}">
+                                                        <div class="panel-body">
+                                                            <div class="well">
+                                                                <label class="control-label col-xs-2 no-padding-right">
+                                                                    URL：</label>
+
+
+                                                                <input type="text" id="option_value" name="option_value"
+                                                                       value="{{ menu_option.option_value }}"
+                                                                       class="no-padding-left col-sm-10"
+                                                                /><br>
+
+                                                                <div class="space-8"></div>
+                                                                <label class="control-label col-xs-2 no-padding-right">
+                                                                    导航标签：</label>
+                                                                <input type="text" id="option_title" name="option_title"
+                                                                       placeholder="导航标签"
+                                                                       class="col-sm-3 no-padding-left"
+                                                                       value="{{ menu_option.option_title }}"
+                                                                />
+                                                                <div class="col-sm-2"></div>
+                                                                <label class="control-label col-xs-2 no-padding-right">
+                                                                    标签属性：</label>
+                                                                <input type="text" id="option_icon" name="option_icon"
+                                                                       placeholder="icon-list"
+                                                                       class="col-sm-3 no-padding-left"
+                                                                       value="{{ menu_option.option_icon }}"
+                                                                /><br>
+                                                            </div>
+                                                            <div class="well well-sm align-right">
+                                                                <div class="col-xs-6 align-left">
+                                                                    移动 <a href="#">上一位</a> <a href="#">下一位</a> <a
+                                                                        href="#">回顶端</a> <a href="#" class="red">移除</a>
+                                                                </div>
+
+
+                                                                <button class="btn btn-sm btn-group-sm btn-white"
+                                                                        type="button">保存
+                                                                </button>
+
+                                                                <br>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </li>
+                                            </form>
+                                        {% endfor %}
+                                    </ol>
+                                </div>
+                            </div>
+                            <div class="panel-footer">
+                                <a href="{% url 'menu_del' current_menu.pk %}" class="red">删除菜单</a>
+                            </div>
+                        </div>
+
+                    </div>
+
+
+                    <div class="widget-box tab-pane" id="new-menu">
+                        <div class="widget-header">
+
+
+                            <form action="{% url 'menu_add' %}" method="post" class="form-horizontal" id="new-menu">
+
+                                <h5 class="smaller col-xs-1">菜单名称</h5>
+                                <input type="text" id="menu_name" name="menu_name">
+                                <input type="hidden" id="menu_type" name="menu_type" value="menu">
+                                <button class="btn btn-sm btn-group-sm btn-white" type="button" id="new-menu">创建菜单
+                                </button>
+
+                            </form>
+
+                        </div>
+
+                        <div class="widget-body">
+                            <div class="widget-main">
+                                <p>
+                                    在上面给菜单命名，然后点击“创建菜单”。
+                                </p>
+                            </div>
+
+                        </div>
+
+                    </div>
+                </div>
+
+
+            </div>
+
+
+        </div>
+
+    </div><!-- /.col -->
+
+
+    </div><!-- /.row -->
+
+    <script src="{% static 'assets/js/typeahead-bs2.min.js' %}"></script>
+
+    <!-- page specific plugin scripts -->
+
+    <script src="{% static 'assets/js/jquery.nestable.min.js' %}"></script>
+
+
+
+    <script type="text/javascript">
+        jQuery(function ($) {
+
+            $('.dd').nestable();
+
+            $('.dd-handle a').on('mousedown', function (e) {
+                e.stopPropagation();
+            });
+
+            $('[data-rel="tooltip"]').tooltip();
+
+            $.ajaxSetup({headers: {"X-CSRFToken": '{{ csrf_token }}'}});
+
+            $('button#new-menu').click(function () {
+
+                $('form#new-menu').ajaxForm()
+
+                $('form#new-menu').ajaxSubmit({
+                    type: 'post',
+                    url: "{% url 'menu_add' %}",
+                    cache: false,
+                    {#data: data,#}
+                    dataType: 'json',
+                    success: function (data) {
+
+                        if (data.result == 'success') {
+
+                            $('select#menu_id').append("<option value='" + data.menu_id + "'>" + data.menu_name + "</option>")
+                            $('div#new-menu').removeClass('active')
+                            $('div#menu_modify').addClass('active')
+                            $('input[type="checkbox"]').attr("disabled", false)
+                            $('button.addall').attr("disabled", false)
+                            $('button.addto').attr("disabled", false)
+                        } else {
+                            alert('创建失败 - ' + data.msg)
+                        }
+                    },
+                    error: function (data) {
+                        alert('请求失败')
+                    }
+                })
+            });
+
+            $('a#new-menu').click(function () {
+                $('div#new-menu').addClass('active')
+                $('div#menu_modify').removeClass('active')
+                $('input[type="checkbox"]').attr("disabled", true)
+                $('button.addall').attr("disabled", true)
+                $('button.addto').attr("disabled", true)
+            });
+
+            $('button#save_menu').click(function () {
+                $('form#modify_menu_form').ajaxForm()
+
+                $('form#modify_menu_form').ajaxSubmit({
+                    type: 'post',
+                    url: "{% url 'menu_modify' current_menu.pk %}",
+                    cache: false,
+                    {#data: data,#}
+                    dataType: 'json',
+                    success: function (data) {
+
+                        if (data.result == 'success') {
+                            var sel = 'select#menu_id option[value=' + data.menu_id + ']'
+
+                            $(sel).text(data.menu_name)
+
+                        } else {
+                            alert('创建失败 - ' + data.msg)
+                        }
+                    },
+                    error: function (data) {
+                        alert('请求失败')
+                    }
+                })
+            })
+        });
+
+
+    </script>
+
+{% endblock %}

@@ -1,0 +1,19 @@
+<div class="widget-box  widget">
+    <div class="widget-header"><span class="icon"><i class="{{ option_icon }}"></i></span>| {{ option_title }}</div>
+    <div class="widget-body padding-4">
+        <div class="widget-main">
+            <p class="center">
+                {% load btn_tags %}
+                {% for tag in tags %}
+
+                    <a href="{% url 'tag_show' tag.pk '1' %}" class="padding-4"> <span
+                            class="btn {{ 'btn'|randombtn }}">{{ tag }}</span></a>
+
+                    &nbsp;
+                {% endfor %}
+            </p>
+
+        </div>
+    </div>
+
+</div>

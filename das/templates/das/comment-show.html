@@ -13,13 +13,9 @@
 {% endblock %}
 {% block page %}
     {% load mptt_tags %}
-    <div class="row">
-        <div class="col-xs-12">
-            <!-- PAGE CONTENT BEGINS -->
-
-            <div class="row">
-                <div class="form-group">
-                    <form class="form-horizontal" role="form" id="comment_status_form"
+    <div class="page-header">
+        <div class="form-group">
+            <form class="form-horizontal" role="form" id="comment_status_form"
                           action="{% url 'comment_list' '1' comment_status %}"
                           method="post">
                         {% csrf_token %}
@@ -45,10 +41,18 @@
                                 >待审核
                                 </option>
                             </select>
-                            <button class="btn btn-sm btn-group-sm btn-white" type="submit">筛选</button>
+                            &nbsp;&nbsp;<button class="btn btn-sm btn-group-sm btn-white" type="submit">筛选</button>
                         </div>
                     </form>
-                </div>
+        </div>
+        <div class="space-8"></div>
+    </div><!-- /.page-header -->
+    <div class="row">
+        <div class="col-xs-12">
+            <!-- PAGE CONTENT BEGINS -->
+
+            <div class="row">
+
 
                 <div class="col-xs-12">
                     <div class="table-responsive">

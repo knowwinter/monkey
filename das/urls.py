@@ -49,5 +49,15 @@ urlpatterns = [
     url(r'^page/list/(\d*)', views.page_view, name='page_list'),
     url(r'^page/modify/(\d*)', views.page_modify, name='page_modify'),
     url(r'^page/(\d+)/del/(\d*)', views.page_del, name='page_del'),
+    url(r'^menu/$', views.menu_view, name='menu'),
+    url(r'^menu/add/$', views.menu_add, name='menu_add'),
+    url(r'^menu/modify/(\d*)', views.menu_modify, name='menu_modify'),
+    url(r'^menu/del/(\d*)', views.menu_del, name='menu_del'),
+    url(r'^tool/$', views.tool_view, name='tool'),
+    url(r'^menu/option/add/$', views.menu_option_add, name='menu_option_add'),
+    url(r'^menu/option/modify/(\d*)', views.menu_option_modify, name='menu_option_modify'),
+    url(r'^menu/option/del/(\d*)', views.menu_option_del, name='menu_option_del'),
+
+
 
 ]

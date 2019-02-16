@@ -1,10 +1,12 @@
 <!DOCTYPE html>
+{% load staticfiles %}
+{% load static %}
 <html lang="en">
 <head>
     <meta charset="utf-8"/>
-    <title>欢迎访问Monkey</title>
-    <meta name="keywords" content="欢迎访问Monkey"/>
-    <meta name="description" content="欢迎访问Monkey"/>
+    <title>登录/注册 - {{ sitemeta.title }}</title>
+    <meta name="keywords" content="{{ sitemeta.keywords }}"/>
+    <meta name="description" content="{{ sitemeta.description }}"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 
     <!-- basic styles -->

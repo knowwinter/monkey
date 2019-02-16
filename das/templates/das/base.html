@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 {% load staticfiles %}
+{% load static %}
 {% load i18n %}
 	<head>
 		<meta charset="utf-8" />
@@ -571,15 +572,52 @@
                         </ul>
                         </li>
                         {% if request.user.is_superuser %}
-                        {% if active == 'set_site' %}
-                            <li class="active">
-                                {% else %}
-                            <li>
-                        {% endif %}
+                            {% if active == 'set_site' or active == 'menu' or active == 'tool' %}
+                                <li class="active">
+                                    {% else %}
+                                <li>
+                            {% endif %}
+                        <a href="#" class="dropdown-toggle">
+                            <i class="icon-cogs"></i>
+                            <span class="menu-text"> 设置 </span>
+
+                            <b class="arrow icon-angle-down"></b>
+                        </a>
+
+                        <ul class="submenu">
+                            {% if active == 'set_site' %}
+                                <li class="active">
+                                    {% else %}
+                                <li>
+                            {% endif %}
                             <a href="{% url 'site_edit' %}">
-                                <i class="icon-cogs"></i>
-                                <span class="menu-text">站点设置 </span>
+                                <i class="icon-double-angle-right"></i>
+                                常规
                             </a>
+                            </li>
+
+                            {% if active == 'menu' %}
+                                <li class="active">
+                                    {% else %}
+                                <li>
+                            {% endif %}
+                            <a href="{% url 'menu' %}">
+                                <i class="icon-double-angle-right"></i>
+                                菜单
+                            </a>
+                            </li>
+
+                            {% if active == 'tool' %}
+                                <li class="active">
+                                    {% else %}
+                                <li>
+                            {% endif %}
+                            <a href="{% url 'tool' %}">
+                                <i class="icon-double-angle-right"></i>
+                                小工具
+                            </a>
+                            </li>
+                        </ul>
                         </li>
                         {% endif %}
 

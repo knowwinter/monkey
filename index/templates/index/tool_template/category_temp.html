@@ -1,0 +1,23 @@
+<div class="widget-box  widget">
+
+
+    <div class="widget-header"><span class="icon"><i class="{{ option_icon }}"></i></span>| {{ option_title }}</div>
+    {% load mptt_tags %}
+    {% load category_tags %}
+    <div class="widget-body">
+
+        <ul class="root">
+            {% recursetree nodes %}
+                <li>
+                    <a href="{% url 'category_show' node.pk '1' %}"><strong>{{ node.name }}</strong></a>
+                    {% if not node.is_leaf_node %}
+                        <ul class="children">
+                            <a href="{% url 'category_show' node.pk '1' %}"><strong>{{ children }}</strong></a>
+                        </ul>
+                    {% endif %}
+                </li>
+            {% endrecursetree %}
+            <li><a href="{% url 'category_show' 0 '1' %}"> 未分类</a></li>
+        </ul>
+    </div>
+</div>

@@ -1,4 +1,6 @@
 ﻿{% extends "das/base.html" %}
+{% load staticfiles %}
+{% load static %}
 {% block header %}
     <script type="text/javascript">
         function checksubmit(form) {
@@ -30,10 +32,18 @@
     <li>
         <a href="#">用户</a>
     </li>
+    <li>
+        <a href="{% url 'user_list' 1 2 %}">所有用户</a>
+    </li>
     <li class="active">编辑用户</li>
 {% endblock %}
 {% block page %}
     {% load mptt_tags %}
+    <div class="page-header">
+        <h1>
+            编辑用户
+        </h1>
+    </div><!-- /.page-header -->
     <div class="row">
         <div class="col-md-12">
             <!-- PAGE CONTENT BEGINS -->

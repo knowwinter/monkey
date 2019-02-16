@@ -1,0 +1,30 @@
+<div class="widget-box  widget">
+    <div class="widget-header"><span class="icon"><i class="{{ option_icon }}"></i></span>| {% if request.user.pk %}
+        用户信息{% else %}{{ option_title }}{% endif %}</div>
+    <div class="widget-body padding-4">
+        <div class="widget-main">
+            <p class="center">
+                {% if request.user.pk %}
+                    欢迎光临<br>
+                    <a href="{% url 'user_show' request.user.pk 1 %}">{{ request.user.username }}</a><br>
+                    <img src="{{ request.user.avatar }}" width="50" height="50"><br>
+                    <a href="{% url 'das_index' %}">管理</a>
+                    <a href="{% url 'logout' %}">登出</a>
+                {% else %}
+                    <form class="form-horizontal" action="{% url 'login' %}" method="post">
+                        {% csrf_token %}
+                        用户名：<input type="text" id="username" name="username" placeholder="用户名"><br><br>
+                        密&nbsp &nbsp&nbsp码：<input type="password" id="password" name="password"
+                                                  placeholder="******"><br><br>
+                    <p class="center">
+                        <button class="btn btn-danger" type="submit">登录</button>
+                        <a href="{% url 'register' %}" class="btn btn-info">注册</a>
+                    </p>
+                    </form>
+                {% endif %}
+            </p>
+
+        </div>
+    </div>
+
+</div>

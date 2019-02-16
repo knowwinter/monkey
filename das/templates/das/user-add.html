@@ -1,4 +1,6 @@
 ﻿{% extends "das/base.html" %}
+{% load staticfiles %}
+{% load static %}
 {% block header %}
     <script type="text/javascript">
         function checksubmit(form) {
@@ -49,6 +51,11 @@
 {% endblock %}
 {% block page %}
     {% load mptt_tags %}
+    <div class="page-header">
+        <h1>
+            添加用户
+        </h1>
+    </div><!-- /.page-header -->
     <div class="row">
         <div class="col-md-12">
             <!-- PAGE CONTENT BEGINS -->
@@ -211,8 +218,8 @@
 
                 <div class="space-4"></div>
 
-                <div class="clearfix form-actions col-md-10">
-                    <div class="col-md-offset-3 col-md-9">
+                <div class="clearfix form-actions col-md-10 center">
+                    <div class="col-md-offset-1 col-md-9">
                         <button class="btn btn-sm btn-info" type="submit">
                             <i class="icon-ok bigger-110"></i>
                             创建

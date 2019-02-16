@@ -1,0 +1,12 @@
+<div class="widget-box  widget">
+    <div class="widget-header"><span class="icon"><i class="{{ option_icon }}"></i></span>| {{ option_title }}</div>
+    <div class="widget-body padding-4">
+        <div class="widget-main">
+            {% for menu in user_define_menu %}
+                <li><a href="{{ menu.option_value }}" target="_blank">{{ menu.option_title }}</a></li>
+            {% endfor %}
+
+        </div>
+    </div>
+
+</div>

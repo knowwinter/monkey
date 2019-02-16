@@ -26,17 +26,12 @@
 
 {% block page %}
     {% load mptt_tags %}
-    <div class="row">
-        <div class="col-xs-12">
-            <!-- PAGE CONTENT BEGINS -->
-
-            <div class="row">
-                <div class="col-xs-1">
-                    <a href="{% url 'user_new' %}" class="user">
+    <div class="page-header">
+        <div class="form-group">
+            <a href="{% url 'user_new' %}" class="user col-sm-1">
                         <button class="btn btn-primary btn-sm"> 添加新用户</button>
                     </a>
-                </div>
-                <div class="col-xs-11">
+
                     <form class="form-horizontal" role="form" id="user_status_form"
                           action="{% url 'user_list' '1' user_status %}"
                           method="post">
@@ -63,10 +58,18 @@
                                 >未激活
                                 </option>
                             </select>
-                            <button class="btn btn-sm btn-group-sm btn-white" type="submit">筛选</button>
+                            &nbsp;&nbsp;<button class="btn btn-sm btn-group-sm btn-white" type="submit">筛选</button>
                         </div>
                     </form>
                 </div>
+        <div class="space-8"></div>
+    </div><!-- /.page-header -->
+    <div class="row">
+        <div class="col-xs-12">
+            <!-- PAGE CONTENT BEGINS -->
+
+            <div class="row">
+
                 <div class="col-xs-12"></div>
 
                 <div class="col-xs-12">
