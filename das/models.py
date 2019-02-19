@@ -222,3 +222,4 @@ class Menu_option(models.Model):
     menu = models.ForeignKey(Menu, related_name='menu')
     user_menu = models.ForeignKey(Menu, related_name='user_menu', null=True, default=None)
     option_level = models.IntegerField(default=1)
+    option_template = models.CharField(max_length=2000, null=True)

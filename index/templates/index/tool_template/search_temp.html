@@ -1,0 +1,32 @@
+{% load staticfiles %}
+{% load static %}
+<div class="widget-box  widget">
+    <div class="widget-header"><span class="icon"><i class="{{ option_icon }}"></i></span>| {{ option_title }}</div>
+    <div class="widget-body padding-4">
+        <div class="widget-main">
+            <p class="center">
+                <form class="form-horizontal" action="{% url 'search' %}" id="search" method="post"
+                      onsubmit="return checksearch(this.form)">
+                    {% csrf_token %}
+                    站内搜索：<input type="text" id="keyword" name="keyword" placeholder="关键字"><br><br>
+            <p class="center">
+                <button class="btn btn-info btn-block" type="submit" id="search">搜索</button>
+            </p>
+            </form>
+            </p>
+
+        </div>
+    </div>
+
+</div>
+
+<script type="text/javascript">
+    function checksearch(form) {
+        if ($('input#keyword').val() != '') {
+            return true
+        } else {
+            return false
+        }
+    }
+
+</script>

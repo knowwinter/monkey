@@ -1,0 +1,465 @@
+{% extends "das/base.html" %}
+{% load staticfiles %}
+{% load static %}
+{% block header %}
+    <script type="text/javascript" src="{% static 'tinymce/plugins/jquery-form.js' %}"></script>
+{% endblock %}
+
+{% block breadcrumb %}
+    <li>
+        <a href="#">设置</a>
+    </li>
+    <li class="active">小工具</li>
+{% endblock %}
+{% block page %}
+    {% load mptt_tags %}
+    <div class="page-header">
+        <h1>
+            设置
+            <small>
+                <i class="icon-double-angle-right"></i>
+                小工具
+            </small>
+        </h1>
+    </div><!-- /.page-header -->
+
+    <div class="row">
+        <div class="col-xs-12">
+            <!-- PAGE CONTENT BEGINS -->
+            <div class="col-sm-3">
+                <div id="top-accordion" class="accordion-style1 panel-group">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <h5 class="panel-title">
+                                <a class="accordion-toggle collapsed" data-toggle="collapse"
+                                   data-parent="#top-accordion"
+                                   href="#tool">
+                                    &nbsp;可用小工具
+                                    <i class="icon-angle-down bigger-110 pull-right" data-icon-hide="icon-angle-up"
+                                       data-icon-show="icon-angle-down"></i>
+
+                                </a>
+                            </h5>
+                        </div>
+                        <div class="panel-collapse in" id="tool">
+                            <div class="panel-body">
+                                <p>
+                                    拖拽或点击小工具以激活它到边栏
+                                </p>
+                            </div>
+                            {% for menu_option_template in menu_option_templates %}
+                                <div id="accordion-{{ menu_option_template.pk }}" class="accordion-style1 panel-group ">
+
+                                    <div class="panel panel-default">
+                                        <div class="panel-heading">
+                                            <h4 class="panel-title">
+                                                <a class="accordion-toggle collapsed" data-toggle="collapse"
+                                                   data-parent="#accordion-{{ menu_option_template.pk }}"
+                                                   href="#{{ menu_option_template.pk }}">
+                                                    &nbsp;{{ menu_option_template.option_name }}
+                                                    <i class="icon-angle-down bigger-110 pull-right"
+                                                       data-icon-hide="icon-angle-up"
+                                                       data-icon-show="icon-angle-down"></i>
+
+                                                </a>
+                                            </h4>
+                                        </div>
+
+                                        <div class="panel-collapse collapse" id="{{ menu_option_template.pk }}">
+                                            <div class="panel-body">
+                                                <form action="{% url 'menu_option_add' %}" method="post"
+                                                      id="temp-{{ menu_option_template.pk }}">
+                                                    {% csrf_token %}
+                                                    <input type="hidden" id="option_name" name="option_name"
+                                                           value="{{ menu_option_template.option_name }}">
+                                                    <input type="hidden" id="option_template" name="option_template"
+                                                           value="{{ menu_option_template.option_value }}">
+                                                    <div class="well">
+                                                        小工具区域：
+                                                        <select id="menu_id" name="menu_id">
+                                                            {% for menu in menus %}
+                                                                <option value="{{ menu.pk }}">{{ menu.menu_name }}</option>
+                                                            {% endfor %}
+                                                        </select>
+                                                    </div>
+                                                    <div class="well well-sm align-right">
+                                                        <button class="btn btn-sm btn-group-sm btn-white addto"
+                                                                type="button"
+                                                                id="temp-{{ menu_option_template.pk }}">添加至小工具
+                                                        </button>
+                                                    </div>
+                                                </form>
+                                            </div>
+
+                                        </div>
+                                    </div>
+
+
+                                </div>
+
+                            {% endfor %}
+                        </div>
+
+
+                    </div>
+                </div>
+
+            </div><!-- /span -->
+
+            <div class="col-sm-9">
+                {% for tool in menus %}
+                    <div class="col-sm-6">
+
+                        <div class="widget-box tab-pane active" id="menu_modify">
+                            <div class="widget-header">
+                                <h5 class="smaller col-xs-3">{{ tool.menu_name }}</h5>
+
+                            </div>
+                            {% load comm_tags %}
+                            <div class="widget-body" id="33">
+                                <div class="widget-main">
+                                    <div class="dd" id="nestable">
+                                        <ol class="dd-list" id="menu_option">
+                                            {% for menu_option in tool.menu|order_option %}
+                                                <form action="{% url 'menu_option_modify' menu_option.pk %}"
+                                                      method="post"
+                                                      id="{{ menu_option.pk }}">
+                                                    {% csrf_token %}
+                                                    <input type="hidden" id="menu_id" name="menu_id"
+                                                           value="{{ menu_option.menu.pk }}">
+                                                    <input type="hidden" id="option_name" name="option_name"
+                                                           value="{{ menu_option.option_name }}">
+                                                    <li class="dd-item panel" data-id="{{ menu_option.option_level }}"
+                                                        id="{{ menu_option.pk }}">
+                                                        <div class="dd-handle">
+                                                            <a class="accordion-toggle collapsed" data-toggle="collapse"
+                                                               data-parent="#accordion"
+                                                               href="#data-id-{{ menu_option.pk }}">
+                                                            <span id="{{ menu_option.pk }}">
+                                                            &nbsp;{{ menu_option.option_name }}
+                                                            | {{ menu_option.option_title }}
+                                                                </span>
+                                                                <i class="icon-angle-down bigger-110 pull-right"
+                                                                   data-icon-hide="icon-angle-up"
+                                                                   data-icon-show="icon-angle-down"></i>
+
+                                                            </a>
+
+                                                        </div>
+
+                                                        <div class="panel-collapse collapse"
+                                                             id="data-id-{{ menu_option.pk }}">
+                                                            <div class="panel-body">
+                                                                <div class="well">
+                                                                    <label class="control-label col-xs-2 no-padding-right">
+                                                                        标题：</label>
+                                                                    <input type="text" id="option_title"
+                                                                           name="option_title"
+                                                                           placeholder="标题"
+                                                                           class="col-sm-3 no-padding-left"
+                                                                           value="{{ menu_option.option_title }}"
+                                                                    />
+                                                                    &nbsp;&nbsp;
+                                                                    <label class="control-label col-xs-3 no-padding-right">
+                                                                        标题属性：</label>
+                                                                    <input type="text" id="option_icon"
+                                                                           name="option_icon"
+                                                                           placeholder="icon-list"
+                                                                           class="col-sm-3 no-padding-left"
+                                                                           value="{{ menu_option.option_icon }}"
+                                                                    /><br>
+                                                                    {% if menu_option.option_name == '自定义文本框' %}
+                                                                        <label class="control-label col-xs-8 ">
+                                                                            文本、简码 或 HTML 代码：</label>
+
+
+                                                                        <textarea id="option_value" name="option_value"
+                                                                                  rows="20" cols="55"
+                                                                                  style="resize: none"
+                                                                                  placeholder="文本、简码 或 HTML 代码">{% if menu_option.option_value %}
+                                                                            {{ menu_option.option_value }}{% endif %}</textarea>
+                                                                        {#                                                                <input type="text" id="option_value" name="option_value"#}
+                                                                        {#                                                                       value="{{ menu_option.option_value }}"#}
+                                                                        {#                                                                       class="no-padding-left col-sm-10"#}
+                                                                        {#                                                                /><br>#}
+
+
+                                                                    {% endif %}
+                                                                    {% if menu_option.option_name == '自定义菜单' %}
+                                                                        <div class="space-8"></div>
+                                                                        <label class="control-label col-xs-3 no-padding-right">
+                                                                            选择菜单：</label>
+                                                                        <select id="user_menu_id" name="user_menu_id">
+                                                                            {% for user_menu in user_menus %}
+                                                                                <option value="{{ user_menu.pk }}"
+                                                                                        {% if menu_option.user_menu.pk == user_menu.pk %}
+                                                                                        selected
+                                                                                        {% endif %}
+                                                                                >
+                                                                                    {{ user_menu.menu_name }}
+                                                                                </option>
+                                                                            {% endfor %}
+                                                                        </select>
+                                                                    {% endif %}
+                                                                </div>
+                                                                <div class="well well-sm align-right">
+                                                                    <div class="col-xs-6 align-left">
+                                                                        <a href="javascript:void(0);"
+                                                                           class="red menu_option_remove"
+                                                                           id="{{ menu_option.pk }}">移除</a>
+                                                                    </div>
+
+
+                                                                    <button class="btn btn-sm btn-group-sm btn-white save_menu_option"
+                                                                            type="button" id="{{ menu_option.pk }}">保存
+                                                                    </button>
+
+                                                                    <br>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </li>
+                                                </form>
+
+                                            {% endfor %}
+
+                                        </ol>
+                                    </div>
+
+                                </div>
+                                <div class="panel-footer">
+
+                                </div>
+                            </div>
+
+                        </div>
+
+
+                    </div>
+                {% endfor %}
+
+
+            </div>
+
+
+        </div>
+
+    </div><!-- /.col -->
+
+
+    </div><!-- /.row -->
+
+    <script src="{% static 'assets/js/typeahead-bs2.min.js' %}"></script>
+
+    <!-- page specific plugin scripts -->
+
+    <script src="{% static 'assets/js/jquery.nestable.min.js' %}"></script>
+
+
+
+    <script type="text/javascript">
+        jQuery(function ($) {
+
+            $('.dd').nestable();
+
+            $('.dd-handle a').on('mousedown', function (e) {
+                e.stopPropagation();
+            });
+
+            $('[data-rel="tooltip"]').tooltip();
+
+            $.ajaxSetup({headers: {"X-CSRFToken": '{{ csrf_token }}'}});
+
+            $('button#new-menu').click(function () {
+
+                $('form#new-menu').ajaxForm()
+
+                $('form#new-menu').ajaxSubmit({
+                    type: 'post',
+                    url: "{% url 'menu_add' %}",
+                    cache: false,
+                    {#data: data,#}
+                    dataType: 'json',
+                    success: function (data) {
+
+                        if (data.result == 'success') {
+
+                            $('select#menu_id').append("<option value='" + data.menu_id + "'>" + data.menu_name + "</option>")
+                            $('div#new-menu').removeClass('active')
+                            $('div#menu_modify').addClass('active')
+                            $('input[type="checkbox"]').attr("disabled", false)
+                            $('button.addall').attr("disabled", false)
+                            $('button.addto').attr("disabled", false)
+                        } else {
+                            alert('创建失败 - ' + data.msg)
+                        }
+                    },
+                    error: function (data) {
+                        alert('请求失败')
+                    }
+                })
+            });
+
+            $('a#new-menu').click(function () {
+                $('div#new-menu').addClass('active')
+                $('div#menu_modify').removeClass('active')
+                $('input[type="checkbox"]').attr("disabled", true)
+                $('button.addall').attr("disabled", true)
+                $('button.addto').attr("disabled", true)
+            });
+
+            $('button#save_menu').click(function () {
+                $('form#modify_menu_form').ajaxForm()
+
+                $('form#modify_menu_form').ajaxSubmit({
+                    type: 'post',
+                    url: "{% url 'menu_modify' current_menu.pk %}",
+                    cache: false,
+                    {#data: data,#}
+                    dataType: 'json',
+                    success: function (data) {
+
+                        if (data.result == 'success') {
+                            var sel = 'select#menu_id option[value=' + data.menu_id + ']'
+
+                            $(sel).text(data.menu_name)
+
+                        } else {
+                            alert('创建失败 - ' + data.msg)
+                        }
+                    },
+                    error: function (data) {
+                        alert('请求失败')
+                    }
+                })
+            });
+
+            $('div#nestable').on('click', 'a.menu_option_remove', function () {
+                var menu_option_id = $(this).attr("id")
+                var obj = $(this)
+                var url = "{% url 'menu_option_del' 123 %}"
+                url = url.replace('123', menu_option_id)
+                $.ajax({
+                    type: "GET",
+                    url: url,
+                    datatype: 'json',
+                    success: function (result) {
+                        if (result.result == 'success') {
+                            var sel = 'form#' + menu_option_id
+                            var lisel = 'li#' + menu_option_id
+                            $(sel).remove()
+                            $(lisel).remove()
+
+                        } else {
+                            alert('删除失败：' + result.msg)
+                        }
+                    },
+                    error: function (result) {
+                        alert('请求失败')
+                    }
+                })
+            });
+
+            $('#nestable').nestable('serialize');
+            $('#nestable').on('change', function () {
+                var r = $('#nestable').nestable('serialize')
+
+                var i = 1
+                $('ol li').each(function () {
+                    var option_id = $(this).attr('id')
+                    var pos = i
+                    var url = "{% url 'menu_option_order' 123 456 %}"
+                    url = url.replace('123', option_id)
+                    url = url.replace('456', pos)
+                    $.ajax({
+                        type: "GET",
+                        url: url,
+                        datatype: 'json',
+                        success: function (result) {
+                            if (result.result == 'success') {
+
+                                $(this).attr('data-id', pos)
+                                {#alert($('#nestable').find('span#' + option_id).text())#}
+                                console.log('排序成功')
+
+                            } else {
+                                alert('排序失败')
+                                return 0
+                            }
+                        },
+                        error: function () {
+                            alert('请求失败')
+                            return 0
+                        }
+                    })
+                    i = i + 1
+
+                })
+
+            });
+
+            $('div#nestable').on('click', 'button.save_menu_option', function () {
+
+                var menu_option_id = $(this).attr("id")
+                var obj = $(this)
+
+                var url = "{% url 'menu_option_modify' 123 %}"
+                url = url.replace('123', menu_option_id)
+                var formsel = 'form#' + menu_option_id
+                $(formsel).ajaxForm()
+                $('form#' + menu_option_id).ajaxForm()
+                $('form#' + menu_option_id).ajaxSubmit({
+                    type: "POST",
+                    url: url,
+                    cache: false,
+                    datatype: 'json',
+                    success: function (result) {
+                        if (result.result == 'success') {
+
+
+                            $('#nestable').find('span#' + menu_option_id).html('&nbsp' + result.option_name + ' | ' + result.option_title)
+                            alert('保存成功')
+                        } else {
+                            alert('保存失败,' + result.msg)
+                        }
+                    },
+                    error: function () {
+                        alert('请求失败')
+                    }
+                })
+            });
+
+            $('div#top-accordion').on('click', 'button.addto', function () {
+
+                var formid = $(this).attr("id")
+                var url = "{% url 'menu_option_add' %}"
+
+                $('form#' + formid).ajaxForm()
+
+                $('form#' + formid).ajaxSubmit({
+                    type: "POST",
+                    url: url,
+                    cache: false,
+                    datatype: 'json',
+                    success: function (result) {
+
+                        if (result.result == 'success') {
+
+                            window.location.href = '{% url 'tool' %}'
+                        } else {
+                            alert('添加失败：' + result.msg)
+                        }
+                    },
+                    error: function () {
+                        alert('请求失败')
+                    }
+                })
+            })
+
+
+        });
+
+
+    </script>
+
+{% endblock %}

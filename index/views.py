@@ -18,6 +18,7 @@ from das.forms import *
 from django.conf import settings
 import hashlib
 import time
+from django.db.models import Q
 
 # from django.http import HttpResponse, HttpRequest
 settings.SITEMETA = cache_sitemeta()
@@ -29,10 +30,15 @@ def index_view(req, pindex):
 
     posts = Article.objects.filter(article_status="1", article_type='post').order_by('-pub_date')
     hot_posts = Article.objects.filter(article_type='post', article_status='1').order_by('-view_count')[:5]
-    last_posts = posts[:5]
-    tools = Menu.objects.get(menu_name='默认右侧边栏', menu_type='tool')
-    context['tools'] = tools.menu.all()
+    last_posts = Article.objects.filter(article_status="1", article_type='post').order_by('-pub_date')[:5]
+    tool = Menu.objects.get(menu_name='默认右侧边栏', menu_type='tool')
+    context['tools'] = tool.menu.all().order_by('option_level')
 
+    # templates = []
+    # for tool in tools.menu.all():
+    #     templates.append(tool.option_template)
+    # context['templates'] = templates
+    # print(context['templates'])
     # for post in articles:
     #     post.content = post.content[:20]
     #     posts.append(post)
@@ -76,6 +82,12 @@ def post_show(req, id):
     context['nodes'] = nodes
     context['comments'] = comments
     context['sitemeta'] = settings.SITEMETA
+    hot_posts = Article.objects.filter(article_type='post', article_status='1').order_by('-view_count')[:5]
+    last_posts = Article.objects.filter(article_status="1", article_type='post').order_by('-pub_date')[:5]
+    tools = Menu.objects.get(menu_name='默认右侧边栏', menu_type='tool')
+    context['tools'] = tools.menu.all()
+    context['hot_posts'] = hot_posts
+    context['last_posts'] = last_posts
     return render(req, 'index/post-show.html', context)
 
 
@@ -100,6 +112,12 @@ def post_preview(req, id):
     context['nodes'] = nodes
     context['comments'] = comments
     context['sitemeta'] = settings.SITEMETA
+    hot_posts = Article.objects.filter(article_type='post', article_status='1').order_by('-view_count')[:5]
+    last_posts = Article.objects.filter(article_status="1", article_type='post').order_by('-pub_date')[:5]
+    tools = Menu.objects.get(menu_name='默认右侧边栏', menu_type='tool')
+    context['tools'] = tools.menu.all()
+    context['hot_posts'] = hot_posts
+    context['last_posts'] = last_posts
     return render(req, 'index/post-show.html', context)
 
 def category_show(req, cate_id, pindex):
@@ -136,7 +154,12 @@ def category_show(req, cate_id, pindex):
     context['nodes'] = nodes
     context['pages'] = page
     context['cate'] = category
-
+    hot_posts = Article.objects.filter(article_type='post', article_status='1').order_by('-view_count')[:5]
+    last_posts = Article.objects.filter(article_status="1", article_type='post').order_by('-pub_date')[:5]
+    tools = Menu.objects.get(menu_name='默认右侧边栏', menu_type='tool')
+    context['tools'] = tools.menu.all()
+    context['hot_posts'] = hot_posts
+    context['last_posts'] = last_posts
     return render(req, 'index/category-show.html', context)
 
 def tag_show(req, tag_id, pindex):
@@ -154,7 +177,7 @@ def tag_show(req, tag_id, pindex):
         context['tag'] = tag
         context['pages'] = posts
         return render(req, 'index/tag-show.html', context)
-    paginator = Paginator(posts, 2)
+    paginator = Paginator(posts, 10)
     if pindex == '':
         pindex = '1'
     try:
@@ -168,7 +191,12 @@ def tag_show(req, tag_id, pindex):
     context['nodes'] = nodes
     context['pages'] = page
     context['tag'] = tag
-
+    hot_posts = Article.objects.filter(article_type='post', article_status='1').order_by('-view_count')[:5]
+    last_posts = Article.objects.filter(article_status="1", article_type='post').order_by('-pub_date')[:5]
+    tools = Menu.objects.get(menu_name='默认右侧边栏', menu_type='tool')
+    context['tools'] = tools.menu.all()
+    context['hot_posts'] = hot_posts
+    context['last_posts'] = last_posts
     return render(req, 'index/tag-show.html', context)
 
 
@@ -187,7 +215,7 @@ def user_show(req, user_id, pindex):
         context['user'] = user
         context['pages'] = posts
         return render(req, 'index/user-show.html', context)
-    paginator = Paginator(posts, 2)
+    paginator = Paginator(posts, 10)
     if pindex == '':
         pindex = '1'
     try:
@@ -201,7 +229,12 @@ def user_show(req, user_id, pindex):
     context['nodes'] = nodes
     context['pages'] = page
     context['user'] = user
-
+    hot_posts = Article.objects.filter(article_type='post', article_status='1').order_by('-view_count')[:5]
+    last_posts = Article.objects.filter(article_status="1", article_type='post').order_by('-pub_date')[:5]
+    tools = Menu.objects.get(menu_name='默认右侧边栏', menu_type='tool')
+    context['tools'] = tools.menu.all()
+    context['hot_posts'] = hot_posts
+    context['last_posts'] = last_posts
     return render(req, 'index/user-show.html', context)
 
 
@@ -223,10 +256,95 @@ def page_show(req, url_slug):
     else:
         post.save(update_fields=['view_count'])
     post.content = post.content.replace("[!--more--]", "")
-
     nodes = Category.objects.get_queryset()
     context['post'] = post
     context['nodes'] = nodes
-
     context['sitemeta'] = settings.SITEMETA
+    hot_posts = Article.objects.filter(article_type='post', article_status='1').order_by('-view_count')[:5]
+    last_posts = Article.objects.filter(article_status="1", article_type='post').order_by('-pub_date')[:5]
+    tools = Menu.objects.get(menu_name='默认右侧边栏', menu_type='tool')
+    context['tools'] = tools.menu.all()
+
+    context['hot_posts'] = hot_posts
+    context['last_posts'] = last_posts
     return render(req, 'index/page-show.html', context)
+
+
+def search_show(req, keyword, pindex):
+    context = {}
+    context['sitemeta'] = settings.SITEMETA
+    tags = Tag.objects.all()
+    context['tags'] = tags
+
+    try:
+        posts = Article.objects.filter(
+            (Q(pub_author__username__contains=keyword) | Q(title__contains=keyword) | Q(content__contains=keyword)) & Q(
+                article_type='post')).order_by('-pub_date')
+    except:
+        posts = None
+        nodes = Category.objects.get_queryset()
+        context['nodes'] = nodes
+        context['pages'] = posts
+        return render(req, 'index/search-show.html', context)
+    paginator = Paginator(posts, 1)
+    if pindex == '':
+        pindex = '1'
+    try:
+        page = paginator.page(int(pindex))
+    except:
+        pindex = int(pindex) - 1
+        page = paginator.page(int(pindex))
+
+    nodes = Category.objects.get_queryset()
+
+    context['nodes'] = nodes
+    context['pages'] = page
+    context['keyword'] = keyword
+    hot_posts = Article.objects.filter(article_type='post', article_status='1').order_by('-view_count')[:5]
+    last_posts = Article.objects.filter(article_status="1", article_type='post').order_by('-pub_date')[:5]
+    tools = Menu.objects.get(menu_name='默认右侧边栏', menu_type='tool')
+    context['tools'] = tools.menu.all()
+    context['hot_posts'] = hot_posts
+    context['last_posts'] = last_posts
+    return render(req, 'index/search-show.html', context)
+
+
+def search(req):
+    context = {}
+    context['sitemeta'] = settings.SITEMETA
+    tags = Tag.objects.all()
+    context['tags'] = tags
+    keyword = req.POST.get('keyword')
+    context['keyword'] = keyword
+    pindex = '1'
+    try:
+        posts = Article.objects.filter(
+            (Q(pub_author__username__contains=keyword) | Q(title__contains=keyword) | Q(content__contains=keyword)) & Q(
+                article_type='post')).order_by('-pub_date')
+    except:
+        posts = None
+        nodes = Category.objects.get_queryset()
+        context['nodes'] = nodes
+        context['pages'] = posts
+        return render(req, 'index/search-show.html', context)
+    paginator = Paginator(posts, 1)
+    if pindex == '':
+        pindex = '1'
+    try:
+        page = paginator.page(int(pindex))
+    except:
+        pindex = int(pindex) - 1
+        page = paginator.page(int(pindex))
+
+    nodes = Category.objects.get_queryset()
+
+    context['nodes'] = nodes
+    context['pages'] = page
+    context['keyword'] = keyword
+    hot_posts = Article.objects.filter(article_type='post', article_status='1').order_by('-view_count')[:5]
+    last_posts = Article.objects.filter(article_status="1", article_type='post').order_by('-pub_date')[:5]
+    tools = Menu.objects.get(menu_name='默认右侧边栏', menu_type='tool')
+    context['tools'] = tools.menu.all()
+    context['hot_posts'] = hot_posts
+    context['last_posts'] = last_posts
+    return render(req, 'index/search-show.html', context)

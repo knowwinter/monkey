@@ -27,3 +27,8 @@ def get_perm(perm):
         return perm[0]['name']
     else:
         return None
+
+
+@register.filter
+def order_option(option):
+    return option.order_by('option_level')

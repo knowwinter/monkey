@@ -51,7 +51,9 @@
                         {% endfor %}
                     </select>
 
-                    &nbsp;&nbsp;&nbsp;&nbsp;<button class="btn btn-sm btn-group-sm btn-white" type="submit">选择</button>
+                    &nbsp;&nbsp;&nbsp;&nbsp;<button class="btn btn-sm btn-group-sm btn-white" type="submit"
+                                                    id="select_menu">选择
+                </button>
                     或<a data-toggle="tab" href="#new-menu" id="new-menu">创建新菜单</a>
                 </div>
             </form>
@@ -89,17 +91,18 @@
                                     <div class="well">
                                         {% for page in pages %}
                                             <input type="checkbox" id="{{ page.pk }}" name="option_value"
+                                                   class="page-all"
                                                    value="{% url 'page_show' page.url_slug %}"> {{ page.title }}<br>
                                             <input type="hidden" id="{{ page.pk }}" name="option_title"
-                                                   value="{{ page.title }}">
+                                                   value="{% url 'page_show' page.url_slug %}:{{ page.title }}">
                                         {% endfor %}
                                     </div>
                                     <div class="well well-sm">
                                         &nbsp;<button class="btn btn-sm btn-group-sm btn-white addall" type="button"
                                                       id="page-all">全选
                                     </button>
-                                        <button class="btn btn-sm btn-group-sm btn-white pull-right addto" type="submit"
-                                                id="page">添加至菜单
+                                        <button class="btn btn-sm btn-group-sm btn-white pull-right addto" type="button"
+                                                id="page-form">添加至菜单
                                         </button>
                                     </div>
                                 </form>
@@ -130,17 +133,18 @@
 
                                         {% for node in nodes %}
                                             <input type="checkbox" id="{{ node.pk }}" name="option_value"
+                                                   class="category-all"
                                                    value="{% url 'category_show' node.pk 1 %}"> {{ node.name }}<br>
                                             <input type="hidden" id="option_title" name="option_title"
-                                                   value="{{ node.name }}">
+                                                   value="{% url 'category_show' node.pk 1 %}:{{ node.name }}">
                                         {% endfor %}
                                     </div>
                                     <div class="well well-sm">
                                         &nbsp;<button class="btn btn-sm btn-group-sm btn-white addall" type="button"
                                                       id="category-all">全选
                                     </button>
-                                        <button class="btn btn-sm btn-group-sm btn-white pull-right addto" type="submit"
-                                                id="category">添加至菜单
+                                        <button class="btn btn-sm btn-group-sm btn-white pull-right addto" type="button"
+                                                id="category-form">添加至菜单
                                         </button>
                                     </div>
                                 </form>
@@ -169,18 +173,18 @@
                                     <input type="hidden" id="option_name" name="option_name" value="标签">
                                     <div class="well">
                                         {% for tag in tags %}
-                                            <input type="checkbox" id="{{ tag.pk }}" name="option_value"
+                                            <input type="checkbox" id="{{ tag.pk }}" name="option_value" class="tag-all"
                                                    value="{% url 'tag_show' tag.pk 1 %}"> {{ tag.name }}<br>
                                             <input type="hidden" id="option_title" name="option_title"
-                                                   value="{{ tag.name }}">
+                                                   value="{% url 'tag_show' tag.pk 1 %}:{{ tag.name }}">
                                         {% endfor %}
                                     </div>
                                     <div class="well well-sm">
                                         &nbsp;<button class="btn btn-sm btn-group-sm btn-white addall" type="button"
                                                       id="tag-all">全选
                                     </button>
-                                        <button class="btn btn-sm btn-group-sm btn-white pull-right addto" type="submit"
-                                                id="tag">添加至菜单
+                                        <button class="btn btn-sm btn-group-sm btn-white pull-right addto" type="button"
+                                                id="tag-form">添加至菜单
                                         </button>
                                     </div>
                                 </form>
@@ -226,7 +230,8 @@
                                     </div>
                                     <div class="well well-sm align-right">
                                         {#                                    <button class="btn btn-sm btn-group-sm btn-white" type="button">全选</button>#}
-                                        <button class="btn btn-sm btn-group-sm btn-white addto" type="submit" id="url">
+                                        <button class="btn btn-sm btn-group-sm btn-white addto" type="button"
+                                                id="url-form">
                                             添加至菜单
                                         </button>
                                     </div>
@@ -258,14 +263,14 @@
 
                         </div>
 
-                        <div class="widget-body">
+                        <div class="widget-body" id="33">
                             <div class="widget-main">
                                 <h4>菜单结构</h4>
                                 <p>
                                     拖放各个项目到您喜欢的顺序，点击右侧的箭头可进行更详细的设置。
                                 </p>
                                 <div class="dd" id="nestable">
-                                    <ol class="dd-list">
+                                    <ol class="dd-list" id="menu_option">
                                         {% for menu_option in current_menu_option %}
                                             <form action="{% url 'menu_option_modify' menu_option.pk %}" method="post"
                                                   id="{{ menu_option.pk }}">
@@ -274,15 +279,16 @@
                                                        value="{{ menu_option.menu.pk }}">
                                                 <input type="hidden" id="option_name" name="option_name"
                                                        value="{{ menu_option.option_name }}">
-                                                <input type="hidden" id="option_level" name="option_level"
-                                                       value="{{ menu_option.option_level }}">
-                                                <li class="dd-item panel" data-id="{{ menu_option.option_level }}">
+                                                <li class="dd-item panel" data-id="{{ menu_option.option_level }}"
+                                                    id="{{ menu_option.pk }}">
                                                     <div class="dd-handle">
                                                         <a class="accordion-toggle collapsed" data-toggle="collapse"
                                                            data-parent="#accordion"
                                                            href="#data-id-{{ menu_option.pk }}">
+                                                            <span id="{{ menu_option.pk }}">
                                                             &nbsp;{{ menu_option.option_name }}
                                                             | {{ menu_option.option_title }}
+                                                                </span>
                                                             <i class="icon-angle-down bigger-110 pull-right"
                                                                data-icon-hide="icon-angle-up"
                                                                data-icon-show="icon-angle-down"></i>
@@ -323,13 +329,14 @@
                                                             </div>
                                                             <div class="well well-sm align-right">
                                                                 <div class="col-xs-6 align-left">
-                                                                    移动 <a href="#">上一位</a> <a href="#">下一位</a> <a
-                                                                        href="#">回顶端</a> <a href="#" class="red">移除</a>
+                                                                    <a href="javascript:void(0);"
+                                                                       class="red menu_option_remove"
+                                                                       id="{{ menu_option.pk }}">移除</a>
                                                                 </div>
 
 
-                                                                <button class="btn btn-sm btn-group-sm btn-white"
-                                                                        type="button">保存
+                                                                <button class="btn btn-sm btn-group-sm btn-white save_menu_option"
+                                                                        type="button" id="{{ menu_option.pk }}">保存
                                                                 </button>
 
                                                                 <br>
@@ -338,7 +345,9 @@
                                                     </div>
                                                 </li>
                                             </form>
+
                                         {% endfor %}
+
                                     </ol>
                                 </div>
                             </div>
@@ -472,7 +481,142 @@
                         alert('请求失败')
                     }
                 })
+            });
+
+            $('div#nestable').on('click', 'a.menu_option_remove', function () {
+                var menu_option_id = $(this).attr("id")
+                var obj = $(this)
+                var url = "{% url 'menu_option_del' 123 %}"
+                url = url.replace('123', menu_option_id)
+                $.ajax({
+                    type: "GET",
+                    url: url,
+                    datatype: 'json',
+                    success: function (result) {
+                        if (result.result == 'success') {
+                            var sel = 'form#' + menu_option_id
+                            var lisel = 'li#' + menu_option_id
+                            $(sel).remove()
+                            $(lisel).remove()
+
+                        } else {
+                            alert('删除失败：' + result.msg)
+                        }
+                    },
+                    error: function (result) {
+                        alert('请求失败')
+                    }
+                })
+            });
+
+            $('#nestable').nestable('serialize');
+            $('#nestable').on('change', function () {
+                var r = $('#nestable').nestable('serialize')
+
+                var i = 1
+                $('ol li').each(function () {
+                    var option_id = $(this).attr('id')
+                    var pos = i
+                    var url = "{% url 'menu_option_order' 123 456 %}"
+                    url = url.replace('123', option_id)
+                    url = url.replace('456', pos)
+                    $.ajax({
+                        type: "GET",
+                        url: url,
+                        datatype: 'json',
+                        success: function (result) {
+                            if (result.result == 'success') {
+
+                                $(this).attr('data-id', pos)
+                                {#alert($('#nestable').find('span#' + option_id).text())#}
+                                console.log('排序成功')
+
+                            } else {
+                                alert('排序失败')
+                                return 0
+                            }
+                        },
+                        error: function () {
+                            alert('请求失败')
+                            return 0
+                        }
+                    })
+                    i = i + 1
+
+                })
+
+            });
+
+            $('div#nestable').on('click', 'button.save_menu_option', function () {
+
+                var menu_option_id = $(this).attr("id")
+                var obj = $(this)
+
+                var url = "{% url 'menu_option_modify' 123 %}"
+                url = url.replace('123', menu_option_id)
+                var formsel = 'form#' + menu_option_id
+                $(formsel).ajaxForm()
+                $('form#' + menu_option_id).ajaxForm()
+                $('form#' + menu_option_id).ajaxSubmit({
+                    type: "POST",
+                    url: url,
+                    cache: false,
+                    datatype: 'json',
+                    success: function (result) {
+                        if (result.result == 'success') {
+
+
+                            $('#nestable').find('span#' + menu_option_id).html('&nbsp' + result.option_name + ' | ' + result.option_title)
+                            alert('保存成功')
+                        } else {
+                            alert('保存失败,' + result.msg)
+                        }
+                    },
+                    error: function () {
+                        alert('请求失败')
+                    }
+                })
+            });
+
+            $('button.addto').click(function () {
+                var formid = $(this).attr("id")
+                url = "{% url 'menu_option_add' %}"
+                var c_menu_id = {{ current_menu.pk }}
+                    $('form#' + formid).ajaxForm()
+                $('form#' + formid).ajaxSubmit({
+                    type: "POST",
+                    url: url,
+                    cache: false,
+                    datatype: 'json',
+                    success: function (result) {
+                        if (result.result == 'success') {
+                            $('button#select_menu').click()
+                        } else {
+                            alert('添加失败：' + result.msg)
+                        }
+                    },
+                    error: function () {
+                        alert('请求失败')
+                    }
+                })
+            });
+
+            $('div#accordion').on('click', 'button.addall', function () {
+                var id = $(this).attr('id')
+                var sel = 'input[type="checkbox"].' + id
+                var btn_text = $(this).text()
+                if (btn_text == '全选') {
+                    $(sel).prop('checked', true)
+                    $('button#' + id).text('反选')
+                    $(this).focu
+                } else {
+                    $(sel).prop('checked', false)
+                    $('button#' + id).text('全选')
+                    $(this).focusout
+                }
+
             })
+
         });
 
 

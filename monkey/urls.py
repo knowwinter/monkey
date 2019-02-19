@@ -36,6 +36,8 @@ urlpatterns = [
     url(r'^tag/(\d*)/(\d*)\.html', views.tag_show, name='tag_show'),
     url(r'^author/(\d*)/(\d*)\.html', views.user_show, name='user_show'),
     url(r'^favicon.ico$', views.get_favicon, name='get_favicon'),
+    url(r'^search.html$', views.search, name='search'),
+    url(r'^search/(\w.*)/(\d*)\.html', views.search_show, name='search_show'),
     url(r'^(\w.*)\.html', views.page_show, name='page_show'),
 
 ]

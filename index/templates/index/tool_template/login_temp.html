@@ -1,3 +1,5 @@
+{% load staticfiles %}
+{% load static %}
 <div class="widget-box  widget">
     <div class="widget-header"><span class="icon"><i class="{{ option_icon }}"></i></span>| {% if request.user.pk %}
         用户信息{% else %}{{ option_title }}{% endif %}</div>

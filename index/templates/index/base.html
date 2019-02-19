@@ -147,161 +147,24 @@
         {% block page %}
         {% endblock %}
         <div class="col-md-3" style="padding-top: 30px;">
-            <div class="widget-box  widget">
-                <div class="widget-header"><span class="icon"><i class="icon-list"></i></span>| {% if request.user.pk %}
-                    用户信息{% else %}登录{% endif %}</div>
-                <div class="widget-body padding-4">
-                    <div class="widget-main">
-                        <p class="center">
-                            {% if request.user.pk %}
-                                欢迎光临<br>
-                                <a href="{% url 'user_show' request.user.pk 1 %}">{{ request.user.username }}</a><br>
-                                <img src="{{ request.user.avatar }}" width="50" height="50"><br>
-                                <a href="{% url 'das_index' %}">管理</a>
-                                <a href="{% url 'logout' %}">登出</a>
-                            {% else %}
-                                <form class="form-horizontal" action="{% url 'login' %}" method="post">
-                                    {% csrf_token %}
-                                    用户名：<input type="text" id="username" name="username" placeholder="用户名"><br><br>
-                                    密&nbsp &nbsp&nbsp码：<input type="password" id="password" name="password"
-                                                              placeholder="******"><br><br>
-                                <p class="center">
-                                    <button class="btn btn-danger" type="submit">登录</button>
-                                    <a href="{% url 'register' %}" class="btn btn-info">注册</a>
-                                </p>
-                                </form>
-                            {% endif %}
-                        </p>
-
-                    </div>
-                </div>
-
-            </div>
-            <div class="widget-box  widget">
 
 
-                <div class="widget-header"><span class="icon"><i class="icon-list"></i></span>| CATEGORY</div>
-                {% load mptt_tags %}
-                {% load category_tags %}
-                <div class="widget-body">
-
-                    <ul class="root">
-                        {% recursetree nodes %}
-                            <li>
-                                <a href="{% url 'category_show' node.pk '1' %}"><strong>{{ node.name }}</strong></a>
-                                {% if not node.is_leaf_node %}
-                                    <ul class="children">
-                                        <a href="{% url 'category_show' node.pk '1' %}"><strong>{{ children }}</strong></a>
-                                    </ul>
-                                {% endif %}
-                            </li>
-                        {% endrecursetree %}
-                        <li><a href="{% url 'category_show' 0 '1' %}"> 未分类</a></li>
-                    </ul>
-                </div>
-            </div>
-            <div class="widget-box  widget">
-                <div class="widget-header"><span class="icon"><i class="icon-list"></i></span>| 标签墙</div>
-                <div class="widget-body padding-4">
-                    <div class="widget-main">
-                        <p class="center">
-                            {% load btn_tags %}
-                            {% for tag in tags %}
-
-                                <a href="{% url 'tag_show' tag.pk '1' %}" class="padding-4"> <span
-                                        class="btn {{ 'btn'|randombtn }}">{{ tag }}</span></a>
-
-                                &nbsp;
-                            {% endfor %}
-                        </p>
-
-                    </div>
-                </div>
-
-            </div>
-
-            <div class="widget-box  widget">
-                <div class="widget-header"><span class="icon"><i class="icon-link"></i></span>| 友情链接</div>
-                <div class="widget-body padding-4">
-                    <div class="widget-main">
-                        <p class="center">
-                            <a href="http://www.ask600.com">Ask600</a>
-                            <a href="http://www.baidu.com">百度</a>
-                            <a href="http://www.qq.com">腾讯</a>
-                            <a href="http://www.sina.com">新浪网</a>
-                            <a href="http://www.ask600.com">Ask600</a>
-                            <a href="http://www.ask600.com">Ask600</a>
-                            <a href="http://www.ask600.com">Ask600</a>
-                            <a href="http://www.ask600.com">Ask600</a>
-
-                        </p>
-
-                    </div>
-                </div>
-
-            </div>
-            <div class="widget-box  widget">
-                <div class="widget-header"><span class="icon"><i class="icon-link"></i></span>| 广告位招租</div>
-                <div class="widget-body padding-4">
-                    <div class="widget-main">
-                        <p class="center">
-
-                            <a href="http://www.ask600.com" target="_blank">
-
-                                <img src="http://127.0.0.1:8000/static/upload/20190210/b995cc1caedf7e63d8292900f55b09e1.jpg"
-                                     alt="广告位招租" width="220" height="240">
-
-                            </a>
-
-
-                        </p>
-
-                    </div>
-                </div>
-
-            </div>
-            <div class="widget-box  widget">
-                <div class="widget-header"><span class="icon"><i class="icon-list"></i></span>| 热点文章</div>
-                <div class="widget-body padding-4">
-                    <div class="widget-main">
-
-
-                        {% for hot_post in hot_posts %}
-                            <li><a href="{% url 'show' hot_post.pk %}" target="_blank">{{ hot_post.title }}</a></li>
-                        {% endfor %}
-
-
-                    </div>
-                </div>
-
-            </div>
-            <div class="widget-box  widget">
-                <div class="widget-header"><span class="icon"><i class="icon-list"></i></span>| 近期更新</div>
-                <div class="widget-body padding-4">
-                    <div class="widget-main">
-
-
-                        {% for last_post in last_posts %}
-                            <li><a href="{% url 'show' last_post.pk %}" target="_blank">{{ last_post.title }}</a></li>
-                        {% endfor %}
-
-
-                    </div>
-                </div>
-
-            </div>
-
+            {% load btn_tags %}
             {% if tools %}
                 {% for tool in tools %}
-                    {% include tool.option_name with option_icon=tool.option_icon option_title=tool.option_title %}
+                    {% include tool.option_template with option_icon=tool.option_icon option_title=tool.option_title hot_posts=hot_posts last_posts=last_posts tags=tags user_define_menu=tool.user_menu|get_user_menu_option widget_context=tool.option_value %}
                 {% endfor %}
 
             {% endif %}
 
         </div>
 
-
+        <a href="#" id="btn-scroll-up" class="btn-scroll-up btn btn-sm btn-light">
+            <i class="icon-double-angle-up icon-only bigger-110"></i>
+        </a>
     </div>
+
+
 </div>
 <!--END HOME PAGE SECTION-->
 <div class="footer-sec" style="margin-top: 0px;">

@@ -116,3 +116,4 @@ class MenuOptionForm(forms.Form):
     menu_id = forms.IntegerField(required=True)
     user_menu_id = forms.IntegerField(required=False)
     option_level = forms.IntegerField(required=False)
+    option_template = forms.CharField(max_length=2000, required=False)
