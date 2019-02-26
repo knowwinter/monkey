@@ -35,7 +35,7 @@
                                    data-parent="#top-accordion"
                                    href="#tool">
                                     &nbsp;可用小工具
-                                    <i class="icon-angle-down bigger-110 pull-right" data-icon-hide="icon-angle-up"
+                                    <i class="icon-angle-up bigger-110 pull-right" data-icon-hide="icon-angle-up"
                                        data-icon-show="icon-angle-down"></i>
 
                                 </a>
@@ -44,7 +44,7 @@
                         <div class="panel-collapse in" id="tool">
                             <div class="panel-body">
                                 <p>
-                                    拖拽或点击小工具以激活它到边栏
+                                    点击小工具以激活它到边栏
                                 </p>
                             </div>
                             {% for menu_option_template in menu_option_templates %}
@@ -121,16 +121,17 @@
                                     <div class="dd" id="nestable">
                                         <ol class="dd-list" id="menu_option">
                                             {% for menu_option in tool.menu|order_option %}
-                                                <form action="{% url 'menu_option_modify' menu_option.pk %}"
-                                                      method="post"
-                                                      id="{{ menu_option.pk }}">
+
+                                                <li class="dd-item panel" data-id="{{ menu_option.pk }}"
+                                                    id="{{ menu_option.pk }}">
+                                                    <form action="{% url 'menu_option_modify' menu_option.pk %}"
+                                                          method="post"
+                                                          id="form-{{ menu_option.pk }}">
                                                     {% csrf_token %}
                                                     <input type="hidden" id="menu_id" name="menu_id"
                                                            value="{{ menu_option.menu.pk }}">
                                                     <input type="hidden" id="option_name" name="option_name"
                                                            value="{{ menu_option.option_name }}">
-                                                    <li class="dd-item panel" data-id="{{ menu_option.option_level }}"
-                                                        id="{{ menu_option.pk }}">
                                                         <div class="dd-handle">
                                                             <a class="accordion-toggle collapsed" data-toggle="collapse"
                                                                data-parent="#accordion"
@@ -151,23 +152,25 @@
                                                              id="data-id-{{ menu_option.pk }}">
                                                             <div class="panel-body">
                                                                 <div class="well">
-                                                                    <label class="control-label col-xs-2 no-padding-right">
-                                                                        标题：</label>
-                                                                    <input type="text" id="option_title"
-                                                                           name="option_title"
-                                                                           placeholder="标题"
-                                                                           class="col-sm-3 no-padding-left"
-                                                                           value="{{ menu_option.option_title }}"
-                                                                    />
-                                                                    &nbsp;&nbsp;
-                                                                    <label class="control-label col-xs-3 no-padding-right">
-                                                                        标题属性：</label>
-                                                                    <input type="text" id="option_icon"
-                                                                           name="option_icon"
-                                                                           placeholder="icon-list"
-                                                                           class="col-sm-3 no-padding-left"
-                                                                           value="{{ menu_option.option_icon }}"
-                                                                    /><br>
+                                                                    <div class="form-group">
+                                                                        <label class="control-label col-xs-2 no-padding-right">
+                                                                            标题：</label>
+                                                                        <input type="text" id="option_title"
+                                                                               name="option_title"
+                                                                               placeholder="标题"
+                                                                               class="col-sm-3 no-padding-left"
+                                                                               value="{{ menu_option.option_title }}"
+                                                                        />
+                                                                        &nbsp;&nbsp;
+                                                                        <label class="control-label col-xs-3 no-padding-right">
+                                                                            标题属性：</label>
+                                                                        <input type="text" id="option_icon"
+                                                                               name="option_icon"
+                                                                               placeholder="icon-list"
+                                                                               class="col-sm-3 no-padding-left"
+                                                                               value="{{ menu_option.option_icon }}"
+                                                                        /><br>
+                                                                    </div>
                                                                     {% if menu_option.option_name == '自定义文本框' %}
                                                                         <label class="control-label col-xs-8 ">
                                                                             文本、简码 或 HTML 代码：</label>
@@ -187,6 +190,7 @@
                                                                     {% endif %}
                                                                     {% if menu_option.option_name == '自定义菜单' %}
                                                                         <div class="space-8"></div>
+                                                                        <div class="form-group">
                                                                         <label class="control-label col-xs-3 no-padding-right">
                                                                             选择菜单：</label>
                                                                         <select id="user_menu_id" name="user_menu_id">
@@ -200,6 +204,7 @@
                                                                                 </option>
                                                                             {% endfor %}
                                                                         </select>
+                                                                        </div>
                                                                     {% endif %}
                                                                 </div>
                                                                 <div class="well well-sm align-right">
@@ -218,8 +223,9 @@
                                                                 </div>
                                                             </div>
                                                         </div>
-                                                    </li>
-                                                </form>
+                                                    </form>
+                                                </li>
+
 
                                             {% endfor %}
 
@@ -260,7 +266,7 @@
     <script type="text/javascript">
         jQuery(function ($) {
 
-            $('.dd').nestable();
+            $('.dd').nestable({'maxDepth': '1'});
 
             $('.dd-handle a').on('mousedown', function (e) {
                 e.stopPropagation();
@@ -360,25 +366,60 @@
                 })
             });
 
-            $('#nestable').nestable('serialize');
-            $('#nestable').on('change', function () {
-                var r = $('#nestable').nestable('serialize')
 
-                var i = 1
-                $('ol li').each(function () {
-                    var option_id = $(this).attr('id')
-                    var pos = i
-                    var url = "{% url 'menu_option_order' 123 456 %}"
-                    url = url.replace('123', option_id)
-                    url = url.replace('456', pos)
-                    $.ajax({
-                        type: "GET",
-                        url: url,
+            {#$('#nestable').on('change', function () {#}
+            {##}
+            {#    var b = $(this).nestable('serialize')#}
+            {#    console.log(b)#}
+            {##}
+            {##}
+            {#    var i = 1#}
+            {#    $('ol li').each(function () {#}
+            {#        var option_id = $(this).attr('id')#}
+            {#        var pos = i#}
+            {#        var url = "{% url 'menu_option_order' 123 456 %}"#}
+            {#        url = url.replace('123', option_id)#}
+            {#        url = url.replace('456', pos)#}
+            {#        $.ajax({#}
+            {#            type: "GET",#}
+            {#            url: url,#}
+            {#            datatype: 'json',#}
+            {#            success: function (result) {#}
+            {#                if (result.result == 'success') {#}
+            {##}
+            {#                    $(this).attr('data-id', pos)#}
+            {#alert($('#nestable').find('span#' + option_id).text())#}
+            {#                    console.log('排序成功')#}
+            {##}
+            {#                } else {#}
+            {#                    alert('排序失败')#}
+            {#                    return 0#}
+            {#                }#}
+            {#            },#}
+            {#            error: function () {#}
+            {#                alert('请求失败')#}
+            {#                return 0#}
+            {#            }#}
+            {#        })#}
+            {#        i = i + 1#}
+            {##}
+            {#    })#}
+            {##}
+            {#{);#}
+
+            $('#nestable').on('change', function () {
+                var order = $('.dd').nestable('serialize')
+                order = JSON.stringify(order)
+                console.log(order)
+                $.ajax({
+                    type: "post",
+                    url: '{% url "menu_option_order" %}',
                         datatype: 'json',
+                    data: order,
                         success: function (result) {
                             if (result.result == 'success') {
 
-                                $(this).attr('data-id', pos)
+                                {#$(this).attr('data-id', pos)#}
                                 {#alert($('#nestable').find('span#' + option_id).text())#}
                                 console.log('排序成功')
 
@@ -392,23 +433,21 @@
                             return 0
                         }
                     })
-                    i = i + 1
 
-                })
+
 
             });
 
             $('div#nestable').on('click', 'button.save_menu_option', function () {
-
                 var menu_option_id = $(this).attr("id")
                 var obj = $(this)
 
                 var url = "{% url 'menu_option_modify' 123 %}"
                 url = url.replace('123', menu_option_id)
-                var formsel = 'form#' + menu_option_id
+                var formsel = 'form#form-' + menu_option_id
                 $(formsel).ajaxForm()
-                $('form#' + menu_option_id).ajaxForm()
-                $('form#' + menu_option_id).ajaxSubmit({
+                $('form#form-' + menu_option_id).ajaxForm()
+                $('form#form-' + menu_option_id).ajaxSubmit({
                     type: "POST",
                     url: url,
                     cache: false,

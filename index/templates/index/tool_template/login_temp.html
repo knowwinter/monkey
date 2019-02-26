@@ -10,7 +10,7 @@
                     欢迎光临<br>
                     <a href="{% url 'user_show' request.user.pk 1 %}">{{ request.user.username }}</a><br>
                     <img src="{{ request.user.avatar }}" width="50" height="50"><br>
-                    <a href="{% url 'das_index' %}">管理</a>
+                    <a href="{% url 'das_index' %}">后台</a>
                     <a href="{% url 'logout' %}">登出</a>
                 {% else %}
                     <form class="form-horizontal" action="{% url 'login' %}" method="post">

@@ -5,6 +5,7 @@ import hashlib
 import json
 import os
 import time
+from itertools import count
 
 from django.conf import settings
 from django.contrib import auth
@@ -23,7 +24,8 @@ from django.contrib.auth.models import Group
 from django.contrib.auth.decorators import permission_required
 from django.contrib.auth.decorators import user_passes_test
 from django.forms import formset_factory
-
+from datetime import datetime, timedelta
+from django.db.models import Avg, Max, Min, Sum
 # from django.http import HttpResponse, HttpRequest
 settings.SITEMETA = cache_sitemeta()
 
@@ -102,6 +104,105 @@ def index_view(req):
     context['sitemeta'] = settings.SITEMETA
     context['version'] = settings.VIERSION
     context['active'] = 'das_index'
+    dt_s = datetime.now()
+    dt_e = (dt_s - timedelta(7))
+    if req.user.is_superuser or req.user.has_perm('access_dashboard'):
+        post_count = Article.objects.filter(article_type='post', article_status='1').count()
+        last_week_pub_post_count = Article.objects.filter(article_type='post', article_status='1',
+                                                          last_modify__range=(dt_e, dt_s)).count()
+        if post_count and post_count - last_week_pub_post_count != 0:
+            post_grow = round((last_week_pub_post_count * 100) / (post_count - last_week_pub_post_count), 2)
+        elif post_count - last_week_pub_post_count == 0:
+            post_grow = last_week_pub_post_count * 100
+        else:
+            post_grow = 0
+        user_count = User.objects.all().count()
+        last_week_new_user_count = User.objects.filter(date_joined__range=(dt_e, dt_s)).count()
+        if user_count and user_count - last_week_new_user_count != 0:
+            user_grow = round((last_week_new_user_count * 100) / (user_count - last_week_new_user_count), 2)
+        elif user_count - last_week_new_user_count == 0:
+            user_grow = last_week_new_user_count * 100
+        else:
+            user_grow = 0
+        comment_count = Comment.objects.all().count()
+        last_week_new_comment_count = Comment.objects.filter(comment_date__range=(dt_e, dt_s)).count()
+        if comment_count and comment_count - last_week_new_comment_count != 0:
+            comment_grow = round((last_week_new_comment_count * 100) / (comment_count - last_week_new_comment_count), 2)
+        elif comment_count - last_week_new_comment_count == 0:
+            comment_grow = last_week_new_comment_count * 100
+        else:
+            comment_grow = 0
+        post_views = Article.objects.filter(article_type='post', article_status='1').aggregate(Sum('view_count'))[
+            'view_count__sum']
+        tag_count = Tag.objects.all().count()
+        # category_count = count(Category.objects.get_queryset())
+        category_count = 10
+        last_week_new_users = User.objects.filter(date_joined__range=(dt_e, dt_s)).order_by('date_joined')
+        last_comments = Comment.objects.all().order_by('-comment_date')[:5]
+        context['post_count'] = post_count
+        context['post_grow'] = post_grow
+        context['last_week_pub_post_count'] = last_week_pub_post_count
+        context['user_count'] = user_count
+        context['user_grow'] = user_grow
+        context['last_week_new_user_count'] = last_week_new_user_count
+        context['comment_count'] = comment_count
+        context['comment_grow'] = comment_grow
+        context['last_week_new_comment_count'] = last_week_new_comment_count
+        context['tag_count'] = tag_count
+        context['category_count'] = category_count
+        context['post_views'] = post_views
+        context['last_week_new_users'] = last_week_new_users
+        context['last_comments'] = last_comments
+
+    my_post_count = Article.objects.filter(article_type='post', article_status='1', pub_author=req.user).count()
+    my_last_week_pub_post_count = Article.objects.filter(article_type='post', article_status='1', pub_author=req.user,
+                                                         last_modify__range=(dt_e, dt_s)).count()
+    if my_post_count and my_post_count - my_last_week_pub_post_count != 0:
+        my_post_grow = round((my_last_week_pub_post_count * 100) / (my_post_count - my_last_week_pub_post_count), 2)
+    elif my_post_count - my_last_week_pub_post_count == 0:
+        my_post_grow = my_last_week_pub_post_count * 100
+    else:
+        my_post_grow = 0
+    my_comment_count = Comment.objects.filter(user=req.user).count()
+    my_last_week_new_comment_count = Comment.objects.filter(user=req.user, comment_date__range=(dt_e, dt_s)).count()
+    if my_comment_count and my_comment_count - my_last_week_new_comment_count != 0:
+        my_comment_grow = round(
+            (my_last_week_new_comment_count * 100) / (my_comment_count - my_last_week_new_comment_count), 2)
+    elif my_comment_count - my_last_week_new_comment_count == 0:
+        my_comment_grow = my_last_week_new_comment_count * 100
+    else:
+        my_comment_grow = 0
+    my_post_views = \
+    Article.objects.filter(pub_author=req.user, article_type='post', article_status='1').aggregate(Sum('view_count'))[
+        'view_count__sum']
+    if not my_post_views:
+        my_post_views = 0
+    my_post_likes = \
+    Article.objects.filter(pub_author=req.user, article_type='post', article_status='1').aggregate(Sum('like_count'))[
+        'like_count__sum']
+    if not my_post_likes:
+        my_post_likes = 0
+    my_comment_like_count = Likecommentship.objects.filter(comment__in=Comment.objects.filter(user=req.user)).count()
+    hot_posts = Article.objects.filter(article_type='post', article_status='1').order_by('-view_count')[:5]
+    my_comments = Comment.objects.filter(Q(user=req.user) | Q(parent__comment__in=req.user.commenter.all())).order_by(
+        '-comment_date')[:5]
+    my_last_posts = Article.objects.filter(article_status='1', article_type='post', pub_author=req.user).order_by(
+        '-last_modify')[0:5]
+
+    context['my_post_count'] = my_post_count
+    context['my_last_week_pub_post_count'] = my_last_week_pub_post_count
+    context['my_post_grow'] = my_post_grow
+    context['my_comment_count'] = my_comment_count
+    context['my_last_week_new_comment_count'] = my_last_week_new_comment_count
+    context['my_comment_grow'] = my_comment_grow
+    context['my_post_views'] = my_post_views
+    context['my_post_likes'] = my_post_likes
+    context['hot_posts'] = hot_posts
+    context['my_comments'] = my_comments
+    context['my_comment_like_count'] = my_comment_like_count
+    context['my_last_posts'] = my_last_posts
+
+
     return render(req, 'das/index.html', context)
 
 
@@ -845,7 +946,7 @@ def comment(req):
                 user = None
             else:
                 user = User.objects.get(pk=user_id)
-                if user.is_superuser == 1:
+                if user.is_superuser == 1 or user.has_perm('access_dashboard'):
                     comment_status = "1"
 
             comment_author = form.cleaned_data['comment_author']
@@ -908,6 +1009,7 @@ def comment(req):
         return render(req, 'das/msg.html', context)
 
 
+@permission_required('das.access_dashboard', login_url='/login.html')
 @login_required(login_url="/login")
 def comment_show(req, pindex, comment_status):
     context = {}
@@ -943,6 +1045,37 @@ def comment_show(req, pindex, comment_status):
     context['comments'] = comments
     context['comment_status'] = comment_status
     return render(req, 'das/comment-show.html', context)
+
+
+@login_required(login_url="/login")
+def my_comment(req, pindex, comment_status):
+    context = {}
+    context['sitemeta'] = settings.SITEMETA
+    context['active'] = 'my_comment'
+    if comment_status == "":
+        comment_status = '0'
+    if req.method == "POST":
+        form = CommentStatusForm(req.POST)
+        if form.is_valid():
+            comment_status = form.cleaned_data['comment_status']
+
+    user = req.session.get('user')
+    if comment_status == '0':
+        comments = Comment.objects.filter(user=user).order_by('-comment_date')
+    else:
+        comments = Comment.objects.filter(user=user, comment_status=comment_status).order_by('-comment_date')
+    paginator = Paginator(comments, 10)
+    if pindex == '':
+        pindex = '1'
+    try:
+        page = paginator.page(int(pindex))
+    except:
+        pindex = int(pindex) - 1
+        page = paginator.page(int(pindex))
+    context['pages'] = page
+    context['comments'] = comments
+    context['comment_status'] = comment_status
+    return render(req, 'das/my-comment.html', context)
 
 
 @permission_required('das.access_dashboard', login_url='/login.html')
@@ -1402,7 +1535,7 @@ def user_view(req, pindex, status):
         status = int(status)
         users = User.objects.filter(is_active=status).order_by('-date_joined')
 
-    paginator = Paginator(users, 2)
+    paginator = Paginator(users, 10)
     if pindex == '':
         pindex = '1'
     try:
@@ -1664,12 +1797,24 @@ def menu_view(req):
     pages = Article.objects.filter(article_type='page')
     nodes = Category.objects.get_queryset()
     tags = Tag.objects.all()
+    menu_positions = Menu_position.objects.all()
     context['current_menu'] = menu
-    context['current_menu_option'] = menu.menu.order_by('option_level')
+    try:
+        current_menu_option = menu.menu.filter(parent=None).order_by('option_level')
+    except:
+        current_menu_option = None
+    context['current_menu_option'] = current_menu_option
+    # a = menu.menu.order_by('option_level')
+    # for b in a:
+    #     if b.children.all():
+    #
+    #         for c in b.children.all():
+    #             print(c.pk)
     context['menus'] = menus
     context['pages'] = pages
     context['nodes'] = nodes
     context['tags'] = tags
+    context['menu_positions'] = menu_positions
     return render(req, 'das/menu.html', context)
 
 
@@ -1712,18 +1857,24 @@ def menu_modify(req, id):
     try:
         menu = Menu.objects.get(pk=id)
         if req.method == 'POST':
-            form = MenuForm(req.POST)
-            if form.is_valid():
-                menu_name = form.cleaned_data['menu_name']
-                menu_type = form.cleaned_data['menu_type']
-                menu.menu_name = menu_name
-                menu.menu_type = menu_type
-                menu.save()
-                ret = {'result': 'success', 'msg': '菜单修改成功', 'menu_id': menu.pk, 'menu_name': menu.menu_name}
-                return HttpResponse(json.dumps(ret), content_type="application/json")
-            else:
-                ret = {'result': 'failure', 'msg': '表单不合法'}
-                return HttpResponse(json.dumps(ret), content_type="application/json")
+            datas = json.loads(req.body)
+            menu.menu_name = datas['menu_name']
+            menu.menu_type = datas['menu_type']
+            menu.save()
+            position_ids = datas['position_ids']
+
+            old_position_ids = []
+            for pos in menu.menu_position.all():
+                old_position_ids.append(pos.pk)
+            if position_ids:
+                menu.menu_position.clear()
+                for position_id in position_ids:
+                    menu_position = Menu_position.objects.get(pk=position_id)
+                    menu.menu_position.add(menu_position)
+                    menu.save()
+            ret = {'result': 'success', 'msg': '菜单修改成功', 'menu_id': menu.pk, 'menu_name': menu.menu_name,
+                   'position_ids': position_ids, 'old_position_ids': old_position_ids}
+            return HttpResponse(json.dumps(ret), content_type="application/json")
         else:
             ret = {'result': 'failure', 'msg': '非法请求'}
             return HttpResponse(json.dumps(ret), content_type="application/json")
@@ -1771,17 +1922,20 @@ def menu_option_add(req):
                     if option_name == '自定义URL':
                         option_value = value
                         option_title = option_titles[0]
+                        original_title = option_title
                     else:
                         option_value = req.scheme + "://" + req.get_host() + value
                     for title in option_titles:
                         t = title.split(':')
                         if value == t[0]:
                             option_title = t[1]
+                            original_title = option_title
                     if menu.menu.all():
                         option_level = menu.menu.order_by('-option_level')[0].option_level + 1
                     else:
                         option_level = 1
                     menu_option = Menu_option.objects.create(option_name=option_name, option_title=option_title,
+                                                             original_title=original_title,
                                                              option_value=option_value, option_icon='icon-list',
                                                              option_level=option_level, menu=menu)
                     menu_option.save()
@@ -1876,15 +2030,51 @@ def menu_option_del(req, id):
         return HttpResponse(json.dumps(ret), content_type="application/json")
 
 
+# @permission_required('das.access_all', login_url='/login.html')
+# @login_required(login_url='/login.html')
+# def menu_option_order(req, id, pos):
+#     menu_option = Menu_option.objects.get(pk=id)
+#     if menu_option:
+#         menu_option.option_level = pos
+#         menu_option.save()
+#         ret = {'result': 'success', 'msg': '排序成功'}
+#         return HttpResponse(json.dumps(ret), content_type="application/json")
+#     else:
+#         ret = {'result': 'failure', 'msg': '排序失败'}
+#         return HttpResponse(json.dumps(ret), content_type="application/json")
+
 @permission_required('das.access_all', login_url='/login.html')
 @login_required(login_url='/login.html')
-def menu_option_order(req, id, pos):
-    menu_option = Menu_option.objects.get(pk=id)
-    if menu_option:
-        menu_option.option_level = pos
-        menu_option.save()
+def menu_option_order(req):
+    level = 1
+    menu_option_ids = json.loads(req.body)
+    try:
+        for menu_option_id in menu_option_ids:
+            if len(menu_option_id) > 1:
+                menu_option = Menu_option.objects.get(pk=menu_option_id['id'])
+                menu_option.option_level = level
+                menu_option.save()
+                level = level + 1
+                for child_id in menu_option_id['children']:
+                    child_option = Menu_option.objects.get(pk=child_id['id'])
+                    child_option.option_level = level
+                    child_option.parent = menu_option
+                    child_option.save()
+                    level = level + 1
+            else:
+                menu_option = Menu_option.objects.get(pk=menu_option_id['id'])
+                menu_option.option_level = level
+                menu_option.parent = None
+                menu_option.save()
+                level = level + 1
         ret = {'result': 'success', 'msg': '排序成功'}
         return HttpResponse(json.dumps(ret), content_type="application/json")
-    else:
+    except:
         ret = {'result': 'failure', 'msg': '排序失败'}
         return HttpResponse(json.dumps(ret), content_type="application/json")
+
+
+@permission_required('das.access_all', login_url='/login.html')
+@login_required(login_url='/login.html')
+def menu_position_modify(req):
+    pass

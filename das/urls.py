@@ -57,7 +57,9 @@ urlpatterns = [
     url(r'^menu/option/add/$', views.menu_option_add, name='menu_option_add'),
     url(r'^menu/option/modify/(\d*)', views.menu_option_modify, name='menu_option_modify'),
     url(r'^menu/option/del/(\d*)', views.menu_option_del, name='menu_option_del'),
-    url(r'^menu/option/order/(\d*)/(\d*)', views.menu_option_order, name='menu_option_order'),
+    # url(r'^menu/option/order/(\d*)/(\d*)', views.menu_option_order, name='menu_option_order'),
+    url(r'^menu/option/order/$', views.menu_option_order, name='menu_option_order'),
+    url(r'^my/comment/list/(\d*)/(\d*)', views.my_comment, name='my_comment'),
 
 
 

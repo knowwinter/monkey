@@ -33,6 +33,22 @@ def index_view(req, pindex):
     last_posts = Article.objects.filter(article_status="1", article_type='post').order_by('-pub_date')[:5]
     tool = Menu.objects.get(menu_name='默认右侧边栏', menu_type='tool')
     context['tools'] = tool.menu.all().order_by('option_level')
+    try:
+        top_menu = Menu_position.objects.get(position='顶部主菜单').menu.menu.filter(parent=None).order_by('option_level')
+    except:
+        top_menu = None
+    try:
+        bottom_menu = Menu_position.objects.get(position='底部菜单').menu.menu.filter(parent=None).order_by('option_level')
+    except:
+        bottom_menu = None
+    try:
+        link_menu = Menu_position.objects.get(position='底部友链').menu.menu.filter(parent=None).order_by('option_level')
+    except:
+        link_menu = None
+    context['top_menu'] = top_menu
+    context['bottom_menu'] = bottom_menu
+    context['link_menu'] = link_menu
+
 
     # templates = []
     # for tool in tools.menu.all():
@@ -88,6 +104,21 @@ def post_show(req, id):
     context['tools'] = tools.menu.all()
     context['hot_posts'] = hot_posts
     context['last_posts'] = last_posts
+    try:
+        top_menu = Menu_position.objects.get(position='顶部主菜单').menu.menu.filter(parent=None).order_by('option_level')
+    except:
+        top_menu = None
+    try:
+        bottom_menu = Menu_position.objects.get(position='底部菜单').menu.menu.filter(parent=None).order_by('option_level')
+    except:
+        bottom_menu = None
+    try:
+        link_menu = Menu_position.objects.get(position='底部友链').menu.menu.filter(parent=None).order_by('option_level')
+    except:
+        link_menu = None
+    context['top_menu'] = top_menu
+    context['bottom_menu'] = bottom_menu
+    context['link_menu'] = link_menu
     return render(req, 'index/post-show.html', context)
 
 
@@ -118,6 +149,21 @@ def post_preview(req, id):
     context['tools'] = tools.menu.all()
     context['hot_posts'] = hot_posts
     context['last_posts'] = last_posts
+    try:
+        top_menu = Menu_position.objects.get(position='顶部主菜单').menu.menu.filter(parent=None).order_by('option_level')
+    except:
+        top_menu = None
+    try:
+        bottom_menu = Menu_position.objects.get(position='底部菜单').menu.menu.filter(parent=None).order_by('option_level')
+    except:
+        bottom_menu = None
+    try:
+        link_menu = Menu_position.objects.get(position='底部友链').menu.menu.filter(parent=None).order_by('option_level')
+    except:
+        link_menu = None
+    context['top_menu'] = top_menu
+    context['bottom_menu'] = bottom_menu
+    context['link_menu'] = link_menu
     return render(req, 'index/post-show.html', context)
 
 def category_show(req, cate_id, pindex):
@@ -126,12 +172,34 @@ def category_show(req, cate_id, pindex):
     context['sitemeta'] = settings.SITEMETA
     tags = Tag.objects.all()
     context['tags'] = tags
+    try:
+        top_menu = Menu_position.objects.get(position='顶部主菜单').menu.menu.filter(parent=None).order_by('option_level')
+    except:
+        top_menu = None
+    try:
+        bottom_menu = Menu_position.objects.get(position='底部菜单').menu.menu.filter(parent=None).order_by('option_level')
+    except:
+        bottom_menu = None
+    try:
+        link_menu = Menu_position.objects.get(position='底部友链').menu.menu.filter(parent=None).order_by('option_level')
+    except:
+        link_menu = None
+    context['top_menu'] = top_menu
+    context['bottom_menu'] = bottom_menu
+    context['link_menu'] = link_menu
+    hot_posts = Article.objects.filter(article_type='post', article_status='1').order_by('-view_count')[:5]
+    last_posts = Article.objects.filter(article_status="1", article_type='post').order_by('-pub_date')[:5]
+    tools = Menu.objects.get(menu_name='默认右侧边栏', menu_type='tool')
+    context['tools'] = tools.menu.all()
+    context['hot_posts'] = hot_posts
+    context['last_posts'] = last_posts
     if cate_id == '0':
-        posts = Article.objects.filter(category=None, article_type='post')
+        posts = Article.objects.filter(category=None, article_type='post', article_status='1')
     else:
         category = Category.objects.get(pk=cate_id)
         try:
-            posts = Article.objects.filter(category=category, article_type='post').order_by('-pub_date')
+            posts = Article.objects.filter(category=category, article_type='post', article_status='1').order_by(
+                '-pub_date')
         except:
             posts = None
             nodes = Category.objects.get_queryset()
@@ -154,12 +222,7 @@ def category_show(req, cate_id, pindex):
     context['nodes'] = nodes
     context['pages'] = page
     context['cate'] = category
-    hot_posts = Article.objects.filter(article_type='post', article_status='1').order_by('-view_count')[:5]
-    last_posts = Article.objects.filter(article_status="1", article_type='post').order_by('-pub_date')[:5]
-    tools = Menu.objects.get(menu_name='默认右侧边栏', menu_type='tool')
-    context['tools'] = tools.menu.all()
-    context['hot_posts'] = hot_posts
-    context['last_posts'] = last_posts
+
     return render(req, 'index/category-show.html', context)
 
 def tag_show(req, tag_id, pindex):
@@ -169,7 +232,28 @@ def tag_show(req, tag_id, pindex):
     tags = Tag.objects.all()
     context['tags'] = tags
     try:
-        posts = Article.objects.filter(tag=tag, article_type='post').order_by('-pub_date')
+        top_menu = Menu_position.objects.get(position='顶部主菜单').menu.menu.filter(parent=None).order_by('option_level')
+    except:
+        top_menu = None
+    try:
+        bottom_menu = Menu_position.objects.get(position='底部菜单').menu.menu.filter(parent=None).order_by('option_level')
+    except:
+        bottom_menu = None
+    try:
+        link_menu = Menu_position.objects.get(position='底部友链').menu.menu.filter(parent=None).order_by('option_level')
+    except:
+        link_menu = None
+    context['top_menu'] = top_menu
+    context['bottom_menu'] = bottom_menu
+    context['link_menu'] = link_menu
+    hot_posts = Article.objects.filter(article_type='post', article_status='1').order_by('-view_count')[:5]
+    last_posts = Article.objects.filter(article_status="1", article_type='post').order_by('-pub_date')[:5]
+    tools = Menu.objects.get(menu_name='默认右侧边栏', menu_type='tool')
+    context['tools'] = tools.menu.all()
+    context['hot_posts'] = hot_posts
+    context['last_posts'] = last_posts
+    try:
+        posts = Article.objects.filter(tag=tag, article_type='post', article_status='1').order_by('-pub_date')
     except:
         posts = None
         nodes = Category.objects.get_queryset()
@@ -191,12 +275,7 @@ def tag_show(req, tag_id, pindex):
     context['nodes'] = nodes
     context['pages'] = page
     context['tag'] = tag
-    hot_posts = Article.objects.filter(article_type='post', article_status='1').order_by('-view_count')[:5]
-    last_posts = Article.objects.filter(article_status="1", article_type='post').order_by('-pub_date')[:5]
-    tools = Menu.objects.get(menu_name='默认右侧边栏', menu_type='tool')
-    context['tools'] = tools.menu.all()
-    context['hot_posts'] = hot_posts
-    context['last_posts'] = last_posts
+
     return render(req, 'index/tag-show.html', context)
 
 
@@ -207,7 +286,28 @@ def user_show(req, user_id, pindex):
     tags = Tag.objects.all()
     context['tags'] = tags
     try:
-        posts = Article.objects.filter(pub_author=user, article_type='post').order_by('-pub_date')
+        top_menu = Menu_position.objects.get(position='顶部主菜单').menu.menu.filter(parent=None).order_by('option_level')
+    except:
+        top_menu = None
+    try:
+        bottom_menu = Menu_position.objects.get(position='底部菜单').menu.menu.filter(parent=None).order_by('option_level')
+    except:
+        bottom_menu = None
+    try:
+        link_menu = Menu_position.objects.get(position='底部友链').menu.menu.filter(parent=None).order_by('option_level')
+    except:
+        link_menu = None
+    context['top_menu'] = top_menu
+    context['bottom_menu'] = bottom_menu
+    context['link_menu'] = link_menu
+    hot_posts = Article.objects.filter(article_type='post', article_status='1').order_by('-view_count')[:5]
+    last_posts = Article.objects.filter(article_status="1", article_type='post').order_by('-pub_date')[:5]
+    tools = Menu.objects.get(menu_name='默认右侧边栏', menu_type='tool')
+    context['tools'] = tools.menu.all()
+    context['hot_posts'] = hot_posts
+    context['last_posts'] = last_posts
+    try:
+        posts = Article.objects.filter(pub_author=user, article_type='post', article_status='1').order_by('-pub_date')
     except:
         posts = None
         nodes = Category.objects.get_queryset()
@@ -229,12 +329,6 @@ def user_show(req, user_id, pindex):
     context['nodes'] = nodes
     context['pages'] = page
     context['user'] = user
-    hot_posts = Article.objects.filter(article_type='post', article_status='1').order_by('-view_count')[:5]
-    last_posts = Article.objects.filter(article_status="1", article_type='post').order_by('-pub_date')[:5]
-    tools = Menu.objects.get(menu_name='默认右侧边栏', menu_type='tool')
-    context['tools'] = tools.menu.all()
-    context['hot_posts'] = hot_posts
-    context['last_posts'] = last_posts
     return render(req, 'index/user-show.html', context)
 
 
@@ -246,7 +340,7 @@ def page_show(req, url_slug):
     context = {}
     tags = Tag.objects.all()
     context['tags'] = tags
-    post = Article.objects.get(url_slug=url_slug, article_type='page')
+    post = Article.objects.get(url_slug=url_slug, article_type='page', article_status='1')
     post.view_count = post.view_count + 1
     if post.comment_status == '1':
         post.comment_count = post.comment_set.filter(comment_status=1).count()
@@ -264,7 +358,21 @@ def page_show(req, url_slug):
     last_posts = Article.objects.filter(article_status="1", article_type='post').order_by('-pub_date')[:5]
     tools = Menu.objects.get(menu_name='默认右侧边栏', menu_type='tool')
     context['tools'] = tools.menu.all()
-
+    try:
+        top_menu = Menu_position.objects.get(position='顶部主菜单').menu.menu.filter(parent=None).order_by('option_level')
+    except:
+        top_menu = None
+    try:
+        bottom_menu = Menu_position.objects.get(position='底部菜单').menu.menu.filter(parent=None).order_by('option_level')
+    except:
+        bottom_menu = None
+    try:
+        link_menu = Menu_position.objects.get(position='底部友链').menu.menu.filter(parent=None).order_by('option_level')
+    except:
+        link_menu = None
+    context['top_menu'] = top_menu
+    context['bottom_menu'] = bottom_menu
+    context['link_menu'] = link_menu
     context['hot_posts'] = hot_posts
     context['last_posts'] = last_posts
     return render(req, 'index/page-show.html', context)
@@ -275,11 +383,31 @@ def search_show(req, keyword, pindex):
     context['sitemeta'] = settings.SITEMETA
     tags = Tag.objects.all()
     context['tags'] = tags
-
+    try:
+        top_menu = Menu_position.objects.get(position='顶部主菜单').menu.menu.filter(parent=None).order_by('option_level')
+    except:
+        top_menu = None
+    try:
+        bottom_menu = Menu_position.objects.get(position='底部菜单').menu.menu.filter(parent=None).order_by('option_level')
+    except:
+        bottom_menu = None
+    try:
+        link_menu = Menu_position.objects.get(position='底部友链').menu.menu.filter(parent=None).order_by('option_level')
+    except:
+        link_menu = None
+    context['top_menu'] = top_menu
+    context['bottom_menu'] = bottom_menu
+    context['link_menu'] = link_menu
+    hot_posts = Article.objects.filter(article_type='post', article_status='1').order_by('-view_count')[:5]
+    last_posts = Article.objects.filter(article_status="1", article_type='post').order_by('-pub_date')[:5]
+    tools = Menu.objects.get(menu_name='默认右侧边栏', menu_type='tool')
+    context['tools'] = tools.menu.all()
+    context['hot_posts'] = hot_posts
+    context['last_posts'] = last_posts
     try:
         posts = Article.objects.filter(
             (Q(pub_author__username__contains=keyword) | Q(title__contains=keyword) | Q(content__contains=keyword)) & Q(
-                article_type='post')).order_by('-pub_date')
+                article_type='post') & Q(article_status='1')).order_by('-pub_date')
     except:
         posts = None
         nodes = Category.objects.get_queryset()
@@ -300,12 +428,6 @@ def search_show(req, keyword, pindex):
     context['nodes'] = nodes
     context['pages'] = page
     context['keyword'] = keyword
-    hot_posts = Article.objects.filter(article_type='post', article_status='1').order_by('-view_count')[:5]
-    last_posts = Article.objects.filter(article_status="1", article_type='post').order_by('-pub_date')[:5]
-    tools = Menu.objects.get(menu_name='默认右侧边栏', menu_type='tool')
-    context['tools'] = tools.menu.all()
-    context['hot_posts'] = hot_posts
-    context['last_posts'] = last_posts
     return render(req, 'index/search-show.html', context)
 
 
@@ -318,9 +440,30 @@ def search(req):
     context['keyword'] = keyword
     pindex = '1'
     try:
+        top_menu = Menu_position.objects.get(position='顶部主菜单').menu.menu.filter(parent=None).order_by('option_level')
+    except:
+        top_menu = None
+    try:
+        bottom_menu = Menu_position.objects.get(position='底部菜单').menu.menu.filter(parent=None).order_by('option_level')
+    except:
+        bottom_menu = None
+    try:
+        link_menu = Menu_position.objects.get(position='底部友链').menu.menu.filter(parent=None).order_by('option_level')
+    except:
+        link_menu = None
+    context['top_menu'] = top_menu
+    context['bottom_menu'] = bottom_menu
+    context['link_menu'] = link_menu
+    hot_posts = Article.objects.filter(article_type='post', article_status='1').order_by('-view_count')[:5]
+    last_posts = Article.objects.filter(article_status="1", article_type='post').order_by('-pub_date')[:5]
+    tools = Menu.objects.get(menu_name='默认右侧边栏', menu_type='tool')
+    context['tools'] = tools.menu.all()
+    context['hot_posts'] = hot_posts
+    context['last_posts'] = last_posts
+    try:
         posts = Article.objects.filter(
             (Q(pub_author__username__contains=keyword) | Q(title__contains=keyword) | Q(content__contains=keyword)) & Q(
-                article_type='post')).order_by('-pub_date')
+                article_type='post') & Q(article_status='1')).order_by('-pub_date')
     except:
         posts = None
         nodes = Category.objects.get_queryset()
@@ -341,10 +484,4 @@ def search(req):
     context['nodes'] = nodes
     context['pages'] = page
     context['keyword'] = keyword
-    hot_posts = Article.objects.filter(article_type='post', article_status='1').order_by('-view_count')[:5]
-    last_posts = Article.objects.filter(article_status="1", article_type='post').order_by('-pub_date')[:5]
-    tools = Menu.objects.get(menu_name='默认右侧边栏', menu_type='tool')
-    context['tools'] = tools.menu.all()
-    context['hot_posts'] = hot_posts
-    context['last_posts'] = last_posts
     return render(req, 'index/search-show.html', context)

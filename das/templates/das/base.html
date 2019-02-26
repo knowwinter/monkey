@@ -354,7 +354,7 @@
                             <a class="btn btn-info" href="{% url 'post_new' %}">
 								<i class="icon-pencil"></i>
                             </a>
-
+                            {% if request.user.is_superuser or 'das.access_dashboard' in request.user.get_all_permissions %}
                             <a class="btn btn-warning" href="{% url 'user_list' 1 2 %}">
 								<i class="icon-group"></i>
                             </a>
@@ -362,6 +362,15 @@
                             <a class="btn btn-danger" href="{% url 'site_edit' %}">
 								<i class="icon-cogs"></i>
                             </a>
+                            {% else %}
+                                <a class="btn btn-warning" href="{% url 'my_comment' 1 0 %}">
+                                    <i class="icon-comments"></i>
+                                </a>
+
+                                <a class="btn btn-danger" href="{% url 'profile' %}">
+                                    <i class="icon-cogs"></i>
+                                </a>
+                            {% endif %}
 						</div>
 
 						<div class="sidebar-shortcuts-mini" id="sidebar-shortcuts-mini">
@@ -522,15 +531,44 @@
 								</li>
 							</ul>
 						</li>
-                        {% if active == 'comment_show' %}
+
+                        {% if active == 'comment_show' or active == 'my_comment' %}
                             <li class="active">
                                 {% else %}
                             <li>
                         {% endif %}
-                            <a href="{% url 'comment_list' 1 0 %}">
+                        <a href="#" class="dropdown-toggle">
                                 <i class="icon-comments"></i>
-                                <span class="menu-text">评论 </span>
+                            <span class="menu-text"> 评论 </span>
+
+                            <b class="arrow icon-angle-down"></b>
+                        </a>
+
+                        <ul class="submenu">
+                            {% if request.user.is_superuser or 'das.access_dashboard' in request.user.get_all_permissions %}
+                                {% if active == 'comment_show' %}
+                                    <li class="active">
+                                        {% else %}
+                                    <li>
+                                {% endif %}
+                            <a href="{% url 'comment_list' 1 0 %}">
+                                <i class="icon-double-angle-right"></i>
+                                所有评论
                             </a>
+                            </li>
+                            {% endif %}
+
+                            {% if active == 'my_comment' %}
+                                <li class="active">
+                                    {% else %}
+                                <li>
+                            {% endif %}
+                            <a href="{% url 'my_comment' 1 0 %}">
+                                <i class="icon-double-angle-right"></i>
+                                我的评论
+                            </a>
+                            </li>
+                        </ul>
                         </li>
 
                         {% if active == 'user_mgr' or active == 'user_profile' %}
@@ -667,53 +705,53 @@
 					</div><!-- /.page-content -->
 				</div><!-- /.main-content -->
 
-				<div class="ace-settings-container" id="ace-settings-container">
-					<div class="btn btn-app btn-xs btn-warning ace-settings-btn" id="ace-settings-btn">
-						<i class="icon-cog bigger-150"></i>
-					</div>
-
-					<div class="ace-settings-box" id="ace-settings-box">
-						<div>
-							<div class="pull-left">
-								<select id="skin-colorpicker" class="hide">
-									<option data-skin="default" value="#438EB9">#438EB9</option>
-									<option data-skin="skin-1" value="#222A2D">#222A2D</option>
-									<option data-skin="skin-2" value="#C6487E">#C6487E</option>
-									<option data-skin="skin-3" value="#D0D0D0">#D0D0D0</option>
-								</select>
-							</div>
-							<span>&nbsp; 选择皮肤</span>
-						</div>
-
-						<div>
-							<input type="checkbox" class="ace ace-checkbox-2" id="ace-settings-navbar" />
-							<label class="lbl" for="ace-settings-navbar"> 固定导航条</label>
-						</div>
-
-						<div>
-							<input type="checkbox" class="ace ace-checkbox-2" id="ace-settings-sidebar" />
-							<label class="lbl" for="ace-settings-sidebar"> 固定滑动条</label>
-						</div>
-
-						<div>
-							<input type="checkbox" class="ace ace-checkbox-2" id="ace-settings-breadcrumbs" />
-							<label class="lbl" for="ace-settings-breadcrumbs">固定面包屑</label>
-						</div>
-
-						<div>
-							<input type="checkbox" class="ace ace-checkbox-2" id="ace-settings-rtl" />
-							<label class="lbl" for="ace-settings-rtl">切换到左边</label>
-						</div>
-
-						<div>
-							<input type="checkbox" class="ace ace-checkbox-2" id="ace-settings-add-container" />
-							<label class="lbl" for="ace-settings-add-container">
-								切换窄屏
-								<b></b>
-							</label>
-						</div>
-					</div>
-				</div><!-- /#ace-settings-container -->
+                {#				<div class="ace-settings-container" id="ace-settings-container">#}
+                {#					<div class="btn btn-app btn-xs btn-warning ace-settings-btn" id="ace-settings-btn">#}
+                {#						<i class="icon-cog bigger-150"></i>#}
+                {#					</div>#}
+                {##}
+                {#					<div class="ace-settings-box" id="ace-settings-box">#}
+                {#						<div>#}
+                {#							<div class="pull-left">#}
+                {#								<select id="skin-colorpicker" class="hide">#}
+                {#									<option data-skin="default" value="#438EB9">#438EB9</option>#}
+                {#									<option data-skin="skin-1" value="#222A2D">#222A2D</option>#}
+                {#									<option data-skin="skin-2" value="#C6487E">#C6487E</option>#}
+                {#									<option data-skin="skin-3" value="#D0D0D0">#D0D0D0</option>#}
+                {#								</select>#}
+                {#							</div>#}
+                {#							<span>&nbsp; 选择皮肤</span>#}
+                {#						</div>#}
+                {##}
+                {#						<div>#}
+                {#							<input type="checkbox" class="ace ace-checkbox-2" id="ace-settings-navbar" />#}
+                {#							<label class="lbl" for="ace-settings-navbar"> 固定导航条</label>#}
+                {#						</div>#}
+                {##}
+                {#						<div>#}
+                {#							<input type="checkbox" class="ace ace-checkbox-2" id="ace-settings-sidebar" />#}
+                {#							<label class="lbl" for="ace-settings-sidebar"> 固定滑动条</label>#}
+                {#						</div>#}
+                {##}
+                {#						<div>#}
+                {#							<input type="checkbox" class="ace ace-checkbox-2" id="ace-settings-breadcrumbs" />#}
+                {#							<label class="lbl" for="ace-settings-breadcrumbs">固定面包屑</label>#}
+                {#						</div>#}
+                {##}
+                {#						<div>#}
+                {#							<input type="checkbox" class="ace ace-checkbox-2" id="ace-settings-rtl" />#}
+                {#							<label class="lbl" for="ace-settings-rtl">切换到左边</label>#}
+                {#						</div>#}
+                {##}
+                {#						<div>#}
+                {#							<input type="checkbox" class="ace ace-checkbox-2" id="ace-settings-add-container" />#}
+                {#							<label class="lbl" for="ace-settings-add-container">#}
+                {#								切换窄屏#}
+                {#								<b></b>#}
+                {#							</label>#}
+                {#						</div>#}
+                {#					</div>#}
+                {#				</div><!-- /#ace-settings-container -->#}
 			</div><!-- /.main-container-inner -->
 
 			<a href="#" id="btn-scroll-up" class="btn-scroll-up btn btn-sm btn-inverse">

@@ -32,3 +32,16 @@ def get_perm(perm):
 @register.filter
 def order_option(option):
     return option.order_by('option_level')
+
+
+@register.filter
+def has_set(options):
+    if options:
+        return True
+    else:
+        return False
+
+
+@register.filter
+def option_set(options):
+    return options.order_by('option_level')

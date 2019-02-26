@@ -204,10 +204,15 @@ class AccessControl(models.Model):
         )
 
 
+
 class Menu(models.Model):
     menu_name = models.CharField(max_length=100, null=False, unique=True)
     menu_type = models.CharField(max_length=20, null=False)
 
+
+class Menu_position(models.Model):
+    position = models.CharField(max_length=30, null=False)
+    menu = models.ForeignKey(Menu, related_name='menu_position', null=True, default=None)
 
 class Menu_option_template(models.Model):
     option_name = models.CharField(max_length=100, null=False)
@@ -217,9 +222,11 @@ class Menu_option_template(models.Model):
 class Menu_option(models.Model):
     option_name = models.CharField(max_length=100, null=False)
     option_title = models.CharField(max_length=30, null=True)
+    original_title = models.CharField(max_length=30, null=True)
     option_value = models.CharField(max_length=2000, null=True)
     option_icon = models.CharField(max_length=30, null=True)
     menu = models.ForeignKey(Menu, related_name='menu')
     user_menu = models.ForeignKey(Menu, related_name='user_menu', null=True, default=None)
     option_level = models.IntegerField(default=1)
     option_template = models.CharField(max_length=2000, null=True)
+    parent = models.ForeignKey("self", on_delete=models.CASCADE, blank=True, null=True, related_name="children")

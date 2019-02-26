@@ -106,6 +106,7 @@ class UserStatusForm(forms.Form):
 class MenuForm(forms.Form):
     menu_name = forms.CharField(max_length=100, required=True)
     menu_type = forms.CharField(max_length=20, required=True)
+    position_id = forms.IntegerField(required=False)
 
 
 class MenuOptionForm(forms.Form):
@@ -117,3 +118,7 @@ class MenuOptionForm(forms.Form):
     user_menu_id = forms.IntegerField(required=False)
     option_level = forms.IntegerField(required=False)
     option_template = forms.CharField(max_length=2000, required=False)
+
+
+class MenuPositionForm(forms.Form):
+    menu_id = forms.IntegerField(required=True)

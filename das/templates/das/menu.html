@@ -3,6 +3,7 @@
 {% load static %}
 {% block header %}
     <script type="text/javascript" src="{% static 'tinymce/plugins/jquery-form.js' %}"></script>
+
 {% endblock %}
 
 {% block breadcrumb %}
@@ -33,6 +34,7 @@
                 {% csrf_token %}
 
                 <div class="col-sm-5">
+
                     <span class="col-xs-3 align-center text-center">选择要编辑的菜单</span>
                     <select class="col-xs-12 col-sm-4" name="menu_id" id="menu_id">
                         {% if not menus %}
@@ -56,6 +58,7 @@
                 </button>
                     或<a data-toggle="tab" href="#new-menu" id="new-menu">创建新菜单</a>
                 </div>
+
             </form>
         </div>
         <div class="space-8"></div>
@@ -245,21 +248,31 @@
 
             <div class="col-sm-9">
                 <div class="tab-content">
+
                     <div class="widget-box tab-pane active" id="menu_modify">
-                        <div class="widget-header">
+
+                        <div class="widget-header clearfix">
 
 
-                            <form action="{% url 'menu_modify' current_menu.pk %}" method="post" class="form-horizontal"
+                            {% csrf_token %}
+                            <div class="space-2"></div>
+                            <form action="{% url 'menu_modify' current_menu.pk %}" method="post"
                                   id="modify_menu_form">
-                                {% csrf_token %}
-                                <h5 class="smaller col-xs-1">菜单名称</h5>
-                                <input type="text" id="menu_name" name="menu_name" value="{{ current_menu.menu_name }}">
-                                <input type="hidden" id="menu_type" name="menu_type" value="menu">
-
-                                <button class="btn btn-sm btn-group-sm btn-white" type="button" id="save_menu">保存菜单
+                                <div class="form-group col-sm-12">
+                                    <label class="control-label col-sm-1 no-padding-righ">菜单名称</label>
+                                    <div class="col-sm-2 pull-left">
+                                        <input type="text" id="modify_menu_name" name="menu_name"
+                                               value="{{ current_menu.menu_name }}" class="col-sm-12">
+                                        <input type="hidden" id="modify_menu_type" name="menu_type" value="menu">
+                                    </div>
+                                    <div class="col-sm-8 pull-left">
+                                        <button class="btn btn-sm btn-group-sm btn-white menu-save" type="button"
+                                                id="save_menu">保存菜单
                                 </button>
-
+                                    </div>
+                                </div>
                             </form>
+
 
                         </div>
 
@@ -269,21 +282,25 @@
                                 <p>
                                     拖放各个项目到您喜欢的顺序，点击右侧的箭头可进行更详细的设置。
                                 </p>
+
                                 <div class="dd" id="nestable">
-                                    <ol class="dd-list" id="menu_option">
+                                    <ol class="dd-list">
                                         {% for menu_option in current_menu_option %}
-                                            <form action="{% url 'menu_option_modify' menu_option.pk %}" method="post"
-                                                  id="{{ menu_option.pk }}">
-                                                {% csrf_token %}
-                                                <input type="hidden" id="menu_id" name="menu_id"
-                                                       value="{{ menu_option.menu.pk }}">
-                                                <input type="hidden" id="option_name" name="option_name"
-                                                       value="{{ menu_option.option_name }}">
-                                                <li class="dd-item panel" data-id="{{ menu_option.option_level }}"
-                                                    id="{{ menu_option.pk }}">
+
+                                            <li class="dd-item panel" data-id="{{ menu_option.pk }}"
+                                                id="{{ menu_option.pk }}">
+                                                <form action="{% url 'menu_option_modify' menu_option.pk %}"
+                                                      method="post"
+                                                      id="form-{{ menu_option.pk }}">
+                                                    {% csrf_token %}
+                                                    <input type="hidden" id="menu_id" name="menu_id"
+                                                           value="{{ menu_option.menu.pk }}">
+                                                    <input type="hidden" id="option_name" name="option_name"
+                                                           value="{{ menu_option.option_name }}">
+
                                                     <div class="dd-handle">
                                                         <a class="accordion-toggle collapsed" data-toggle="collapse"
-                                                           data-parent="#accordion"
+
                                                            href="#data-id-{{ menu_option.pk }}">
                                                             <span id="{{ menu_option.pk }}">
                                                             &nbsp;{{ menu_option.option_name }}
@@ -301,31 +318,54 @@
                                                          id="data-id-{{ menu_option.pk }}">
                                                         <div class="panel-body">
                                                             <div class="well">
-                                                                <label class="control-label col-xs-2 no-padding-right">
-                                                                    URL：</label>
+                                                                {% if menu_option.option_name == '自定义URL' %}
+                                                                    <div class="form-group">
+                                                                        <label class="control-label col-xs-2 no-padding-right">
+                                                                            URL：</label>
 
 
-                                                                <input type="text" id="option_value" name="option_value"
-                                                                       value="{{ menu_option.option_value }}"
-                                                                       class="no-padding-left col-sm-10"
-                                                                /><br>
-
-                                                                <div class="space-8"></div>
-                                                                <label class="control-label col-xs-2 no-padding-right">
-                                                                    导航标签：</label>
-                                                                <input type="text" id="option_title" name="option_title"
-                                                                       placeholder="导航标签"
-                                                                       class="col-sm-3 no-padding-left"
-                                                                       value="{{ menu_option.option_title }}"
-                                                                />
-                                                                <div class="col-sm-2"></div>
-                                                                <label class="control-label col-xs-2 no-padding-right">
-                                                                    标签属性：</label>
-                                                                <input type="text" id="option_icon" name="option_icon"
-                                                                       placeholder="icon-list"
-                                                                       class="col-sm-3 no-padding-left"
-                                                                       value="{{ menu_option.option_icon }}"
-                                                                /><br>
+                                                                        <input type="text" id="option_value"
+                                                                               name="option_value"
+                                                                               value="{{ menu_option.option_value }}"
+                                                                               class="no-padding-left col-sm-10"
+                                                                        /><br>
+                                                                    </div>
+                                                                    <div class="space-8"></div>
+                                                                {% endif %}
+                                                                <div class="form-group">
+                                                                    <label class="control-label col-xs-2 no-padding-right">
+                                                                        导航标签：</label>
+                                                                    <input type="text" id="option_title"
+                                                                           name="option_title"
+                                                                           placeholder="导航标签"
+                                                                           class="col-sm-3 no-padding-left"
+                                                                           value="{{ menu_option.option_title }}"
+                                                                    />
+                                                                    <div class="col-sm-2"></div>
+                                                                    <label class="control-label col-xs-2 no-padding-right">
+                                                                        标签属性：</label>
+                                                                    <input type="text" id="option_icon"
+                                                                           name="option_icon"
+                                                                           placeholder="icon-list"
+                                                                           class="col-sm-3 no-padding-left"
+                                                                           value="{{ menu_option.option_icon }}"
+                                                                    /><br>
+                                                                </div>
+                                                                {% if menu_option.option_name != '自定义URL' %}
+                                                                    <div class="form-group">
+                                                                        <label class="control-label col-xs-2 no-padding-right">
+                                                                            原始：</label>
+                                                                        <label class="control-label col-xs-8 no-padding-left"><a
+                                                                                href="{{ menu_option.option_value }}"
+                                                                                target="_blank">
+                                                                            {% if not menu_option.original_title %}
+                                                                                {{ menu_option.option_title }}{% else %}
+                                                                                {{ menu_option.original_title }}{% endif %}</a></label>
+                                                                        <input type="hidden" id="option_value"
+                                                                               name="option_value"
+                                                                               value="{{ menu_option.option_value }}">
+                                                                    </div><br>
+                                                                {% endif %}
                                                             </div>
                                                             <div class="well well-sm align-right">
                                                                 <div class="col-xs-6 align-left">
@@ -343,17 +383,174 @@
                                                             </div>
                                                         </div>
                                                     </div>
-                                                </li>
-                                            </form>
+
+                                                </form>
+
+                                                {% load comm_tags %}
+                                                {% if menu_option.children.all|has_set %}
+                                                    <ol class="dd-list">
+                                                        {% for child in menu_option.children.all|option_set %}
+
+                                                            <li class="dd-item panel" data-id="{{ child.pk }}"
+                                                                id="{{ child.pk }}">
+                                                                <form action="{% url 'menu_option_modify' child.pk %}"
+                                                                      method="post" id="form-{{ child.pk }}">
+                                                                    {% csrf_token %}
+                                                                    <input type="hidden" id="menu_id" name="menu_id"
+                                                                           value="{{ child.menu.pk }}">
+                                                                    <input type="hidden" id="option_name"
+                                                                           name="option_name"
+                                                                           value="{{ child.option_name }}">
+                                                                    <div class="dd-handle">
+                                                                        <a class="accordion-toggle collapsed"
+                                                                           data-toggle="collapse"
+
+                                                                           href="#data-id-{{ child.pk }}">
+                                                            <span id="{{ child.pk }}">
+                                                            &nbsp;{{ child.option_name }}
+                                                            | {{ child.option_title }}
+                                                                </span>
+                                                                            <i class="icon-angle-down bigger-110 pull-right"
+                                                                               data-icon-hide="icon-angle-up"
+                                                                               data-icon-show="icon-angle-down"></i>
+
+                                                                        </a>
+
+                                                                    </div>
+
+                                                                    <div class="panel-collapse collapse"
+                                                                         id="data-id-{{ child.pk }}">
+                                                                        <div class="panel-body">
+                                                                            <div class="well">
+                                                                                {% if child.option_name == '自定义URL' %}
+                                                                                    <div class="form-group">
+                                                                                        <label class="control-label col-xs-2 no-padding-right">
+                                                                                            URL：</label>
+
+
+                                                                                        <input type="text"
+                                                                                               id="option_value"
+                                                                                               name="option_value"
+                                                                                               value="{{ child.option_value }}"
+                                                                                               class="no-padding-left col-sm-10"
+                                                                                        /><br>
+                                                                                    </div>
+                                                                                    <div class="space-8"></div>
+                                                                                {% endif %}
+                                                                                <div class="form-group">
+                                                                                    <label class="control-label col-xs-2 no-padding-right">
+                                                                                        导航标签：</label>
+                                                                                    <input type="text" id="option_title"
+                                                                                           name="option_title"
+                                                                                           placeholder="导航标签"
+                                                                                           class="col-sm-3 no-padding-left"
+                                                                                           value="{{ child.option_title }}">
+                                                                                    <div class="col-sm-2"></div>
+                                                                                    <label class="control-label col-xs-2 no-padding-right">
+                                                                                        标签属性：</label>
+                                                                                    <input type="text" id="option_icon"
+                                                                                           name="option_icon"
+                                                                                           placeholder="icon-list"
+                                                                                           class="col-sm-3 no-padding-left"
+                                                                                           value="{{ child.option_icon }}"><br>
+                                                                                </div>
+
+                                                                                {% if child.option_name != '自定义URL' %}
+                                                                                    <div class="form-group">
+                                                                                        <label class="control-label col-xs-2 no-padding-right">
+                                                                                            原始：</label>
+                                                                                        <label class="control-label col-xs-8 no-padding-left"><a
+                                                                                                href="{{ child.option_value }}"
+                                                                                                target="_blank">
+                                                                                            {% if not child.original_title %}
+                                                                                                {{ child.option_title }}{% else %}
+                                                                                                {{ child.original_title }}{% endif %}</a></label>
+                                                                                    </div><br>
+                                                                                {% endif %}
+
+                                                                            </div>
+                                                                            <div class="well well-sm align-right">
+                                                                                <div class="col-xs-6 align-left">
+                                                                                    <a href="javascript:void(0);"
+                                                                                       class="red menu_option_remove"
+                                                                                       id="{{ child.pk }}">移除</a>
+                                                                                </div>
+
+
+                                                                                <button class="btn btn-sm btn-group-sm btn-white save_menu_option"
+                                                                                        type="button"
+                                                                                        id="{{ child.pk }}">保存
+                                                                                </button>
+
+                                                                                <br>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </form>
+                                                            </li>
+
+                                                        {% endfor %}
+                                                    </ol>
+                                                {% endif %}
+
+                                            </li>
+
+
 
                                         {% endfor %}
 
                                     </ol>
                                 </div>
+
+                                <div class="hr"></div>
+
+                                <div class="control-group">
+                                    <h4>菜单设置</h4>
+                                    <div class="form-group col-xs-12 col-sm-3">
+                                        <h6>
+                                            菜单位置
+                                        </h6>
+                                        <div class="space-8"></div>
+
+
+                                    </div>
+                                    <form action="{% url 'menu_modify' current_menu.pk %}" method="post"
+                                          id="modify_menu_form2">
+                                        {% for pos in menu_positions %}
+                                            <dd>
+                                                <input type="checkbox" id="position_id" name="position_id"
+                                                       value="{{ pos.pk }}"
+                                                       {% if pos.menu.pk == current_menu.pk %}checked="checked"{% endif %}>
+                                                <label>{{ pos.position }}</label>
+                                                {% if pos.menu %}
+                                                    <span id="pos-{{ pos.pk }}">(当前设置：{{ pos.menu.menu_name }})</span>
+                                                {% else %}
+                                                    <span id="pos-{{ pos.pk }}"></span>
+                                                {% endif %}
+                                            </dd>
+                                        {% endfor %}
+                                    </form>
+
+                                </div>
                             </div>
                             <div class="panel-footer">
-                                <a href="{% url 'menu_del' current_menu.pk %}" class="red">删除菜单</a>
+                                <div class="form-group">
+                                    {% if current_menu %}
+                                        <label class="col-sm-1">
+                                        <a href="{% url 'menu_del' current_menu.pk %}" class="red">删除菜单</a>
+                                    {% endif %}
+                                    </label>
+                                    <div class="col-sm-11 pull-left">
+                                        <button class="btn btn-sm btn-group-sm btn-white menu-save" type="button"
+                                                id="save_menu2">保存菜单
+                                        </button>
                             </div>
+
+                                    <br>
+                                </div>
+
+                            </div>
+
                         </div>
 
                     </div>
@@ -366,8 +563,8 @@
                             <form action="{% url 'menu_add' %}" method="post" class="form-horizontal" id="new-menu">
 
                                 <h5 class="smaller col-xs-1">菜单名称</h5>
-                                <input type="text" id="menu_name" name="menu_name">
-                                <input type="hidden" id="menu_type" name="menu_type" value="menu">
+                                <input type="text" id="new_menu_name" name="menu_name">
+                                <input type="hidden" id="new_menu_type" name="menu_type" value="menu">
                                 <button class="btn btn-sm btn-group-sm btn-white" type="button" id="new-menu">创建菜单
                                 </button>
 
@@ -402,20 +599,23 @@
 
     <!-- page specific plugin scripts -->
 
-    <script src="{% static 'assets/js/jquery.nestable.min.js' %}"></script>
+    <script src="{% static 'assets/js/jquery.nestable.js' %}"></script>
 
 
 
     <script type="text/javascript">
         jQuery(function ($) {
 
-            $('.dd').nestable();
+            $('.dd').nestable({'maxDepth': '2'});
 
             $('.dd-handle a').on('mousedown', function (e) {
                 e.stopPropagation();
             });
 
             $('[data-rel="tooltip"]').tooltip();
+            var a = $('.dd').nestable('serialize')
+            a = JSON.stringify(a)
+            console.log(a)
 
             $.ajaxSetup({headers: {"X-CSRFToken": '{{ csrf_token }}'}});
 
@@ -457,14 +657,21 @@
                 $('button.addto').attr("disabled", true)
             });
 
-            $('button#save_menu').click(function () {
-                $('form#modify_menu_form').ajaxForm()
+            $('button.menu-save').click(function () {
+                var menu_name = $('input#modify_menu_name').val()
+                var menu_type = $('input#modify_menu_type').val()
+                var position_ids = []
+                $('input[name=position_id][type=checkbox]:checked').each(function () {
+                    position_ids.push($(this).val());
+                })
 
-                $('form#modify_menu_form').ajaxSubmit({
+                var menu = {'menu_name': menu_name, 'menu_type': menu_type, 'position_ids': position_ids}
+                menu = JSON.stringify(menu)
+                $.ajax({
                     type: 'post',
                     url: "{% url 'menu_modify' current_menu.pk %}",
                     cache: false,
-                    {#data: data,#}
+                    data: menu,
                     dataType: 'json',
                     success: function (data) {
 
@@ -472,6 +679,22 @@
                             var sel = 'select#menu_id option[value=' + data.menu_id + ']'
 
                             $(sel).text(data.menu_name)
+                            if (data.old_position_ids != '') {
+
+                                $.each(data.old_position_ids, function (i, val) {
+                                    $('span#pos-' + val).html(' ')
+                                });
+                            }
+                            if (data.position_ids != '') {
+
+                                $.each(data.position_ids, function (i, val) {
+                                    $('span#pos-' + val).html('(当前设置：' + data.menu_name + ')')
+
+
+                                });
+                            }
+                            alert('保存成功')
+
 
                         } else {
                             alert('创建失败 - ' + data.msg)
@@ -481,6 +704,7 @@
                         alert('请求失败')
                     }
                 })
+
             });
 
             $('div#nestable').on('click', 'a.menu_option_remove', function () {
@@ -509,41 +733,73 @@
                 })
             });
 
-            $('#nestable').nestable('serialize');
+
+            {#$('#nestable').on('change', function () {#}
+            {#    var order = $(this).nestable('serialize')#}
+            {##}
+            {#    var i = 1#}
+            {#    $('ol li').each(function () {#}
+            {#        var option_id = $(this).attr('id')#}
+            {#        var pos = i#}
+            {#        var url = "{% url 'menu_option_order' 123 456 %}"#}
+            {#        url = url.replace('123', option_id)#}
+            {#        url = url.replace('456', pos)#}
+            {#        $.ajax({#}
+            {#            type: "GET",#}
+            {#            url: url,#}
+            {#            datatype: 'json',#}
+            {#            success: function (result) {#}
+            {#                if (result.result == 'success') {#}
+            {##}
+            {#                    $(this).attr('data-id', pos)#}
+            {#alert($('#nestable').find('span#' + option_id).text())#}
+            {#                    console.log('排序成功')#}
+            {##}
+            {#                } else {#}
+            {#                    alert('排序失败')#}
+            {#                    return 0#}
+            {#                }#}
+            {#            },#}
+            {#            error: function () {#}
+            {#                alert('请求失败')#}
+            {#                return 0#}
+            {#            }#}
+            {#        })#}
+            {#        i = i + 1#}
+            {##}
+            {#    })#}
+            {##}
+            {#{)#}
+
+
+
             $('#nestable').on('change', function () {
-                var r = $('#nestable').nestable('serialize')
+                var order = $('.dd').nestable('serialize')
+                order = JSON.stringify(order)
+                console.log(order)
+                $.ajax({
+                    type: "post",
+                    url: '{% url "menu_option_order" %}',
+                    datatype: 'json',
+                    data: order,
+                    success: function (result) {
+                        if (result.result == 'success') {
 
-                var i = 1
-                $('ol li').each(function () {
-                    var option_id = $(this).attr('id')
-                    var pos = i
-                    var url = "{% url 'menu_option_order' 123 456 %}"
-                    url = url.replace('123', option_id)
-                    url = url.replace('456', pos)
-                    $.ajax({
-                        type: "GET",
-                        url: url,
-                        datatype: 'json',
-                        success: function (result) {
-                            if (result.result == 'success') {
+                            {#$(this).attr('data-id', pos)#}
+                            {#alert($('#nestable').find('span#' + option_id).text())#}
+                            console.log('排序成功')
 
-                                $(this).attr('data-id', pos)
-                                {#alert($('#nestable').find('span#' + option_id).text())#}
-                                console.log('排序成功')
-
-                            } else {
-                                alert('排序失败')
-                                return 0
-                            }
-                        },
-                        error: function () {
-                            alert('请求失败')
+                        } else {
+                            alert('排序失败')
                             return 0
                         }
-                    })
-                    i = i + 1
-
+                    },
+                    error: function () {
+                        alert('请求失败')
+                        return 0
+                    }
                 })
+
 
             });
 
@@ -554,10 +810,10 @@
 
                 var url = "{% url 'menu_option_modify' 123 %}"
                 url = url.replace('123', menu_option_id)
-                var formsel = 'form#' + menu_option_id
+                var formsel = 'form#form-' + menu_option_id
                 $(formsel).ajaxForm()
-                $('form#' + menu_option_id).ajaxForm()
-                $('form#' + menu_option_id).ajaxSubmit({
+                $('form#form-' + menu_option_id).ajaxForm()
+                $('form#form-' + menu_option_id).ajaxSubmit({
                     type: "POST",
                     url: url,
                     cache: false,

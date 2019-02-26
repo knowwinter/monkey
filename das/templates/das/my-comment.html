@@ -12,41 +12,41 @@
     <li>
         <a href="#">评论</a>
     </li>
-    <li class="active">所有评论</li>
+    <li class="active">我的评论</li>
 {% endblock %}
 {% block page %}
     {% load mptt_tags %}
     <div class="page-header">
         <div class="form-group">
             <form class="form-horizontal" role="form" id="comment_status_form"
-                          action="{% url 'comment_list' '1' comment_status %}"
-                          method="post">
-                        {% csrf_token %}
-                        <div class="col-sm-3">
-                            <select class="col-xs-12 col-sm-6" name="comment_status" id="comment_status">
+                  action="{% url 'my_comment' '1' comment_status %}"
+                  method="post">
+                {% csrf_token %}
+                <div class="col-sm-3">
+                    <select class="col-xs-12 col-sm-6" name="comment_status" id="comment_status">
 
-                                <option value="0"
-                                        {% if comment_status == '0' %}
-                                        selected="selected"
-                                        {% endif %}
-                                >ALL
-                                </option>
-                                <option value="1"
-                                        {% if comment_status == '1' %}
-                                        selected="selected"
-                                        {% endif %}
-                                >已批准
-                                </option>
-                                <option value="2"
-                                        {% if comment_status == '2' %}
-                                        selected="selected"
-                                        {% endif %}
-                                >待审核
-                                </option>
-                            </select>
-                            &nbsp;&nbsp;<button class="btn btn-sm btn-group-sm btn-white" type="submit">筛选</button>
-                        </div>
-                    </form>
+                        <option value="0"
+                                {% if comment_status == '0' %}
+                                selected="selected"
+                                {% endif %}
+                        >ALL
+                        </option>
+                        <option value="1"
+                                {% if comment_status == '1' %}
+                                selected="selected"
+                                {% endif %}
+                        >已批准
+                        </option>
+                        <option value="2"
+                                {% if comment_status == '2' %}
+                                selected="selected"
+                                {% endif %}
+                        >待审核
+                        </option>
+                    </select>
+                    &nbsp;&nbsp;<button class="btn btn-sm btn-group-sm btn-white" type="submit">筛选</button>
+                </div>
+            </form>
         </div>
         <div class="space-8"></div>
     </div><!-- /.page-header -->
@@ -109,8 +109,10 @@
                                     </td>
                                     <td class="commenttd">
                                         <span>提交于：{{ page.comment_date }}</span><br/>
-                                        {{ page.comment }} &nbsp;&nbsp;{% if page.comment_status == '2' %}
-                                        <b class="green">待审核</b>{% endif %}
+                                        {{ page.comment }}
+                                        {% if page.comment_status == '2' %}
+                                            <b class="green">待审核</b>
+                                        {% endif %}
                                         <div class="tools hidden">
                                             <div class="action-buttons bigger-125">
                                                 {% if request.user.is_superuser or 'das.access_dashboard' in request.user.get_all_permissions %}
@@ -130,6 +132,7 @@
                                                         <i class="icon-comments blue"></i>
                                                     </a>
                                                 {% endif %}
+
                                                 <a href="javascript:void(0);" id="{{ page.pk }}" class="comment_del">
                                                     <i class="icon-trash red"></i>
                                                 </a>
@@ -157,7 +160,7 @@
                             {% if index == pages.number %}
                                 {{ index }}
                             {% else %}
-                                <a href="{% url 'comment_list' index comment_status %}">{{ index }}</a>
+                                <a href="{% url 'my_comment' index comment_status %}">{{ index }}</a>
                             {% endif %}
                         {% endfor %}
                     </div><!-- /.table-responsive -->
